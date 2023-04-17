@@ -1,0 +1,8 @@
+.gitignore
+README.md
+.travis.yml
+(.*?).R2
+^.*\.Rproj$
+^\.Rproj\.user$
+global.R
+.env
