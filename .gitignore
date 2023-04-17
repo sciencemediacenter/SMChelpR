@@ -44,3 +44,4 @@ unnamed-chunk-*.pdf
 *.aux
 *fdb_latexmk
 .env
+inst/doc

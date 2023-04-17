@@ -24,14 +24,14 @@ system("R CMD check SMChelpR_0.0-1.tar.gz --as-cran")
 ###############################################
 ## Install locally to test for hidden errors ##
 ###############################################
-devtools::install("ds-SMChelpR")
+devtools::install("SMChelpR")
 
 
 #########################
 ## Install from github ##
 #########################
-setwd("./ds-SMChelpR")
+setwd("./SMChelpR")
 readRenviron(".env")
-devtools::install_github("sciencemediacenter/ds-SMChelpR", ref = "master", auth_token = Sys.getenv("token"))
-library(SMCr)
+devtools::install_github("sciencemediacenter/SMChelpR", ref = "master", auth_token = Sys.getenv("token"))
+library(SMChelpR)
 

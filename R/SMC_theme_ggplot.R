@@ -2,16 +2,7 @@
 #' 
 #' Die Kernfunktion ist SMC_theme_ggplot(); mit dieser werden alle Theming-Parameter 
 #' für ggplot gesetzt. Sie muss zu Beginn eines jeden R-/Quarto-/R-Markdown-Dokuments aufgerufen werden.
-#' Beim initialen Aufrufen im Dokument muss ausgewählt werden, ob der Fokus des Dokuments auf Plotly oder ggplot liegt.
-#' ggplot_SMC_theme(use_plotly = TRUE/FALSE)
 #' 
-#' Abhängig davon, ob der Schwerpunkt einer Aussendung auf ggplot-PNGs oder 
-#' mit ggplotly erstellten interaktiven Abbildungen liegen soll, muss eine 
-#' der folgenden Einstellungen im (dynamischen) Dokument genutzt werden: 
-#' Plotly-Dokumente nutzen bitte: fig-width 9, fig-height 8, fig-dpi 200
-#' ggplot-Dokumente nutzen bitte: fig-width 9, fig-height 7.25, fig-dpi 300
-
-
 
 # Die vom SMC verwendete Farbpalette (in verschiedenen Formaten)
 colorlist_SMC <- list(
@@ -38,10 +29,9 @@ SMC_linesize = 0.9
 
 
 #' ggplot_SMC_theme
-#' @param use_plotly boolean, TRUE: Aussendung ist auf plotly ausgelegt; FALSE: Aussendung ist auf ggplot-PNGs augelegt
-#' @return vector colorlist_SMC: alle SMC-Farben als Referenz
+#' @return nothing, sets parameters in the document
 #' @export SMC_theme_ggplot
-SMC_theme_ggplot <- function(use_plotly = FALSE){
+SMC_theme_ggplot <- function(){
 
   theme_set(theme_minimal()) 
 
@@ -82,9 +72,6 @@ SMC_theme_ggplot <- function(use_plotly = FALSE){
   )
   showtext_opts(dpi = 300)
   showtext::showtext_auto()
-  
-  # Farbpalette ausgeben, damit diese in Dokumenten genutzt werden kann
-  colorvector_SMC
 }
 
 

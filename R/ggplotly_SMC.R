@@ -36,11 +36,10 @@ ggplotly_SMC <- function(
         title = list(
           standoff = 10
         )
-      ),
+      )
       
       # Höhe der Abbildung
       # Standardmäßig für 9 Zoll breite und 8 Zoll hohe Bilder mit 200er dpi ausgelegt.
-      height = 600
     )
 
   # Legende unter den Plot setzen
