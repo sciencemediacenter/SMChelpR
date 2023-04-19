@@ -1,3 +1,4 @@
+try(setwd(dirname(rstudioapi::getActiveDocumentContext()$path)))
 
 ##############
 ## Roxygen2 ##
