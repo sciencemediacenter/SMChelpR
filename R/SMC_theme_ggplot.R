@@ -65,10 +65,10 @@ SMC_theme_ggplot <- function(){
   # müssen die Schriftarten geladen werden
   font_add(
     family = "Aller", 
-    regular = fs::path_package("fonts", "Aller", "Aller_Rg.ttf", package = "SMCr"),
-    italic = fs::path_package("fonts", "Aller", "Aller_It.ttf", package = "SMCr"),
-    bold = fs::path_package("fonts", "Aller", "Aller_Bd.ttf", package = "SMCr"),
-    bolditalic = fs::path_package("fonts", "Aller", "Aller_BdIt.ttf", package = "SMCr")
+    regular = fs::path_package("fonts", "Aller", "Aller_Rg.ttf", package = "SMChelpR"),
+    italic = fs::path_package("fonts", "Aller", "Aller_It.ttf", package = "SMChelpR"),
+    bold = fs::path_package("fonts", "Aller", "Aller_Bd.ttf", package = "SMChelpR"),
+    bolditalic = fs::path_package("fonts", "Aller", "Aller_BdIt.ttf", package = "SMChelpR")
   )
   showtext_opts(dpi = 300)
   showtext::showtext_auto()
