@@ -19,7 +19,8 @@ Depends:
 	ggplot2, 
 	plotly,
 	sysfonts,
-	fs
+	fs,
+	svglite
 Suggests:
     testthat (>= 2.0.0),
     devtools (>= 1.13),
