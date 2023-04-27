@@ -20,7 +20,8 @@ Depends:
 	plotly,
 	sysfonts,
 	fs,
-	svglite
+	svglite,
+	tidyverse 
 Suggests:
     testthat (>= 2.0.0),
     devtools (>= 1.13),

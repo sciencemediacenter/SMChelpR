@@ -13,14 +13,5 @@ colorlist_SMC
 \description{
 Die Kernfunktion ist SMC_theme_ggplot(); mit dieser werden alle Theming-Parameter 
 für ggplot gesetzt. Sie muss zu Beginn eines jeden R-/Quarto-/R-Markdown-Dokuments aufgerufen werden.
-Beim initialen Aufrufen im Dokument muss ausgewählt werden, ob der Fokus des Dokuments auf Plotly oder ggplot liegt.
-ggplot_SMC_theme(use_plotly = TRUE/FALSE)
-}
-\details{
-Abhängig davon, ob der Schwerpunkt einer Aussendung auf ggplot-PNGs oder 
-mit ggplotly erstellten interaktiven Abbildungen liegen soll, muss eine 
-der folgenden Einstellungen im (dynamischen) Dokument genutzt werden: 
-Plotly-Dokumente nutzen bitte: fig-width 9, fig-height 8, fig-dpi 200
-ggplot-Dokumente nutzen bitte: fig-width 9, fig-height 7.25, fig-dpi 300
 }
 \keyword{datasets}

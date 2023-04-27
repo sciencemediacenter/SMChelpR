@@ -4,13 +4,10 @@
 \alias{SMC_theme_ggplot}
 \title{ggplot_SMC_theme}
 \usage{
-SMC_theme_ggplot(use_plotly = FALSE)
-}
-\arguments{
-\item{use_plotly}{boolean, TRUE: Aussendung ist auf plotly ausgelegt; FALSE: Aussendung ist auf ggplot-PNGs augelegt}
+SMC_theme_ggplot()
 }
 \value{
-vector colorlist_SMC: alle SMC-Farben als Referenz
+nothing, sets parameters in the document
 }
 \description{
 ggplot_SMC_theme
