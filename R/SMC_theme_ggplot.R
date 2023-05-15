@@ -63,14 +63,14 @@ SMC_theme_ggplot <- function(){
   
   # Um Bugs beim Speichern von PDFs mit Grafiken zu vermeiden 
   # müssen die Schriftarten geladen werden
-  font_add(
+  sysfonts::font_add(
     family = "Aller", 
     regular = fs::path_package("fonts", "Aller", "Aller_Rg.ttf", package = "SMChelpR"),
     italic = fs::path_package("fonts", "Aller", "Aller_It.ttf", package = "SMChelpR"),
     bold = fs::path_package("fonts", "Aller", "Aller_Bd.ttf", package = "SMChelpR"),
     bolditalic = fs::path_package("fonts", "Aller", "Aller_BdIt.ttf", package = "SMChelpR")
   )
-  showtext_opts(dpi = 300)
+  showtext::showtext_opts(dpi = 300)
   showtext::showtext_auto()
 }
 

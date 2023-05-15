@@ -1,8 +1,8 @@
 Package: SMChelpR
 Type: Package
-Title: SMC-Tools für die Datenauswertung in R
-Version: 0.0-1
-Date: 2023-04-17
+Title: SMC-Tools Für Die Datenauswertung in R
+Version: 0.0-2
+Date: 2023-05-15
 Authors@R: c(
 	person("Lars", "Koppers", email="lars.koppers@sciencemediacenter.de", role=c("aut", "cre"), comment = c(ORCID = "0000-0002-1642-9616")), 
 	person("Clarissa", "Staudt", email="", role=c("aut"), comment = c(ORCID = "0000-0001-8161-5768")), 
@@ -12,16 +12,16 @@ Description: Mit diesem Paket stellen wir Ihnen Funktionen zur Verfügung, damit
 URL: https://github.com/sciencemediacenter/SMChelpR
 License: GPL (>= 2)
 Encoding: UTF-8
-LazyData: true
 Depends:
 	R (>= 4.0.0),
-	showtext, 
 	ggplot2, 
 	plotly,
-	sysfonts,
 	fs,
 	svglite,
 	tidyverse 
+Imports:
+	sysfonts,
+	showtext
 Suggests:
     testthat (>= 2.0.0),
     devtools (>= 1.13),
