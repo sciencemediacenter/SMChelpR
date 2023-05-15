@@ -1,7 +1,7 @@
 # Lade die folgenden Pakete direkt mit, wenn SMCr geladen wird
 
 #' @import tidyverse
-#' @import ggplot2
+#' @rawNamespace import(ggplot2, except = last_plot)
 #' @import plotly
 #' @import showtext
 #' @import sysfonts
