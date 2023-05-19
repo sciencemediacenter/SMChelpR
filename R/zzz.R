@@ -7,5 +7,6 @@
 #' @import sysfonts
 #' @import fs
 #' @import svglite
+#' @import dplyr
 
 NCC <- 1701 
