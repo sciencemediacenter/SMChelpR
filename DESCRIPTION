@@ -15,11 +15,11 @@ Depends:
 	R (>= 4.0.0),
 	ggplot2, 
 	plotly,
-	fs,
-	svglite,
 	tidyverse 
 Imports:
 	ghql, 
+	fs,
+	svglite,
 	jsonlite, 
 	stringr, 	
 	sysfonts,

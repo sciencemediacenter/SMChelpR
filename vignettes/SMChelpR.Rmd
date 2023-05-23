@@ -56,12 +56,25 @@ filepath <-
 Für diese Vignette verwenden wir einen kleinen Beispieldatensatz, der für das Jahr 1701 zwei Datenreihen mit Zufallsdaten (ein Eintrag pro Woche) enthält. 
 
 ```{r load-data, results = 'hide', warning = FALSE, message = FALSE}
-Beispieldaten <- read_csv(file.path(filepath, "Beispieldaten.csv"))
+set.seed(42) # Konstanter Seed für Reproduzierbarkeit
+
+Beispieldaten <- tibble(
+  Datum = rep(
+    seq.Date(
+      from = as.Date("1701-01-01"), 
+      to = as.Date("1701-12-31"), 
+      by = "week"
+    ),
+    2
+  ),
+  Reihe = c(rep("Zufallsreihe I", 53), rep("Zufallsreihe II", 53)),
+  Wert = runif(2*53)
+)
 ```
 
 Anschließend können wir eine erste Abbildung mit `ggplot` erstellen. Hierbei ist `SMChelpR` nur im Hintergrund durch `SMC_theme_ggplot()` aktiv.
 
-```{r lineplot}
+```{r lineplot, eval = FALSE}
 Abbildung <- ggplot(Beispieldaten, aes(x = Datum, y = Wert, colour = Reihe)) +
   geom_line() +
   geom_point() +
@@ -86,7 +99,7 @@ Würde man diese Abbildung im dynamischen Dokument nur durch Aufruf von `Abbildu
 
 Die Daten, welche zu einer Abbildung gehören und als Download zur Verfügung gestellt werden sollen, müssen manuell an den korrekten Platz gespeichert werden, für die Abbildungen geschieht dies automatisch.
 
-```{r image_helper-demonstration}
+```{r image_helper-demonstration, eval = FALSE}
 dateiname <- "Zufallsdaten"
 write_csv(Beispieldaten, file.path(filepath, paste0(dateiname, ".csv")))
 
@@ -102,11 +115,11 @@ Nun nutzen wir eine `SMChelpR` Funktion, um direkt eine passende plotly-Abbildun
 
 Die `image_helper()` Fuktion muss nun so eingestellt werden, dass die gespeicherten PNGs nicht angezeigt werden und die Plotly-Abbildung muss manuell angezeigt werden.
 
-```{r lineplot-plotly}
+```{r lineplot-plotly, eval = FALSE}
 Abbildung_plotly <- ggplotly_SMC(Abbildung)
 Abbildung_plotly
 ```
-```{r}
+```{r, eval = FALSE}
 image_helper(
   Abbildung,
   filename = dateiname,
