@@ -42,9 +42,6 @@ Die Funktion image_helper() gibt eine Liste zurück, die den Dateipfad, den Tite
 einen "alt" Text (bestehend aus dem Bildnamen) und ggf. weitere HTML-Tags enthält.
 }
 \examples{
-\dontrun{
-```{r, results = 'asis'}
-tmp_ggplot \%>\% image_helper("Inzidenzen", file.path("data"))
-```
-}
+tmp_ggplot <- ggplot(data = ggplot2::mpg, aes(x = displ, y = hwy))
+tmp_ggplot \%>\% image_helper("MPG", file.path(tempdir()))
 }

@@ -7,8 +7,13 @@
 SMC_theme_ggplot()
 }
 \value{
-nothing, sets parameters in the document
+Kein Rückgabewert, sondern setzt die ggplot2-Theme-Parameter.
 }
 \description{
-ggplot_SMC_theme
+Die Kernfunktion zum Erstellen von Quarto-Dokumenten im SMC-Theming: SMC_theme_ggplot().
+Sie muss zu Beginn eines jeden Dokuments aufgerufen werden und stellt etwa die Schriftart (Aller),
+die Schriftgröße, Paddings uvm. ein. Wirkt sich auch auf Plotly aus.
+}
+\examples{
+SMC_theme_ggplot()
 }

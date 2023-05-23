@@ -29,7 +29,14 @@ SMC_linesize = 0.9
 
 
 #' ggplot_SMC_theme
-#' @return nothing, sets parameters in the document
+#' 
+#' Die Kernfunktion zum Erstellen von Quarto-Dokumenten im SMC-Theming: SMC_theme_ggplot().
+#' Sie muss zu Beginn eines jeden Dokuments aufgerufen werden und stellt etwa die Schriftart (Aller),
+#' die Schriftgröße, Paddings uvm. ein. Wirkt sich auch auf Plotly aus.
+#' 
+#' @return Kein Rückgabewert, sondern setzt die ggplot2-Theme-Parameter.
+#' @examples
+#' SMC_theme_ggplot()
 #' @export SMC_theme_ggplot
 SMC_theme_ggplot <- function(){
 

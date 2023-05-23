@@ -1,10 +1,16 @@
 #' ggplotly_SMC
-#' Wrapper für ggplotly mit initialem Theming.
+#' Eine Wrapperfunktion für ggplotly, die das Theming und einige Parameter anpasst, insbesondere
+#' Schriftgröße, Abstände, Legendenpositionierung etc.
 #' 
 #' @param ... Ein ggplot-Objekt, aus dem eine interaktive plotly-Abbildung erstellt werden soll. Außerdem: alle Parameter, die man üblicherweise an ggplotly übergeben würde, etwa:  ... = abbildung, tooltip = c("x", "y")
 #' @param legende_unten boolean, FALSE: Legende rechts vom Plot; TRUE: Legende unter dem Plot
 #' @param mehrzeiliger_titel boolean, TRUE: angepasstes Spacing zwischen Titel und Plot, falls der Titel mehrere Zeilen einnimmt
 #' @return plotly-object
+#' @examples
+#' tmp_ggplot <- ggplot(data = ggplot2::mpg, aes(x = displ, y = hwy))
+#' tmp_ggplotly <- tmp_ggplot %>% ggplotly_SMC()
+#' tmp_ggplotly
+#' tmp_ggplot %>% image_helper("MPG", file.path(tempdir()), plotly = TRUE)
 #' @export ggplotly_SMC
 ggplotly_SMC <- function(
   ..., legende_unten = TRUE, mehrzeiliger_titel = FALSE

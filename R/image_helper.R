@@ -16,11 +16,8 @@
 #' @param caption string: Falls nicht leer: zusätzlicher Bild-Text, der unterhalb der Abbildung angezeigt werden kann. Etwa Datenquellen für Plotly-Abbildungen. 
 #' @return none
 #' @examples
-#' \dontrun{
-#' ```{r, results = 'asis'}
-#' tmp_ggplot %>% image_helper("Inzidenzen", file.path("data"))
-#' ```
-#' }
+#' tmp_ggplot <- ggplot(data = ggplot2::mpg, aes(x = displ, y = hwy))
+#' tmp_ggplot %>% image_helper("MPG", file.path(tempdir()))
 #' @export image_helper
 
 

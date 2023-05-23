@@ -3,7 +3,8 @@
 \name{ggplotly_SMC}
 \alias{ggplotly_SMC}
 \title{ggplotly_SMC
-Wrapper für ggplotly mit initialem Theming.}
+Eine Wrapperfunktion für ggplotly, die das Theming und einige Parameter anpasst, insbesondere
+Schriftgröße, Abstände, Legendenpositionierung etc.}
 \usage{
 ggplotly_SMC(..., legende_unten = TRUE, mehrzeiliger_titel = FALSE)
 }
@@ -19,5 +20,12 @@ plotly-object
 }
 \description{
 ggplotly_SMC
-Wrapper für ggplotly mit initialem Theming.
+Eine Wrapperfunktion für ggplotly, die das Theming und einige Parameter anpasst, insbesondere
+Schriftgröße, Abstände, Legendenpositionierung etc.
+}
+\examples{
+tmp_ggplot <- ggplot(data = ggplot2::mpg, aes(x = displ, y = hwy))
+tmp_ggplotly <- tmp_ggplot \%>\% ggplotly_SMC()
+tmp_ggplotly
+tmp_ggplot \%>\% image_helper("MPG", file.path(tempdir()), plotly = TRUE)
 }
