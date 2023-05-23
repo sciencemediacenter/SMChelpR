@@ -1,15 +1,14 @@
 Package: SMChelpR
-Type: Package
 Title: SMC-Tools Für Die Datenauswertung in R
 Version: 0.0-3
-Date: 2023-05-19
 Authors@R: c(
 	person("Lars", "Koppers", email="lars.koppers@sciencemediacenter.de", role=c("aut", "cre"), comment = c(ORCID = "0000-0002-1642-9616")), 
 	person("Clarissa", "Staudt", email="", role=c("aut"), comment = c(ORCID = "0000-0001-8161-5768")), 
 	person("Alexander", "Mühlhausen", email="", role=c("aut"), comment = c(ORCID = ""))
 	)
-Description: Mit diesem Paket stellen wir Ihnen Funktionen zur Verfügung, damit sie unseren Programmcode für die Datenauswertung in R 1:1 ausführen können. Der Schwerpunkt liegt dabei auf Funktionen für das Design von Abbildungen. 
+Description: Eine Sammlung von Funktionen, die für die data reports des SMC Germany benötigt werden. Ein Schwerpunkt liegt dabei auf Grafik und das Abrufen von Daten von der API des SMC. 
 URL: https://github.com/sciencemediacenter/SMChelpR
+BugReports: https://github.com/sciencemediacenter/SMChelpR/issues
 License: GPL (>= 2)
 Encoding: UTF-8
 Depends:
