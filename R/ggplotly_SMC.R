@@ -7,7 +7,9 @@
 #' @param mehrzeiliger_titel boolean, TRUE: angepasstes Spacing zwischen Titel und Plot, falls der Titel mehrere Zeilen einnimmt
 #' @return plotly-object
 #' @examples
-#' tmp_ggplot <- ggplot2::ggplot(data = ggplot2::mpg, aes(x = displ, y = hwy))
+#' library(ggplot2)
+#' library(dplyr)
+#' tmp_ggplot <- ggplot(data = mpg, aes(x = displ, y = hwy))
 #' tmp_ggplotly <- tmp_ggplot %>% ggplotly_SMC()
 #' tmp_ggplotly
 #' tmp_ggplot %>% image_helper("MPG", file.path(tempdir()), plotly = TRUE)

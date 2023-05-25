@@ -24,7 +24,9 @@ Eine Wrapperfunktion für ggplotly, die das Theming und einige Parameter anpasst
 Schriftgröße, Abstände, Legendenpositionierung etc.
 }
 \examples{
-tmp_ggplot <- ggplot2::ggplot(data = ggplot2::mpg, aes(x = displ, y = hwy))
+library(ggplot2)
+library(dplyr)
+tmp_ggplot <- ggplot(data = mpg, aes(x = displ, y = hwy))
 tmp_ggplotly <- tmp_ggplot \%>\% ggplotly_SMC()
 tmp_ggplotly
 tmp_ggplot \%>\% image_helper("MPG", file.path(tempdir()), plotly = TRUE)

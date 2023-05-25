@@ -16,7 +16,9 @@
 #' @param caption string: Falls nicht leer: zusätzlicher Bild-Text, der unterhalb der Abbildung angezeigt werden kann. Etwa Datenquellen für Plotly-Abbildungen. 
 #' @return none
 #' @examples
-#' tmp_ggplot <- ggplot(data = ggplot2::mpg, aes(x = displ, y = hwy))
+#' library(ggplot2)
+#' library(dplyr)
+#' tmp_ggplot <- ggplot(data = mpg, aes(x = displ, y = hwy))
 #' tmp_ggplot %>% image_helper("MPG", file.path(tempdir()))
 #' @export image_helper
 
