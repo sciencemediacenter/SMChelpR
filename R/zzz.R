@@ -5,8 +5,6 @@
 #' @import fs
 #' @import svglite
 #' @import dplyr
-#' @importFrom dplyr %>% 
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 ggplot
+#' @importFrom magrittr %>% 
 #'  
 NCC <- 1701 

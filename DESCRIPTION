@@ -23,7 +23,8 @@ Imports:
 	showtext, 
 	dplyr,
 	ggplot2, 
-	plotly
+	plotly, 
+	magrittr
 Suggests:
     testthat (>= 3.0.0),
     devtools (>= 1.13),
