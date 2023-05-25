@@ -1,6 +1,6 @@
 Package: SMChelpR
 Title: SMC-Tools Für Die Datenauswertung in R
-Version: 0.0-3
+Version: 0.0-4
 Authors@R: c(
 	person("Lars", "Koppers", email="lars.koppers@sciencemediacenter.de", role=c("aut", "cre"), comment = c(ORCID = "0000-0002-1642-9616")), 
 	person("Clarissa", "Staudt", email="", role=c("aut"), comment = c(ORCID = "0000-0001-8161-5768")), 
@@ -13,9 +13,6 @@ License: GPL (>= 2)
 Encoding: UTF-8
 Depends:
 	R (>= 4.0.0),
-	ggplot2, 
-	plotly,
-	tidyverse 
 Imports:
 	ghql, 
 	fs,
@@ -24,11 +21,15 @@ Imports:
 	stringr, 	
 	sysfonts,
 	showtext, 
-	dplyr
+	dplyr,
+	ggplot2, 
+	plotly
 Suggests:
-    testthat (>= 2.0.0),
+    testthat (>= 3.0.0),
     devtools (>= 1.13),
     rmarkdown (>= 1.9),
-    knitr
+    knitr, 
+	tidyverse
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr
+Config/testthat/edition: 3
