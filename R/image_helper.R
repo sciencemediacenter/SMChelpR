@@ -35,6 +35,7 @@ image_helper <-
     svgpfad <- file.path(filepath, paste0(filename, ".svg"))
     datenpfad <- file.path(filepath, paste0(filename, ".csv"))
     
+    plot <- plot + labs(caption = caption)
     ggsave(plot = plot,
            filename = pngpfad,
            device = "png")
