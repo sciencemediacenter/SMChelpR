@@ -5,6 +5,5 @@
 #' @import fs
 #' @import svglite
 #' @import dplyr
-#' @importFrom magrittr %>% 
 #'  
 NCC <- 1701 

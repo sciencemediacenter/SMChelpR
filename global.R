@@ -9,9 +9,8 @@ roxygenize(package.dir = ".")
 ##############
 ## testthat ##
 ##############
-# setwd("tests")
-# library(testthat)
-# test_check("SMCr")
+library(testthat)
+test_check("SMChelpR", path = "./tests")
 
 ###################
 ## build install ##
