@@ -35,8 +35,8 @@ tibble mit den angefragten Daten
 invisible returns a list with tabname and variables. Cats string into console for esy copy and pasting.
 }
 \description{
-Funktionen, um Datensätze über die GraphQL-API abzufragen. Dabei ermöglicht `GraphQL_get_table_vec` eine Datensatzabfrage unter Angabe des Tabellennamens und der benötigten Variablennamen.
-`GraphQL_get_table_string` erlaubt komplexere Abfragen, indem eine vollständige GraphQL-Abfrage als character-string übergeben werden kann.
+Funktionen, um Datensätze über die GraphQL-API abzufragen. Dabei ermöglicht \code{GraphQL_get_table_vec} eine Datensatzabfrage unter Angabe des Tabellennamens und der benötigten Variablennamen.
+\code{GraphQL_get_table_string} erlaubt komplexere Abfragen, indem eine vollständige GraphQL-Abfrage als character-string übergeben werden kann.
 
 Helper function to extraxt tablename and vector of variable names from an simple GraphQL query
 }

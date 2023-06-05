@@ -34,11 +34,11 @@ none
 }
 \description{
 Funktion, um generische Bildunterschriften in dynamischen Dokumenten für Abbildungen zu erstellen.
-Hierfür wird HTML-Code erstellt, der einen Link auf die zur Erstellung dieser Abbildung benötigten Daten 
+Hierfür wird HTML-Code erstellt, der einen Link auf die zur Erstellung dieser Abbildung benötigten Daten
 sowie Links zu der Abbildung als PNG und SVG enthält.
 }
 \details{
-Die Funktion image_helper() gibt eine Liste zurück, die den Dateipfad, den Titel inklusive Verlinkungen, 
+Die Funktion image_helper() gibt eine Liste zurück, die den Dateipfad, den Titel inklusive Verlinkungen,
 einen "alt" Text (bestehend aus dem Bildnamen) und ggf. weitere HTML-Tags enthält.
 }
 \examples{

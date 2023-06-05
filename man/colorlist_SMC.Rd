@@ -11,7 +11,7 @@ An object of class \code{list} of length 9.
 colorlist_SMC
 }
 \description{
-Die Kernfunktion ist SMC_theme_ggplot(); mit dieser werden alle Theming-Parameter 
+Die Kernfunktion ist SMC_theme_ggplot(); mit dieser werden alle Theming-Parameter
 für ggplot gesetzt. Sie muss zu Beginn eines jeden R-/Quarto-/R-Markdown-Dokuments aufgerufen werden.
 }
 \keyword{datasets}
