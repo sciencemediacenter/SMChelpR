@@ -29,6 +29,8 @@ Suggests:
     devtools (>= 1.13),
     rmarkdown (>= 1.9),
     knitr, 
+		vdiffr,
+		withr,
 	tidyverse
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
