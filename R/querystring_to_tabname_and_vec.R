@@ -1,4 +1,4 @@
-#' Create Vectors with table- and variable-names from a GraphQL query 
+#' Create Table- and Variable-names from a GraphQL Query 
 #' 
 #' Helper function to extraxt tablename and vector of variable names from an simple GraphQL query
 #' 
@@ -29,4 +29,3 @@ querystring_to_tabname_and_vec <-
         cat(paste0('tabellenname = "', tabname, '"\n\n'))
         invisible(list(tabellenname = tabname, variablen = variables))
     }
-

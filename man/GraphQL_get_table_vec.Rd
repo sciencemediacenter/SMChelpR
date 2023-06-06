@@ -5,7 +5,7 @@
 \alias{GraphQL_get_table_vec}
 \alias{GraphQL_get_table_string}
 \alias{querystring_to_tabname_and_vec}
-\title{GraphQL_get_table}
+\title{Get Data from GraphQL API}
 \usage{
 GraphQL_get_table_vec(
   tabellenname,
@@ -21,30 +21,57 @@ GraphQL_get_table_string(
 querystring_to_tabname_and_vec(querystring)
 }
 \arguments{
-\item{tabellenname}{character string}
+\item{tabellenname}{character string name of queried table}
 
-\item{variablen}{Variablenvektor, der die Namen der abzufragenden Tabellenvariablen enthält}
+\item{variablen}{character vector containing the desired variable names}
 
-\item{datenserver}{character string mit URL der Datenbank, Defaultwert: https://data.smclab.io/v1/graphql}
+\item{datenserver}{character string mit URL der Datenbank, default: https://data.smclab.io/v1/graphql}
 
 \item{querystring}{character string containing a valid simple GraphQL-query. Must not contain additional parameter or nested structures.}
 }
 \value{
-tibble mit den angefragten Daten
+tibble with the requested data
 
 invisible returns a list with tabname and variables. Cats string into console for esy copy and pasting.
 }
 \description{
-Funktionen, um Datensätze über die GraphQL-API abzufragen. Dabei ermöglicht \code{GraphQL_get_table_vec} eine Datensatzabfrage unter Angabe des Tabellennamens und der benötigten Variablennamen.
-\code{GraphQL_get_table_string} erlaubt komplexere Abfragen, indem eine vollständige GraphQL-Abfrage als character-string übergeben werden kann.
+functions to query data via a GraphQL API. Here \code{GraphQL_get_table_vec} allows a query specifying the table name and the desired variable names.
+\code{GraphQL_get_table_string} allows more complex queries by passing a complete GraphQL query as character-string.
 
 Helper function to extraxt tablename and vector of variable names from an simple GraphQL query
 }
-\examples{
-\dontrun{
-variablen <- c()
-GraphQL_get_table_vec("",  variablen, "https://data.smclab.io/v1/graphql")
+\details{
+The functions are primarily intended to make the \href{https://github.com/sciencemediacenter/DataCollection}{Data Collection}
+of the \href{https://www.sciencemediacenter.de/}{SMC} accessible. By adjusting the parameter 'data server',
+other instances can also be accessed.
 }
+\examples{
+GraphQL_get_table_vec(
+  tabellenname = "test_R_Packages_test_story",
+  variablen = c(
+    "story_no",
+    "ressort",
+    "title",
+    "publication_date",
+    "type",
+    "url"
+  )
+)
+
+GraphQL_get_table_string(
+'query MyQuery {
+   test_R_Packages_test_story(
+     limit: 10, 
+     where: {story_no: {_gt: 22021}, 
+     ressort: {_eq: "Medizin & Lebenswissenschaften"}}) {
+   publication_date
+   url
+   type
+   title
+   story_no
+   }
+}'
+)
 \dontrun{
 ToDo
 }

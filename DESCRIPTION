@@ -14,24 +14,24 @@ Encoding: UTF-8
 Depends:
 	R (>= 4.0.0),
 Imports:
-	ghql, 
-	fs,
-	svglite,
-	jsonlite, 
-	stringr, 	
-	sysfonts,
-	showtext, 
 	dplyr,
 	ggplot2, 
-	plotly
+	fs,
+	ghql, 
+	jsonlite, 
+	plotly,
+	showtext, 
+	stringr, 	
+	svglite,
+	sysfonts
 Suggests:
-    testthat (>= 3.0.0),
     devtools (>= 1.13),
-    rmarkdown (>= 1.9),
     knitr, 
-		vdiffr,
-		withr,
-	tidyverse
+    rmarkdown (>= 1.9),
+    testthat (>= 3.0.0),
+	tidyverse,
+	vdiffr,
+	withr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr
