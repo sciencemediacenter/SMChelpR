@@ -78,10 +78,16 @@ image_helper <-
     cat(
       'Diese Abbildung herunterladen: <a href ="',
       pngpfad,
-      '" download>Als PNG.</a> <a href ="',
-      svgpfad,
-      '" download>Als SVG.</a>',
+      '" download>Als PNG.</a>',
       sep = ""
-    )
+    ) 
+    if (save_svg == TRUE){
+      cat(
+        ' <a href ="',
+        svgpfad,
+        '" download>Als SVG.</a>',
+        sep = ""
+      )
+    }
     cat("</center> <br>")
   }
