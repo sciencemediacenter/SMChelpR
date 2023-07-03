@@ -30,7 +30,9 @@ image_helper <-
            extra_html_tags = 'width = "100%" data-zoom="1"',
            csv_opt = TRUE,
            plotly = FALSE,
-           caption = "") {
+           caption = "",
+           save_svg = TRUE
+          ) {
     pngpfad <- file.path(filepath, paste0(filename, ".png"))
     svgpfad <- file.path(filepath, paste0(filename, ".svg"))
     datenpfad <- file.path(filepath, paste0(filename, ".csv"))
@@ -39,9 +41,11 @@ image_helper <-
     ggsave(plot = plot,
            filename = pngpfad,
            device = "png")
-    ggsave(plot = plot,
-           filename = svgpfad,
-           device = "svg")
+    if (save_svg == TRUE) {
+      ggsave(plot = plot,
+             filename = svgpfad,
+             device = "svg")
+    } 
     
     cat("<center>")
     if (plotly == FALSE) {
