@@ -13,7 +13,8 @@
 #' @param extra_html_tags string: Zwischen \'\' können weitere HTML-Parameter angegeben werden, etwa: \'width = \"100%\" data-zoom=\"1\"\'
 #' @param csv_opt boolean, FALSE: keine csv wird verlinkt; default: TRUE.
 #' @param plotly boolean: FALSE, das oben übergegebene ggplot-Objekt wird angezeigt. TRUE: keine Abbildung wird angezeigt, plotly-Abbildungen müssen manuell vorher ausgegeben werden. Default: FALSE
-#' @param caption string: Falls nicht leer: zusätzlicher Bild-Text, der unterhalb der Abbildung angezeigt werden kann. Etwa Datenquellen für Plotly-Abbildungen. 
+#' @param caption string: Falls nicht leer: zusätzlicher Bild-Text, der unterhalb der Abbildung angezeigt werden kann. Etwa Datenquellen für Plotly-Abbildungen.
+#' @param save_svg boolean: Generation of an svg graphic. Default: TRUE. For very detailed graphics, you should refrain from creating an svg graphic, since the file size can become too large.
 #' @return none
 #' @examples
 #' library(ggplot2)

@@ -45,3 +45,6 @@ unnamed-chunk-*.pdf
 *fdb_latexmk
 .env
 inst/doc
+
+# Test files
+*.fail

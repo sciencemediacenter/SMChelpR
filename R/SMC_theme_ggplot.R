@@ -39,7 +39,7 @@ SMC_linesize = 0.9
 #' SMC_theme_ggplot()
 #' @export SMC_theme_ggplot
 SMC_theme_ggplot <- function(){
-
+  
   theme_set(theme_minimal()) 
 
   theme_update(
@@ -79,6 +79,7 @@ SMC_theme_ggplot <- function(){
   )
   showtext::showtext_opts(dpi = 300)
   showtext::showtext_auto()
+  invisible(theme_get())
 }
 
 

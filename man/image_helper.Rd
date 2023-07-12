@@ -11,7 +11,8 @@ image_helper(
   extra_html_tags = "width = \\"100\%\\" data-zoom=\\"1\\"",
   csv_opt = TRUE,
   plotly = FALSE,
-  caption = ""
+  caption = "",
+  save_svg = TRUE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ image_helper(
 \item{plotly}{boolean: FALSE, das oben übergegebene ggplot-Objekt wird angezeigt. TRUE: keine Abbildung wird angezeigt, plotly-Abbildungen müssen manuell vorher ausgegeben werden. Default: FALSE}
 
 \item{caption}{string: Falls nicht leer: zusätzlicher Bild-Text, der unterhalb der Abbildung angezeigt werden kann. Etwa Datenquellen für Plotly-Abbildungen.}
+
+\item{save_svg}{boolean: Generation of an svg graphic. Default: TRUE. For very detailed graphics, you should refrain from creating an svg graphic, since the file size can become too large.}
 }
 \value{
 none
