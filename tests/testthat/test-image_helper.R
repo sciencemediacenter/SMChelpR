@@ -31,8 +31,8 @@ test_that("image_helper() can save a PNG and save_svg = FALSE works", {
   )
 
   # check if png and svg file exist
-  expect_true(file.exists("testfiles_image_helper/testpng.png"))
-  expect_true(!file.exists("testfiles_image_helper/testpng.svg"))
+  expect_true(file.exists(file.path("testfiles_image_helper", "testpng.png")))
+  expect_true(!file.exists(file.path("testfiles_image_helper", "testpng.svg")))
   unlink("testfiles_image_helper", recursive = TRUE)
 })
 
@@ -63,8 +63,8 @@ test_that("image_helper() does show the caption and can save SVGs", {
   )
     
   # check if png and svg file exist
-  expect_true(file.exists("testfiles_image_helper/testfile.png"))
-  expect_true(file.exists("testfiles_image_helper/testfile.svg"))
+  expect_true(file.exists(file.path("testfiles_image_helper", "testfile.png")))
+  expect_true(file.exists(file.path("testfiles_image_helper", "testfile.svg")))
   unlink("testfiles_image_helper", recursive = TRUE)
 })
 
