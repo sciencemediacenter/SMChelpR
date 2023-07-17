@@ -48,47 +48,61 @@ image_helper <-
              device = "svg")
     } 
     
-    cat("<center>")
+    # Konstruktion der HTML-Ausgabe
+    HTML_text <- "<center>"
+
     if (plotly == FALSE) {
-      cat(
-        '<img src="',
-        pngpfad,
-        '" alt="',
-        toString(filename),
-        '" ',
-        extra_html_tags,
-        " />",
-        sep = ""
-      )
+      HTML_text <- HTML_text |>
+        paste0(
+          '<img src="',
+          pngpfad,
+          '" alt="',
+          toString(filename),
+          '" ',
+          extra_html_tags,
+          " />",
+          sep = ""
+        )
     }
+
     if(caption != ""){
-      cat(
-        "<small>",
-        caption,
-        "</small> <br>"
-      )
+      HTML_text <- HTML_text |>
+        paste0(
+          "<small>",
+          caption,
+          "</small> <br>"
+        )
     }
+
     if (csv_opt == TRUE) {
-      cat(
-        "[Die Daten zur Erstellung dieser Abbildung herunterladen.](",
-        datenpfad,
-        ") <br>",
-        sep = ""
-      )
+      HTML_text <- HTML_text |>
+        paste0(
+          "[Die Daten zur Erstellung dieser Abbildung herunterladen.](",
+          datenpfad,
+          ") <br>",
+          sep = ""
+        )
     }
-    cat(
-      'Diese Abbildung herunterladen: <a href ="',
-      pngpfad,
-      '" download>Als PNG.</a>',
-      sep = ""
-    ) 
+    HTML_text <- HTML_text |>
+      paste0(
+        'Diese Abbildung herunterladen: <a href ="',
+        pngpfad,
+        '" download>Als PNG.</a>',
+        sep = ""
+      ) 
+
     if (save_svg == TRUE){
-      cat(
-        ' <a href ="',
-        svgpfad,
-        '" download>Als SVG.</a>',
-        sep = ""
-      )
+      HTML_text <- HTML_text |>
+        paste0(
+          ' <a href ="',
+          svgpfad,
+          '" download>Als SVG.</a>',
+          sep = ""
+        )
     }
-    cat("</center> <br>")
+    HTML_text <- HTML_text |>
+      paste0("</center> <br>")
+      
+    cat(HTML_text)
+    invisible(HTML_text)
   }
