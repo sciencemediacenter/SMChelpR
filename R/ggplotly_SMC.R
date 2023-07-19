@@ -1,10 +1,10 @@
 #' ggplotly_SMC
-#' Eine Wrapperfunktion für ggplotly, die das Theming und einige Parameter anpasst, insbesondere
-#' Schriftgröße, Abstände, Legendenpositionierung etc.
+#' A wrapper function for ggplotly that adjusts the theme and some parameters, 
+#' in particular font size, spacing, legend positioning, etc.
 #' 
-#' @param ... Ein ggplot-Objekt, aus dem eine interaktive plotly-Abbildung erstellt werden soll. Außerdem: alle Parameter, die man üblicherweise an ggplotly übergeben würde, etwa:  ... = abbildung, tooltip = c("x", "y")
-#' @param legende_unten boolean, FALSE: Legende rechts vom Plot; TRUE: Legende unter dem Plot
-#' @param mehrzeiliger_titel boolean, TRUE: angepasstes Spacing zwischen Titel und Plot, falls der Titel mehrere Zeilen einnimmt
+#' @param ... A ggplot object which is the basis for a plotly object. Also: all parameters that you would usually pass to ggplotly, such as: ... = figure, tooltip = c("x", "y")
+#' @param legende_unten boolean, FALSE: Legend to the right of the plot; TRUE: Legend below the plot
+#' @param mehrzeiliger_titel boolean, TRUE: adjusted spacing between title and plot, if the title spans several lines
 #' @return plotly-object
 #' @examples
 #' library(ggplot2)
@@ -17,10 +17,10 @@
 ggplotly_SMC <- function(
   ..., legende_unten = TRUE, mehrzeiliger_titel = FALSE
 ){
-  # Aus übergebenem ggplot-Objekt ein plotly-Objekt erstellen.
-  # Alle angegebenen Einstellungen, etwa für's Tooltip, anwenden.
+  # Create a plotly object from the passed ggplot object.
+  # Apply all settings passed to the function, such as tooltip.
   abbildung <- ggplotly(...) %>%
-    # Schriftgröße, Abstände etc. einstellen
+    # adjust font size, spacing, etc.
     layout(
 
       title = list(font = list(size = 25)),
@@ -31,26 +31,23 @@ ggplotly_SMC <- function(
       legend = list(title = list(font = list(size = 20)), 
                     font = list(size = 16)),
 
-
-      # Abstand zwischen Text und Grafikelementen
+      # Spacing between the image elements and the text
       margin = list(
         b = 20, 
         l = 60,
         pad = 10
       ),
 
-      # Der Abstand, zwischen dem Zähl-Text an Achsen (bspw. 2019, 2020, ...) und der Achse.
+      # The margins between the declaratory axis texts/tick text (e.g. 2019, 2020, ...) and the axis.
       yaxis = list(
         title = list(
           standoff = 10
         )
       )
       
-      # Höhe der Abbildung
-      # Standardmäßig für 9 Zoll breite und 8 Zoll hohe Bilder mit 200er dpi ausgelegt.
     )
 
-  # Legende unter den Plot setzen
+  # Position legend below the plot
   if (legende_unten == TRUE){
     abbildung <- abbildung %>% 
     layout(
@@ -65,8 +62,8 @@ ggplotly_SMC <- function(
     )
   }
   
-  # Abstand zwischen Titel und Abbildung erhöhen
-  # erforderlich, wenn der Titel zwei Zeilen hat
+  # If the title has two rows:
+  # Increase the distance between title and plot
   if(mehrzeiliger_titel == TRUE){
     abbildung <- abbildung %>% 
       layout(
@@ -76,7 +73,7 @@ ggplotly_SMC <- function(
       )
   }
 
-  # Nicht benötigte Buttons aus der Navbar entfernen
+  # Remove unnecessary buttons from the navbar
   abbildung <- config(abbildung, modeBarButtonsToRemove = 
     list(
       "zoom2d", "pan2d", "select2d", "lasso2d",
@@ -86,6 +83,6 @@ ggplotly_SMC <- function(
     )
   )
 
-  # das fertige Plotly-Objekt ausgeben
+  # return the plotly object
   abbildung
 }

@@ -1,19 +1,19 @@
 #' image_helper.R
 #'
-#' Funktion, um generische Bildunterschriften in dynamischen Dokumenten für Abbildungen zu erstellen.
-#' Hierfür wird HTML-Code erstellt, der einen Link auf die zur Erstellung dieser Abbildung benötigten Daten 
-#' sowie Links zu der Abbildung als PNG und SVG enthält.
+#' Function to create generic image captions in dynamic documents.
+#' For this purpose, HTML code is created, which contains a link to the data needed to create this figure. 
+#' Also includes links to download the figure as a PNG or SVG. 
 #' 
-#' Die Funktion image_helper() gibt eine Liste zurück, die den Dateipfad, den Titel inklusive Verlinkungen, 
-#' einen "alt" Text (bestehend aus dem Bildnamen) und ggf. weitere HTML-Tags enthält.
+#' The image_helper() function returns a list containing the file path, the title including links, 
+#' an "alt" text (consisting of the image name) and possibly other HTML tags.
 #' 
-#' @param plot Das ggplot-Objekt was für die statischen Bilder genutzt werden soll.
-#' @param filename string: Dateiname für die verlinkten Dateien (ohne Endungen).
-#' @param filepath file.path: Dateipfad für die verlinkten Dateien. CSV muss manuell dort abgelegt werden, PNG und SVG werden von dieser Funktion dort abgelegt.
-#' @param extra_html_tags string: Zwischen \'\' können weitere HTML-Parameter angegeben werden, etwa: \'width = \"100%\" data-zoom=\"1\"\'
-#' @param csv_opt boolean, FALSE: keine csv wird verlinkt; default: TRUE.
-#' @param plotly boolean: FALSE, das oben übergegebene ggplot-Objekt wird angezeigt. TRUE: keine Abbildung wird angezeigt, plotly-Abbildungen müssen manuell vorher ausgegeben werden. Default: FALSE
-#' @param caption string: Falls nicht leer: zusätzlicher Bild-Text, der unterhalb der Abbildung angezeigt werden kann. Etwa Datenquellen für Plotly-Abbildungen.
+#' @param plot ggplot-object: The ggplot-object to be used for static images.
+#' @param filename string: The name of the image file, without file extension.
+#' @param filepath file.path: The path to the folder in which the image file should be saved. CSV must be placed manually, PNG and SVG are stored automatically.
+#' @param extra_html_tags string: Between \'\' further HTML-Params can be added, e.g. \'width = \"100%\" data-zoom=\"1\"\'
+#' @param csv_opt boolean, FALSE: no link to a CSV-Download will be provided; default: TRUE.
+#' @param plotly boolean: FALSE, a PNG of the provided ggplot-object will be displayed. TRUE: no figure is shown, plotly-figures must be displayed manually bforehand. Default: FALSE
+#' @param caption string: If not empty: text for the caption, e.g. sources.
 #' @param save_svg boolean: Generation of the corresponding svg. Default: TRUE. For very detailed graphics, you should refrain from creating a sv-graphic, since the file size can become too large.
 #' @return none
 #' @examples
@@ -48,7 +48,7 @@ image_helper <-
              device = "svg")
     } 
     
-    # Konstruktion der HTML-Ausgabe
+    # Create HTML code
     HTML_text <- "<center>"
 
     if (plotly == FALSE) {

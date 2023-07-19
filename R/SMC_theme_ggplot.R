@@ -1,10 +1,10 @@
-#' SMC-Theme für ggplot und ggplotly
+#' SMC-Theme for ggplot2 and plotly 
 #' 
-#' Die Kernfunktion ist SMC_theme_ggplot(); mit dieser werden alle Theming-Parameter 
-#' für ggplot gesetzt. Sie muss zu Beginn eines jeden R-/Quarto-/R-Markdown-Dokuments aufgerufen werden.
+#' Core functionality is SMC_theme_ggplot(). It sets all theme parameters for ggplot.
+#' It must be called at the beginning of each R-/Quarto-/R-Markdown document.
 #' 
 
-# Die vom SMC verwendete Farbpalette (in verschiedenen Formaten)
+# The SMCs color palette is defined in colorlist_SMC.
 colorlist_SMC <- list(
   blue = "#377eb8",
   green = "#4daf4a",
@@ -17,12 +17,12 @@ colorlist_SMC <- list(
   yellow = "#ffff33"
 )
 
-# als unnamed Vektor
+# as an unnamed vector
 colorvector_SMC <- unname(unlist(colorlist_SMC))
 
 
 
-# einige globale Parameter
+# several global parameters for the SMC theme
 margin_SMC <- 8
 SMC_fontsize = 17
 SMC_linesize = 0.9
@@ -30,11 +30,11 @@ SMC_linesize = 0.9
 
 #' ggplot_SMC_theme
 #' 
-#' Die Kernfunktion zum Erstellen von Quarto-Dokumenten im SMC-Theming: SMC_theme_ggplot().
-#' Sie muss zu Beginn eines jeden Dokuments aufgerufen werden und stellt etwa die Schriftart (Aller),
-#' die Schriftgröße, Paddings uvm. ein. Wirkt sich auch auf Plotly aus.
+#' Primary function for the creation of Quarto-Documents in the SMC-Theme: SMC_theme_ggplot().
+#' It must be called at the beginning of each R-/Quarto-/R-Markdown document.
+#' Sets font family, font size, padding, etc. Also affects Plotly.
 #' 
-#' @return Kein Rückgabewert, sondern setzt die ggplot2-Theme-Parameter.
+#' @return Invisibly returns the current theme.
 #' @examples
 #' SMC_theme_ggplot()
 #' @export SMC_theme_ggplot
@@ -45,15 +45,15 @@ SMC_theme_ggplot <- function(){
   theme_update(
     plot.background = element_rect(fill = "white", colour = "transparent"),
 
-    # Grid im Hintergrund des Plots, nur Hauptlinien, Nebenlinien ausblenden
+    # Grid in the background of the plot, only main lines, hide minor lines
     panel.grid.major = element_line(size = 0.25),
     panel.grid.minor = element_blank(),
 
-    # Allgemeines styling
+    # general styling
     legend.position = "bottom",
     text = element_text(size = SMC_fontsize, family = "Aller"),
     
-    # Margins und Positionierung von Elementen
+    # Margins and positioning of elements
     plot.title = element_text(margin = margin(t = margin_SMC, b = margin_SMC)),
     plot.caption = element_text(hjust = 0.5, margin = margin(t = margin_SMC, b = margin_SMC)), 
     axis.text.y = element_text(margin = margin(r = margin_SMC, l = margin_SMC)),
@@ -61,15 +61,15 @@ SMC_theme_ggplot <- function(){
     legend.margin = margin(t = margin_SMC, b = margin_SMC, l = margin_SMC, r =margin_SMC),
   )
 
-  # setze SMC-Farbpalette für durchgehende Nutzung in linegraphs
+  # use the SMC colors in all linegraphs
   options(ggplot2.discrete.colour = colorvector_SMC)
 
-  # Passe Liniendicke und Punktgröße an das jeweilige Format an
+  # set the default size of lines and points
   update_geom_defaults("line", list(size = SMC_linesize, color = colorvector_SMC[1]))
   update_geom_defaults("point", list(size = 2 * SMC_linesize))
   
-  # Um Bugs beim Speichern von PDFs mit Grafiken zu vermeiden 
-  # müssen die Schriftarten geladen werden
+  # to prevent bugs while saving PDFs 
+  # the fonts need to be loaded in the following manner
   sysfonts::font_add(
     family = "Aller", 
     regular = fs::path_package("fonts", "Aller", "Aller_Rg.ttf", package = "SMChelpR"),
@@ -85,27 +85,28 @@ SMC_theme_ggplot <- function(){
 
 
 #' colors_SMC
-#' Mit dieser Funktion kann man sich eine einzelne oder mehrer Farben aus der SMC-Palette
-#' in beliebiger Reihenfolge als Vektor oder String ausgeben lassen. 
-#' @param ColorNames Ein String mit einem einzelenn Farbnamen oder ein Vektor mit mehreren Farbnamen.
-#' @param rev  boolean, if TRUE: umgekehrte Reihenfolge der Farben ausgeben
-#' @return Ein String mit einem einzelenn Farbcode oder ein Vektor mit mehreren unnamed Farbcodes. 
+#' This function returns one or more color codes from the SMC color palette
+#' in arbitrary order as a vector or string (single color).
+#' @param ColorNames A string with a single color code or a vector with several colors.
+#' @param rev  boolean, if TRUE: reverse the return order of the colors.
+#' @return An unnamed vector with color codes or a single color code as a string.
 #' @export colors_SMC
 
 colors_SMC <- function(ColorNames = NULL, rev = FALSE){
-  # Vektor mit allen Farbcodes erstellen
+  # Create a vector containg all color codes from the SMC color palette
   ColorValues <- unlist(colorlist_SMC)
 
-  # Falls gegeben: Einschränkung auf gewünschte Farben
+  # If a single color or a subset of colors is requested, the vector is shortened
+  # Can be reduced to a single string for a single color.
   if (!is.null(ColorNames)) {
     ColorValues <- ColorValues[ColorNames]
   }
 
-  # Umdrehen der Reihenfolge
+  # If requested, the order of the colors is reversed
   if (rev) {
     ColorValues <- rev(ColorValues)
   }
 
-  # Ausgabe 
+  # Return the color codes as a vector or a single string 
   return(unname(ColorValues))
 }
