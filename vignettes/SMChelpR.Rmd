@@ -2,106 +2,158 @@
 title: "SMChelpR"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{my-vignette}
+  %\VignetteIndexEntry{SMChelpR}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
+Das Paket `SMChelpR` enthält verschiedene Funktionen, mit denen die [Data Reports des Science Media Center Germany](https://www.sciencemediacenter.de/alle-angebote/suchergebnis/?tx_solr%5Bfilter%5D%5B1%5D=type%3AData+Report) erstellt werden. Neben den Data Reports in html-Format stellen wir auch die Quarto-Dokumente (als Download oder alternativ auf Anfrage) zur Verfügung. Um die Quarto-Dokumente selbst rendern zu können, wird dieses R-Paket benötigt.
+
+`SMChelpR` enhält in erster Linie Funktionalität für den Datenzugriff über unsere API und angepasste Funktionen zum erstellen der Grafiken.
+
+
+```{r setup, results = 'hide', warning = FALSE, message = FALSE}
+library(tidyverse)
+library(SMChelpR)
+```
+
+### Datenzugriff
+
+Viele Daten, die für die Data Reports verwendet werden, sind in der [SMC Data Collection](https://github.com/sciencemediacenter/DataCollection) verfügbar. Der Zugriff erfolgt über GraphQL. In R bieten wir zwei Wrapper für die im Paket [ghql](https://cran.r-project.org/package=ghql) verfügbaren Funktionen für einen Datenzugriff über GraphQL an.
+
+Mit `GraphQL_get_table_vec` können einfache komplettabfragen von Datensätzen durchgeführt werden. Als Eingabeparameter werden mindestens `tabellenname` und `variablen` benötigt.
+Für diese Vignette wird ein kleiner Testdatensatz verwendet. Der Datensatz mit den Aussendungen des SMC ist in der Tabelle `smc_story_meta` zu finden.
+
+```{r}
+
+(
+  story_data <-
+    GraphQL_get_table_vec(
+      tabellenname = "test_R_Packages_test_story",
+      variablen = c(
+        "story_no",
+        "ressort",
+        "title",
+        "publication_date",
+        "type",
+        "url"
+      )
+    )
 )
 ```
 
-In dieser Vignette möchten wir Ihnen die Funktionalität des SMChelpR-Pakets vorstellen, welches erforderlich ist, damit von uns bereitgestellter Programmcode funktioniert. 
-Dieses Paket dient vornehmlich der Bereitstellung von Funktionalität und Einstellung von Parametern bzgl. der Grafik-Gestaltung unserer Datenreports. 
+Für komplexere Abfragen kann `GraphQL_get_table_string` genutzt werden. Diese Funktion akzeptiert eine valide GraphQL query, mit der z.B. auch weitere Filter gesetzt oder die Zahl der zurückgegebenen Einträge limitiert werden können.
 
-Relevante Einstellungen werden in R Markdown oder Quarto über die YAML-Parameter zu Beginn des Dokuments gegeben. Unsere Grafiken sind dabei auf folgende Einstellungen optimiert, insbesondere Abweichungen in den dpi werden zu sehr anderen Resultaten führen. 
-Der Parameter `results = 'asis'` ist für die Funktion `image_helper()` erforderlich, welche wir für das Erstellen von Bildunterschriften nutzen.
+```{r}
+GraphQL_get_table_string(
+'query MyQuery {
+   test_R_Packages_test_story(
+     limit: 10, 
+     where: {story_no: {_gt: 22021}, 
+     ressort: {_eq: "Medizin & Lebenswissenschaften"}}) {
+   publication_date
+   type
+   title
+   story_no
+   }
+}'
+)
+```
+
+In beiden Funktionen kann auch ein anderer Datenserver angegeben werden, um andere GraphQL-Instanzen anzusprechen.
+
+
+Die Hilfsfunktion `querystring_to_tabname_and_vec` erzeugt aus einfachen GraphQL-Abfragen (ohne Filter etc.) kopierbare Parametr für Variablen- und Tabellenname, die direkt in `GraphQL_get_table_vec` eingesetzt werden können.
+
+```{r}
+querystring_to_tabname_and_vec(
+"query MyQuery {
+  smc_story_meta {
+  story_no
+  title
+  type
+  url
+  ressort
+  publication_date
+  }
+}")
+```
+
+### Hilfsfunktionen für Grafiken in dynamischen Dokumenten
+
+Für die vom SMC herausgegebenen Data Reports werden einheitliche Grafikeinstellungen verwendet. Unsere Grafiken sind folgende Einstellungen optimiert, insbesondere Abweichungen in den dpi können dazu führen, dass eine Nachbearbeitung auch anderer Parameter notwendig wird. 
 
 ```{r}
 knitr::opts_chunk$set(
-  results = 'asis',
   fig.width = 9, 
   fig.height = 8.5, 
   dpi = 300
 )
 ``` 
 
-Beim Laden des Pakets SMChelpR werden direkt auch die Pakete `showtext`,	`ggplot2`, `plotly`, `sysfonts` und `fs` geladen, da die Funktionalität andernfalls nicht gewährleistet werden kann. Für diese Vignette ist aufgrund der Datenauswertung außerdem das `tidyverse` erforderlich.
+Der Aufruf von `SMC_theme_ggplot()` setzt viele Grafikparameter, aufbauende auf das `theme_minimal()` aus dem  `ggplot2` Paket. Darüber hinus wird insbesondere die Schriftart "Aller" und die Farbpalette eingesetzt, die im SMC standardmäßig für Grafiken genutzt wird.
 
-```{r setup, results = 'hide', warning = FALSE, message = FALSE}
-library(SMChelpR)
-library(tidyverse)
+```{r}
+SMC_theme_ggplot()
 ```
 
-Zu Beginn eines jeden Dokuments setzen wir einige Parameter:
+Die Funktionen `image_helper` und `ggplotly_SMC` benötigen als Basis eine `ggplot2`-Grafik. In diesem Beispiel sind es die monatlichen Aussendungen des SMC im ersten Halbjahr 2022 nach Aussendungsart.
 
-- Der Aufruf von `SMC_theme_ggplot()` setzt viele `ggplot`- und `ggplotly`-Parameter, die das allgemeine Aussehen der Abbildungen einstellen.
-- Es werden eine oder mehrere Bildunterschriften (captions) eingestellt, die etwa Herkunft über die für eine Abbildung verwendete Datenquellen geben.
-  * Man beachte: für `ggplot` müssen Zeilenumbrüche im String als `\n` kodiert werden, für `image_helper()` jedoch als `<br>`.
-- Es wird ein Zielordner zum Abspeichern von Daten und Abbildungen, die wir als Download anbieten möchten, angegeben.
-
-```{r initalise-graphics}
-SMChelpR::SMC_theme_ggplot()
+```{r lineplot}
 
 caption_demo <- 
-  "Dies ist eine Demo für die Darstellung von Daten mit dem SMChelpR-Paket. \nDie Daten sind frei erfunden und haben keinen Bezug zur Realität. \nBerechnungen: Science Media Center Germany."
+  "Anzahl der Aussendung nach Aussendungsart.\nBerechnungen: Science Media Center Germany."
 
-filepath <-
-  file.path("Beispieldaten")
-```
 
-Für diese Vignette verwenden wir einen kleinen Beispieldatensatz, der für das Jahr 1701 zwei Datenreihen mit Zufallsdaten (ein Eintrag pro Woche) enthält. 
+storys_per_month <- 
+  story_data %>% 
+  filter(!is.na(publication_date)) %>% 
+  mutate(Monat = floor_date(as.Date(publication_date), "month")) %>% 
+  count(type, Monat)
 
-```{r load-data, results = 'hide', warning = FALSE, message = FALSE}
-set.seed(42) # Konstanter Seed für Reproduzierbarkeit
-
-Beispieldaten <- tibble(
-  Datum = rep(
-    seq.Date(
-      from = as.Date("1701-01-01"), 
-      to = as.Date("1701-12-31"), 
-      by = "week"
-    ),
-    2
-  ),
-  Reihe = c(rep("Zufallsreihe I", 53), rep("Zufallsreihe II", 53)),
-  Wert = runif(2*53)
-)
-```
-
-Anschließend können wir eine erste Abbildung mit `ggplot` erstellen. Hierbei ist `SMChelpR` nur im Hintergrund durch `SMC_theme_ggplot()` aktiv.
-
-```{r lineplot, eval = FALSE}
-Abbildung <- ggplot(Beispieldaten, aes(x = Datum, y = Wert, colour = Reihe)) +
+Abbildung <- 
+  storys_per_month %>% 
+  full_join(expand_grid(
+    type = unique(storys_per_month$type), 
+    Monat = unique(storys_per_month$Monat)), by = c("Monat", "type")) %>% 
+  mutate(n = if_else(is.na(n), 0L, n)) %>% 
+  ggplot(aes(x = Monat, y = n, colour = type)) +
   geom_line() +
   geom_point() +
   scale_x_date(
     date_breaks = "1 month", 
-    date_labels = "%b", 
+    date_labels = "%b %y", 
     expand = c(0.01, 0.01)
-  ) +
+  ) + 
+  theme(legend.title = element_blank()) +
   scale_y_continuous(
     expand = c(0.01, 0.01)
   ) +
   labs(
-    title = "Abbildung mit zufallsgenerierten Daten",
-    subtitle = "In ggplot kann man einen Untertitel nutzen.",
+    title = "SMC-Aussendungen im ersten Halbjahr 2022",
     caption = caption_demo,
-    x = "Monat des Jahres 1701", 
-    y = "Zufallszahlen ohne Einheit"
+    x = "", 
+    y = "Anzahl Aussendungen"
   ) 
+  
 ``` 
 
-Würde man diese Abbildung im dynamischen Dokument nur durch Aufruf von `Abbildung` zeigen, würde bspw. die Schriftgröße falsch angezeigt. Wenn dies jedoch vorher mit `ggsave()` gesichert wird, sind alle Einstellungen korrekt. Dieses Abspeichern wir durch `image_helper()` automatisch im Hintergrund erledigt. Dies zeigt dann eine der abgespeicherten PNGs an und erstellt auch gleich die Bildunterschrift. 
+Die Funktion `image_helper()` erzeugt HTML-Code, der unter eine Grafik gesetzt werden kann, um den Download verschiedener Grafikformate (png und svg) und der für die Grafik notwendigen Daten (csv) anzubieten. Die csv mit den Daten muss dafür im Vorfeld erstellt werden, die Grafiken werden direkt aus dem ggplot-Objekt erzeugt. 
 
-Die Daten, welche zu einer Abbildung gehören und als Download zur Verfügung gestellt werden sollen, müssen manuell an den korrekten Platz gespeichert werden, für die Abbildungen geschieht dies automatisch.
+Damit der HTML-Code in einem dynamischen Dokument interpretiert wird, muss im Chunk (oder global) der Parameter `results = 'asis'` gesetzt werden.
 
-```{r image_helper-demonstration, eval = FALSE}
-dateiname <- "Zufallsdaten"
-write_csv(Beispieldaten, file.path(filepath, paste0(dateiname, ".csv")))
+Die in `SMC_theme_ggplot()` gesetzten Parameter sind optmiert auf die Verwendung in `image_helper()`. Ein direktes Anzeigen einer Grafik ohne `image_helper()` würde zu einem veränderten Erscheinungsbild führen.
+
+
+```{r image_helper-demonstration, out.width="700 px", results='asis'}
+filepath <-
+  file.path("Beispieldaten")
+dir.create(filepath, showWarnings = FALSE)
+
+dateiname <- "Aussendungen_SMC_H1_2022"
+  
+write_csv(story_data, file.path(filepath, paste0(dateiname, ".csv")))
+
 
 image_helper(
   Abbildung,
@@ -111,15 +163,18 @@ image_helper(
 )
 ``` 
 
-Nun nutzen wir eine `SMChelpR` Funktion, um direkt eine passende plotly-Abbildung hieraus zu erstellen und anzuzeigen. Die Funktion `ggplotly_SMC()` passt hierbei das Layout nochmal an, da `plotly` DPI anders zu interpretieren scheint als `ggplot`.
+Alternativ zu statischen `ggplot2`-Grafiken können auch interaktive Plotly-Grafiken erstellt werden. Angepasste Einstellungen hierfür finden sich in `ggplotly_SMC()`. Die `image_helper()` Fuktion muss nun so eingestellt werden, dass die gespeicherten PNGs nicht angezeigt werden und die Plotly-Abbildung muss manuell angezeigt werden.
 
-Die `image_helper()` Fuktion muss nun so eingestellt werden, dass die gespeicherten PNGs nicht angezeigt werden und die Plotly-Abbildung muss manuell angezeigt werden.
+In dieser Vignette wird aus Gründen der resultierenden Dateigröße auf das Ausführen des Plotly-Chunks verzichtet.
 
-```{r lineplot-plotly, eval = FALSE}
-Abbildung_plotly <- ggplotly_SMC(Abbildung)
-Abbildung_plotly
+```{r lineplot-plotly, eval = FALSE, out.width="700px", out.height="700px"}
+ggplotly_SMC(Abbildung)
 ```
-```{r, eval = FALSE}
+
+
+```{r lineplot-plotly-image-helper, results='asis'}
+
+
 image_helper(
   Abbildung,
   filename = dateiname,
@@ -127,4 +182,5 @@ image_helper(
   plotly = TRUE,
   caption = paste("Die Abbildung wurde mit plotly erstellt, sodass einige ggplot Features wie Untertitel oder Bildunterschriften nicht mehr verfügbar sind. Entpsrechend müssten entsprechende captions jetzt hier eingefügt werden.")
 )
+
 ```
