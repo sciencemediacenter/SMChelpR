@@ -33,7 +33,7 @@ image_helper(
 \item{save_svg}{boolean: Generation of the corresponding svg. Default: TRUE. For very detailed graphics, you should refrain from creating a sv-graphic, since the file size can become too large.}
 }
 \value{
-none
+Invisible: HTML code for image caption
 }
 \description{
 Function to create generic image captions in dynamic documents.

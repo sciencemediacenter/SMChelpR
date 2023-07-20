@@ -47,7 +47,7 @@ test_that("image_helper() can save a PNG and save_svg = FALSE works", {
 })
 
 
-test_that("image_helper() does show the caption and can save SVGs. Also: extra_html_tags", {
+test_that("image_helper() does show the caption for plotly in HTML and can save SVGs. Also: extra_html_tags", {
   unlink(file.path(tempdir(), "testfiles_image_helper"), recursive = TRUE)
   withr::local_package("ggplot2")
   

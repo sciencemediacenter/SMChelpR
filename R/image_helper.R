@@ -15,7 +15,7 @@
 #' @param plotly boolean: FALSE, a PNG of the provided ggplot-object will be displayed. TRUE: no figure is shown, plotly-figures must be displayed manually bforehand. Default: FALSE
 #' @param caption string: If not empty: text for the caption, e.g. sources.
 #' @param save_svg boolean: Generation of the corresponding svg. Default: TRUE. For very detailed graphics, you should refrain from creating a sv-graphic, since the file size can become too large.
-#' @return none
+#' @return Invisible: HTML code for image caption
 #' @examples
 #' library(ggplot2)
 #' library(dplyr)
@@ -38,7 +38,7 @@ image_helper <-
     svgpfad <- file.path(filepath, paste0(filename, ".svg"))
     datenpfad <- file.path(filepath, paste0(filename, ".csv"))
     
-    plot <- plot + labs(caption = caption)
+    if(caption != ""){plot <- plot + labs(caption = caption)}
     ggsave(plot = plot,
            filename = pngpfad,
            device = "png")
@@ -65,7 +65,7 @@ image_helper <-
         )
     }
 
-    if(caption != ""){
+    if(caption != "" & plotly){
       HTML_text <- HTML_text |>
         paste0(
           "<small>",
