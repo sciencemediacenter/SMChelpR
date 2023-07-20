@@ -7,12 +7,12 @@
 SMC_theme_ggplot()
 }
 \value{
-Kein Rückgabewert, sondern setzt die ggplot2-Theme-Parameter.
+Invisibly returns the current theme.
 }
 \description{
-Die Kernfunktion zum Erstellen von Quarto-Dokumenten im SMC-Theming: SMC_theme_ggplot().
-Sie muss zu Beginn eines jeden Dokuments aufgerufen werden und stellt etwa die Schriftart (Aller),
-die Schriftgröße, Paddings uvm. ein. Wirkt sich auch auf Plotly aus.
+Primary function for the creation of Quarto-Documents in the SMC-Theme: SMC_theme_ggplot().
+It must be called at the beginning of each R-/Quarto-/R-Markdown document.
+Sets font family, font size, padding, etc. Also affects Plotly.
 }
 \examples{
 SMC_theme_ggplot()

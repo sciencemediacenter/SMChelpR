@@ -16,8 +16,8 @@
 #'   publication_date
 #'   }
 #' }")
+#' 
 #' @export querystring_to_tabname_and_vec
-#' @rdname GraphQL_get_table_vec
 querystring_to_tabname_and_vec <-
     function(querystring) {
         querystring <- gsub("query MyQuery", "", querystring)

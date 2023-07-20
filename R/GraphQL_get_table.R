@@ -54,10 +54,6 @@ GraphQL_get_table_vec <-
         jsonlite::fromJSON(tmp[[1]][[1]])$data[[1]] %>% dplyr::as_tibble()
     }
 
-#' @examples 
-#' \dontrun{
-#' ToDo
-#' }
 #' @export GraphQL_get_table_string
 #' @rdname GraphQL_get_table_vec
 GraphQL_get_table_string <-

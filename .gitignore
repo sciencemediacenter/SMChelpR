@@ -48,3 +48,7 @@ inst/doc
 
 # Test files
 *.fail
+
+# vignette
+SMChelpR.html
+SMChelpR_files/

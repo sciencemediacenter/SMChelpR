@@ -3,25 +3,25 @@
 \name{ggplotly_SMC}
 \alias{ggplotly_SMC}
 \title{ggplotly_SMC
-Eine Wrapperfunktion für ggplotly, die das Theming und einige Parameter anpasst, insbesondere
-Schriftgröße, Abstände, Legendenpositionierung etc.}
+A wrapper function for ggplotly that adjusts the theme and some parameters,
+in particular font size, spacing, legend positioning, etc.}
 \usage{
 ggplotly_SMC(..., legende_unten = TRUE, mehrzeiliger_titel = FALSE)
 }
 \arguments{
-\item{...}{Ein ggplot-Objekt, aus dem eine interaktive plotly-Abbildung erstellt werden soll. Außerdem: alle Parameter, die man üblicherweise an ggplotly übergeben würde, etwa:  ... = abbildung, tooltip = c("x", "y")}
+\item{...}{A ggplot object which is the basis for a plotly object. Also: all parameters that you would usually pass to ggplotly, such as: ... = figure, tooltip = c("x", "y")}
 
-\item{legende_unten}{boolean, FALSE: Legende rechts vom Plot; TRUE: Legende unter dem Plot}
+\item{legende_unten}{boolean, FALSE: Legend to the right of the plot; TRUE: Legend below the plot}
 
-\item{mehrzeiliger_titel}{boolean, TRUE: angepasstes Spacing zwischen Titel und Plot, falls der Titel mehrere Zeilen einnimmt}
+\item{mehrzeiliger_titel}{boolean, TRUE: adjusted spacing between title and plot, if the title spans several lines}
 }
 \value{
 plotly-object
 }
 \description{
 ggplotly_SMC
-Eine Wrapperfunktion für ggplotly, die das Theming und einige Parameter anpasst, insbesondere
-Schriftgröße, Abstände, Legendenpositionierung etc.
+A wrapper function for ggplotly that adjusts the theme and some parameters,
+in particular font size, spacing, legend positioning, etc.
 }
 \examples{
 library(ggplot2)

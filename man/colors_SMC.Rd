@@ -3,21 +3,21 @@
 \name{colors_SMC}
 \alias{colors_SMC}
 \title{colors_SMC
-Mit dieser Funktion kann man sich eine einzelne oder mehrer Farben aus der SMC-Palette
-in beliebiger Reihenfolge als Vektor oder String ausgeben lassen.}
+This function returns one or more color codes from the SMC color palette
+in arbitrary order as a vector or string (single color).}
 \usage{
 colors_SMC(ColorNames = NULL, rev = FALSE)
 }
 \arguments{
-\item{ColorNames}{Ein String mit einem einzelenn Farbnamen oder ein Vektor mit mehreren Farbnamen.}
+\item{ColorNames}{A string with a single color code or a vector with several colors.}
 
-\item{rev}{boolean, if TRUE: umgekehrte Reihenfolge der Farben ausgeben}
+\item{rev}{boolean, if TRUE: reverse the return order of the colors.}
 }
 \value{
-Ein String mit einem einzelenn Farbcode oder ein Vektor mit mehreren unnamed Farbcodes.
+An unnamed vector with color codes or a single color code as a string.
 }
 \description{
 colors_SMC
-Mit dieser Funktion kann man sich eine einzelne oder mehrer Farben aus der SMC-Palette
-in beliebiger Reihenfolge als Vektor oder String ausgeben lassen.
+This function returns one or more color codes from the SMC color palette
+in arbitrary order as a vector or string (single color).
 }

@@ -3,7 +3,7 @@
 \docType{data}
 \name{colorlist_SMC}
 \alias{colorlist_SMC}
-\title{SMC-Theme für ggplot und ggplotly}
+\title{SMC-Theme for ggplot2 and plotly}
 \format{
 An object of class \code{list} of length 9.
 }
@@ -11,7 +11,7 @@ An object of class \code{list} of length 9.
 colorlist_SMC
 }
 \description{
-Die Kernfunktion ist SMC_theme_ggplot(); mit dieser werden alle Theming-Parameter
-für ggplot gesetzt. Sie muss zu Beginn eines jeden R-/Quarto-/R-Markdown-Dokuments aufgerufen werden.
+Core functionality is SMC_theme_ggplot(). It sets all theme parameters for ggplot.
+It must be called at the beginning of each R-/Quarto-/R-Markdown document.
 }
 \keyword{datasets}
