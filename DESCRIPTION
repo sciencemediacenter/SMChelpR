@@ -20,13 +20,13 @@ Imports:
 	ghql, 
 	jsonlite, 
 	plotly,
-	showtext, 
-	stringr, 	
+	showtext,
+	stringr,
 	svglite,
 	sysfonts
 Suggests:
     devtools (>= 1.13),
-    knitr, 
+    knitr,
     rmarkdown (>= 1.9),
     testthat (>= 3.0.0),
 	tidyverse,
