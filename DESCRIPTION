@@ -25,14 +25,12 @@ Imports:
 	svglite,
 	sysfonts
 Suggests:
-    devtools (>= 1.13),
-    knitr,
-    rmarkdown (>= 1.9),
-    testthat (>= 3.0.0),
+	devtools (>= 1.13),
+	knitr,
+	rmarkdown (>= 1.9),
 	tidyverse,
 	vdiffr,
 	withr
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr
-Config/testthat/edition: 3
