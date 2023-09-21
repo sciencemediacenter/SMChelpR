@@ -2,6 +2,7 @@
 % Please edit documentation in R/image_helper.R
 \name{image_helper}
 \alias{image_helper}
+\alias{image_helper_light}
 \title{image_helper.R}
 \usage{
 image_helper(
@@ -14,13 +15,21 @@ image_helper(
   caption = "",
   save_svg = TRUE
 )
+
+image_helper_light(
+  captions,
+  filename = NULL,
+  filepath = NULL,
+  data = NULL,
+  images = NULL
+)
 }
 \arguments{
 \item{plot}{ggplot-object: The ggplot-object to be used for static images.}
 
 \item{filename}{string: The name of the image file, without file extension.}
 
-\item{filepath}{file.path: The path to the folder in which the image file should be saved. CSV must be placed manually, PNG and SVG are stored automatically.}
+\item{filepath}{file.path: The path to the folder in which the image file should be saved. (For image_helper(), CSV must be placed manually, PNG and SVG are stored automatically).}
 
 \item{extra_html_tags}{string: Between \'\' further HTML-Params can be added, e.g. \'width = \"100\%\" data-zoom=\"1\"\'}
 
@@ -31,6 +40,12 @@ image_helper(
 \item{caption}{string: If not empty: text for the caption, e.g. sources.}
 
 \item{save_svg}{boolean: Generation of the corresponding svg. Default: TRUE. For very detailed graphics, you should refrain from creating a sv-graphic, since the file size can become too large.}
+
+\item{captions}{vector: A vector with all the captions for the plot.}
+
+\item{data}{tibble: A dataframe with two columns 1) fileformat, and 2) filename_suffix. This dataframe is used to generate a link to each data set needed to generate the plot, usually there is one data set per plot, but sometimes there are more.}
+
+\item{images}{tibble: A dataframe with two columns 1) fileformat, and 2) filename_suffix. This dataframe is used to generate links to files storing the plot in different image formats.}
 }
 \value{
 Invisible: HTML code for image caption
@@ -38,15 +53,21 @@ Invisible: HTML code for image caption
 \description{
 Function to create generic image captions in dynamic documents.
 For this purpose, HTML code is created, which contains a link to the data needed to create this figure.
-Also includes links to download the figure as a PNG or SVG.
+Also includes links to download the figure in different formats.
 }
 \details{
-The image_helper() function returns a list containing the file path, the title including links,
+The functions image_helper_light(), image_helper() return a list containing the file path, the title including links,
 an "alt" text (consisting of the image name) and possibly other HTML tags.
 }
 \examples{
 library(ggplot2)
 library(dplyr)
 tmp_ggplot <- ggplot(data = mpg, aes(x = displ, y = hwy))
-tmp_ggplot \%>\% image_helper("MPG", file.path(tempdir()))
+tmp_ggplot \%>\% image_helper("MPG", file.path(tempdir())) 
+filename <- "my_file_name"
+filepath <- dirname(rstudioapi::getSourceEditorContext()$path)
+data <- tibble(fileformat = c("csv", "json"), filename_suffix = c("", "extra_json_suffix"))
+images <- tibble(fileformat = c("html"), filename_suffix = c(""))
+captions = c("my_caption_1", "my_caption_2")
+image_helper_light(captions, filename, filepath, data, images)
 }
