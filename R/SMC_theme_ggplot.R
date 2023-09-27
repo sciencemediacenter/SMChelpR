@@ -23,8 +23,8 @@ colorvector_SMC <- unname(unlist(colorlist_SMC))
 
 
 # several global parameters for the SMC theme
-margin_SMC <- 8
-SMC_fontsize = 17
+# margin_SMC <- 8
+SMC_fontsize = 16
 SMC_linesize = 0.9
 
 
@@ -54,11 +54,12 @@ SMC_theme_ggplot <- function(){
     text = element_text(size = SMC_fontsize, family = "Aller"),
     
     # Margins and positioning of elements
-    plot.title = element_text(margin = margin(t = margin_SMC, b = margin_SMC)),
-    plot.caption = element_text(hjust = 0.5, margin = margin(t = margin_SMC, b = margin_SMC)), 
-    axis.text.y = element_text(margin = margin(r = margin_SMC, l = margin_SMC)),
-    axis.text.x = element_text(margin = margin(t = margin_SMC, b = margin_SMC)),
-    legend.margin = margin(t = margin_SMC, b = margin_SMC, l = margin_SMC, r =margin_SMC),
+    plot.caption = element_text(hjust = 0.5),
+    # plot.title = element_text(margin = margin(t = margin_SMC, b = margin_SMC)),
+    # plot.caption = element_text(hjust = 0.5, margin = margin(t = margin_SMC, b = margin_SMC)), 
+    # axis.text.y = element_text(margin = margin(r = margin_SMC, l = margin_SMC)),
+    # axis.text.x = element_text(margin = margin(t = margin_SMC, b = margin_SMC)),
+    # legend.margin = margin(t = margin_SMC, b = margin_SMC, l = margin_SMC, r =margin_SMC),
   )
 
   # use the SMC colors in all linegraphs

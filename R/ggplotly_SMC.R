@@ -15,7 +15,7 @@
 #' tmp_ggplot %>% image_helper("MPG", file.path(tempdir()), plotly = TRUE)
 #' @export ggplotly_SMC
 ggplotly_SMC <- function(
-  ..., legende_unten = TRUE, mehrzeiliger_titel = FALSE
+  ..., legende_unten = TRUE, mehrzeiliger_titel = FALSE, x_achse_lang = FALSE
 ){
   # Create a plotly object from the passed ggplot object.
   # Apply all settings passed to the function, such as tooltip.
@@ -23,20 +23,20 @@ ggplotly_SMC <- function(
     # adjust font size, spacing, etc.
     layout(
 
-      title = list(font = list(size = 25)),
-      xaxis = list(title = list(font = list(size = 19)),
+      title = list(font = list(size = 20)),
+      xaxis = list(title = list(font = list(size = 16)),
                    tickfont = list(size = 16)),
-      yaxis = list(title = list(font = list(size = 19)),
+      yaxis = list(title = list(font = list(size = 16)),
                    tickfont = list(size = 16)),
-      legend = list(title = list(font = list(size = 20)), 
+      legend = list(title = list(font = list(size = 18)), 
                     font = list(size = 16)),
 
       # Spacing between the image elements and the text
-      margin = list(
-        b = 20, 
-        l = 60,
-        pad = 10
-      ),
+      #margin = list(
+      #  b = 20, 
+      #  l = 60,
+      #  pad = 10
+      #),
 
       # The margins between the declaratory axis texts/tick text (e.g. 2019, 2020, ...) and the axis.
       yaxis = list(
@@ -48,18 +48,30 @@ ggplotly_SMC <- function(
     )
 
   # Position legend below the plot
-  if (legende_unten == TRUE){
+  if (legende_unten == TRUE & x_achse_lang == FALSE){
     abbildung <- abbildung %>% 
     layout(
       legend = list(
         orientation = "h",
-        entrywidth = 70,
+        # entrywidth = 70,
         yanchor = "bottom",
-        y = -0.28,
+        y = -0.25,
         xanchor = "center",
         x = 0.5
       )
     )
+  } else {
+    abbildung <- abbildung %>% 
+      layout(
+        legend = list(
+          orientation = "h",
+          # entrywidth = 70,
+          yanchor = "bottom",
+          y = -0.45,
+          xanchor = "center",
+          x = 0.5
+        )
+      )
   }
   
   # If the title has two rows:
@@ -68,7 +80,7 @@ ggplotly_SMC <- function(
     abbildung <- abbildung %>% 
       layout(
         margin = list(
-          t = -8
+          t = -12 # increase the distance between title and plot
         )
       )
   }
