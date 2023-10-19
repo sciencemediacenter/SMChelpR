@@ -62,12 +62,17 @@ an "alt" text (consisting of the image name) and possibly other HTML tags.
 \examples{
 library(ggplot2)
 library(dplyr)
-tmp_ggplot <- ggplot(data = mpg, aes(x = displ, y = hwy))
+tmp_ggplot <- 
+  ggplot(data = mpg, aes(x = displ, y = hwy)) +
+  geom_point()
 tmp_ggplot \%>\% image_helper("MPG", file.path(tempdir())) 
-filename <- "my_file_name"
-filepath <- dirname(rstudioapi::getSourceEditorContext()$path)
+filename <- "a"
+filepath <- tempdir()
 data <- tibble(fileformat = c("csv", "json"), filename_suffix = c("", "extra_json_suffix"))
 images <- tibble(fileformat = c("html"), filename_suffix = c(""))
 captions = c("my_caption_1", "my_caption_2")
+write(0, file = file.path(tempdir(), "a.csv"))
+write(0, file = file.path(tempdir(), "a_extra_json_suffix.json"))
+write(0, file = file.path(tempdir(), "a.html"))
 image_helper_light(captions, filename, filepath, data, images)
 }
