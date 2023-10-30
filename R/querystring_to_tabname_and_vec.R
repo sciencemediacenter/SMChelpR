@@ -25,7 +25,7 @@ querystring_to_tabname_and_vec <-
         querystring <- gsub(tabname, "", querystring)
         variables <-
           stringr::str_extract_all(querystring, "[a-zA-Z-_]+")[[1]]
-        cat(paste0('variablen = c("', paste(variables, collapse = '", "'), '"), \n'))
-        cat(paste0('tabellenname = "', tabname, '"\n\n'))
+        cat(paste0('tabellenname = "', tabname, '",\n'))
+        cat(paste0('variablen = c("', paste(variables, collapse = '", "'), '")\n\n'))
         invisible(list(tabellenname = tabname, variablen = variables))
     }
