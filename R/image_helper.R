@@ -18,6 +18,8 @@
 #' @param captions vector: A vector with all the captions for the plot.
 #' @param data tibble: A dataframe with two columns 1) fileformat, and 2) filename_suffix. This dataframe is used to generate a link to each data set needed to generate the plot, usually there is one data set per plot, but sometimes there are more.
 #' @param images tibble: A dataframe with two columns 1) fileformat, and 2) filename_suffix. This dataframe is used to generate links to files storing the plot in different image formats.
+#' @param static_image boolean, FALSE: display static image above captions
+#' @param static_image_parameters string: params to pass to img tag displaying static image
 #' @return Invisible: HTML code for image caption
 #' @examples
 #' library(ggplot2)
@@ -177,11 +179,40 @@ image_helper_light <- function(
     filename=NULL,
     filepath=NULL,
     data=NULL,
-    images=NULL
+    images=NULL,
+    static_image=FALSE,
+    static_image_parameters=""
 ) {
   
   # Create HTML code
   HTML_text <- "<center>"
+  
+  if (static_image == TRUE & !is.null(images)) {
+    
+    static_image_paths <- images |>
+      mutate(
+        path = if_else(
+          filename_suffix != "", 
+          file.path(filepath, paste0(filename, "_", filename_suffix, ".", fileformat)), # paste0 because sep must be ""
+          file.path(filepath, paste0(filename, ".", fileformat)) # paste0 because sep must be ""
+        ),
+        file_exists = file.exists(path)
+      ) |>
+      filter(file_exists == TRUE) |>
+      pull(path)
+    
+    HTML_text <- HTML_text |>
+      paste0(
+        '<img src="',
+        static_image_paths[1],
+        '" alt="',
+        toString(filename),
+        '" ',
+        static_image_parameters,
+        " /><br/>",
+        sep = ""
+      )
+  }
   
   caption_str <- paste(captions, collapse=" | ")
   HTML_text <- HTML_text |>

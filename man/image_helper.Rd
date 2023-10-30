@@ -21,7 +21,9 @@ image_helper_light(
   filename = NULL,
   filepath = NULL,
   data = NULL,
-  images = NULL
+  images = NULL,
+  static_image = FALSE,
+  static_image_parameters = ""
 )
 }
 \arguments{
@@ -46,6 +48,10 @@ image_helper_light(
 \item{data}{tibble: A dataframe with two columns 1) fileformat, and 2) filename_suffix. This dataframe is used to generate a link to each data set needed to generate the plot, usually there is one data set per plot, but sometimes there are more.}
 
 \item{images}{tibble: A dataframe with two columns 1) fileformat, and 2) filename_suffix. This dataframe is used to generate links to files storing the plot in different image formats.}
+
+\item{static_image}{boolean, FALSE: display static image above captions}
+
+\item{static_image_parameters}{string: params to pass to img tag displaying static image}
 }
 \value{
 Invisible: HTML code for image caption
