@@ -53,11 +53,11 @@ SMC_theme_ggplot <- function(){
   # to prevent bugs while saving PDFs 
   # the fonts need to be loaded in the following manner
   sysfonts::font_add(
-    family = "Aller", 
-    regular = fs::path_package("fonts", "Aller", "Aller_Rg.ttf", package = "SMChelpR"),
-    italic = fs::path_package("fonts", "Aller", "Aller_It.ttf", package = "SMChelpR"),
-    bold = fs::path_package("fonts", "Aller", "Aller_Bd.ttf", package = "SMChelpR"),
-    bolditalic = fs::path_package("fonts", "Aller", "Aller_BdIt.ttf", package = "SMChelpR")
+    family = "CircularSMCWeb", 
+    regular = fs::path_package("fonts", "CircularXX - Latin - Desktop Fonts", "TrueType TTF", "Fonts", "CircularXXTT-Regular.ttf", package = "SMChelpR"),
+    italic = fs::path_package("fonts", "CircularXX - Latin - Desktop Fonts", "TrueType TTF", "Fonts", "CircularXXTT-Italic.ttf", package = "SMChelpR"),
+    bold = fs::path_package("fonts", "CircularXX - Latin - Desktop Fonts", "TrueType TTF", "Fonts", "CircularXXTT-Bold.ttf", package = "SMChelpR"),
+    bolditalic = fs::path_package("fonts", "CircularXX - Latin - Desktop Fonts", "TrueType TTF", "Fonts", "CircularXXTT-BoldItalic.ttf", package = "SMChelpR")
   )
   showtext::showtext_opts(dpi = 300)
   showtext::showtext_auto()
