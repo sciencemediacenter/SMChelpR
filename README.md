@@ -16,7 +16,7 @@
 
 # SMChelpR - Help functions in R for the Data Reports of the SMC. 
 
-The Science Media Center's [Data Reports](https://www.sciencemediacenter.de/alle-angebote/suchergebnis/?tx_solr%5Bfilter%5D%5B1%5D=type%3AData+Report) are produced as a Quarto document containing code as well as all text. For the projects written in R, key functions have been bundled into this R package. 
+The Science Media Center's [Data Reports](https://www.sciencemediacenter.de/angebote?story_type=Data+%26+Facts) are produced as a Quarto document containing code as well as all text. For the projects written in R, key functions have been bundled into this R package. 
 
 The package primarily contains two types of functions:
 
