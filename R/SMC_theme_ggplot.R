@@ -4,24 +4,6 @@
 #' It must be called at the beginning of each R-/Quarto-/R-Markdown document.
 #' 
 
-# The SMCs color palette is defined in colorlist_SMC.
-colorlist_SMC <- list(
-  blue = "#377eb8",
-  green = "#4daf4a",
-  purple = "#984ea3",
-  orange = "#ff7f00",
-  brown = "#a65628",
-  pink = "#f781bf",
-  grey = "#999999",
-  red = "#e41a1c",
-  yellow = "#ffff33"
-)
-
-# as an unnamed vector
-colorvector_SMC <- unname(unlist(colorlist_SMC))
-
-
-
 # several global parameters for the SMC theme
 margin_SMC <- 8
 SMC_fontsize = 17
@@ -80,33 +62,4 @@ SMC_theme_ggplot <- function(){
   showtext::showtext_opts(dpi = 300)
   showtext::showtext_auto()
   invisible(theme_get())
-}
-
-
-
-#' colors_SMC
-#' This function returns one or more color codes from the SMC color palette
-#' in arbitrary order as a vector or string (single color).
-#' @param ColorNames A string with a single color code or a vector with several colors.
-#' @param rev  boolean, if TRUE: reverse the return order of the colors.
-#' @return An unnamed vector with color codes or a single color code as a string.
-#' @export colors_SMC
-
-colors_SMC <- function(ColorNames = NULL, rev = FALSE){
-  # Create a vector containg all color codes from the SMC color palette
-  ColorValues <- unlist(colorlist_SMC)
-
-  # If a single color or a subset of colors is requested, the vector is shortened
-  # Can be reduced to a single string for a single color.
-  if (!is.null(ColorNames)) {
-    ColorValues <- ColorValues[ColorNames]
-  }
-
-  # If requested, the order of the colors is reversed
-  if (rev) {
-    ColorValues <- rev(ColorValues)
-  }
-
-  # Return the color codes as a vector or a single string 
-  return(unname(ColorValues))
 }
