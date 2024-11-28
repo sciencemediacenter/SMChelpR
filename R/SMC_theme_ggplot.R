@@ -6,21 +6,6 @@
 
 # several global parameters for the SMC theme
 
-SMC_theme_ggplot_default_parameters <- list(
-  background_fill = "white",
-  background_colour = "transparent",
-  grid_linewidth = 0.25, 
-  grid_colour = "grey92",
-  legend_position = "bottom",
-  margin_SMC = 8,
-  # title centered
-  title_hjust = 0.5, 
-  # caption centered
-  caption_hjust = 0.5,
-  linewidth_in_pt = 0.9,
-  pointsize_in_pt = 1.8
-)
-
 
 #' ggplot_SMC_theme
 #' 
@@ -76,7 +61,8 @@ SMC_theme_ggplot <- function(
         t = get_param(theme_params, "margin_SMC", 8),
         b = get_param(theme_params, "margin_SMC", 8)
       ),
-      hjust = get_param(theme_params, "title_hjust", 0.5)
+      hjust = get_param(theme_params, "title_hjust", 0.5),
+      size = get_param(theme_params, "title_size", size_in_pt(size_in_px = 20)),
     ),
     
     plot.caption = element_text(
@@ -87,6 +73,12 @@ SMC_theme_ggplot <- function(
       hjust = get_param(theme_params, "caption_hjust", 0.5)
     ),
     
+    axis.title = element_text(
+      size = get_param(theme_params, "axis_title_size", size_in_pt(size_in_px = 16)),
+    ),
+    axis.text = element_text(
+      size = get_param(theme_params, "axis_text_size", size_in_pt(size_in_px = 14)),
+    ),
     axis.text.x = element_text(
       margin = margin(
         t = get_param(theme_params, "margin_SMC", 8),
@@ -106,6 +98,13 @@ SMC_theme_ggplot <- function(
       l = get_param(theme_params, "margin_SMC", 8),
       r = get_param(theme_params, "margin_SMC", 8),
     ),
+    legend.title = element_text(
+      size = get_param(theme_params, "legend_title_size", size_in_pt(size_in_px = 16)),
+    ),
+    legend.text = element_text(
+      size = get_param(theme_params, "legend_text_size", size_in_pt(size_in_px = 14)),
+    ),
+    
   )
 
   # use the SMC colors in all linegraphs
@@ -119,6 +118,29 @@ SMC_theme_ggplot <- function(
     size = get_param(theme_params, "pointsize_in_pt", 1.8)
     ))
 
-  # for debugging
   invisible(theme_get())
+}
+
+
+#' @export get_SMC_theme_ggplot_default_parameters
+get_SMC_theme_ggplot_default_parameters <- function() {
+  list(
+    background_fill = "white",
+    background_colour = "transparent",
+    grid_linewidth = 0.25,
+    grid_colour = "grey92",
+    legend_position = "bottom",
+    legend_title_size = size_in_pt(size_in_px = 16),
+    legend_text_size = size_in_pt(size_in_px = 14),
+    margin_SMC = 8,
+    axis_title_size = size_in_pt(size_in_px = 16),
+    axis_text_size = size_in_pt(size_in_px = 14),
+    # title centered
+    title_hjust = 0.5,
+    title_size = size_in_pt(size_in_px = 20),
+    # caption centered
+    caption_hjust = 0.5,
+    linewidth_in_pt = 0.9,
+    pointsize_in_pt = 1.8
+  )
 }
