@@ -4,7 +4,7 @@
 \alias{SMC_theme_ggplot}
 \title{ggplot_SMC_theme}
 \usage{
-SMC_theme_ggplot()
+SMC_theme_ggplot(..., theme_params = list())
 }
 \value{
 Invisibly returns the current theme.
