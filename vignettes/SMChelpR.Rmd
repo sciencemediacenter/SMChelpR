@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Das Paket `SMChelpR` enthält verschiedene Funktionen, mit denen die [Data Reports des Science Media Center Germany](https://www.sciencemediacenter.de/alle-angebote/suchergebnis/?tx_solr%5Bfilter%5D%5B1%5D=type%3AData+Report) erstellt werden. Neben den Data Reports in html-Format stellen wir auch die Quarto-Dokumente (als Download oder alternativ auf Anfrage) zur Verfügung. Um die Quarto-Dokumente selbst rendern zu können, wird dieses R-Paket benötigt.
+Das Paket `SMChelpR` enthält verschiedene Funktionen, mit denen die [Data Reports des Science Media Center Germany](https://www.sciencemediacenter.de/angebote?story_type=Data+%26+Facts) erstellt werden. Neben den Data Reports in html-Format stellen wir auch die Quarto-Dokumente (als Download oder alternativ auf Anfrage) zur Verfügung. Um die Quarto-Dokumente selbst rendern zu können, wird dieses R-Paket benötigt.
 
 `SMChelpR` enhält in erster Linie Funktionalität für den Datenzugriff über unsere API und angepasste Funktionen zum erstellen der Grafiken.
 
