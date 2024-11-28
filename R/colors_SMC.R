@@ -31,7 +31,7 @@ colors_SMC_unnamed <- unname(unlist(colors_SMC_named))
 #' @export colors_SMC
 colors_SMC <- function(ColorNames = NULL, rev = FALSE){
   # Create a vector containg all color codes from the SMC color palette
-  Color_Values <- unlist(colors_SMC_named)
+  ColorValues <- unlist(colors_SMC_named)
 
   # If a single color or a subset of colors is requested, the vector is shortened
   # Can be reduced to a single string for a single color.
