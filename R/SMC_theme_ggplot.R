@@ -29,8 +29,9 @@ SMC_theme_ggplot <- function(
     bold = fs::path_package("fonts", "CircularXX - Latin - Desktop Fonts", "TrueType TTF", "Fonts", "CircularXXTT-Bold.ttf", package = "SMChelpR"),
     bolditalic = fs::path_package("fonts", "CircularXX - Latin - Desktop Fonts", "TrueType TTF", "Fonts", "CircularXXTT-BoldItalic.ttf", package = "SMChelpR")
   )
+  # https://www.christophenicault.com/post/understand_size_dimension_ggplot2/
   showtext::showtext_opts(dpi = 300)
-  showtext::showtext_auto()
+  showtext::showtext_auto(enable = TRUE)
   
   theme_set(theme_minimal()) 
 
@@ -112,7 +113,8 @@ SMC_theme_ggplot <- function(
 
   # set the default size of lines and points
   update_geom_defaults("line", list(
-    linewidth = get_param(theme_params, "linewidth_in_pt", 0.9)
+    linewidth = get_param(theme_params, "linewidth_in_pt", 0.9),
+    color = colors_SMC_unnamed[1]
     ))
   update_geom_defaults("point", list(
     size = get_param(theme_params, "pointsize_in_pt", 1.8)
@@ -121,26 +123,39 @@ SMC_theme_ggplot <- function(
   invisible(theme_get())
 }
 
-
+# ggplot uses px as units
 #' @export get_SMC_theme_ggplot_default_parameters
 get_SMC_theme_ggplot_default_parameters <- function() {
   list(
+    # title (centered)
+
+    title_hjust = 0.5,
+    title_size = size_in_pt(size_in_px = 20),
+
+    # background
     background_fill = "white",
     background_colour = "transparent",
+    
+    # grid
     grid_linewidth = 0.25,
     grid_colour = "grey92",
+    
+    # axis 
+    axis_title_size = size_in_pt(size_in_px = 16),
+    axis_text_size = size_in_pt(size_in_px = 14),
+    
+    # legend
     legend_position = "bottom",
     legend_title_size = size_in_pt(size_in_px = 16),
     legend_text_size = size_in_pt(size_in_px = 14),
-    margin_SMC = 8,
-    axis_title_size = size_in_pt(size_in_px = 16),
-    axis_text_size = size_in_pt(size_in_px = 14),
-    # title centered
-    title_hjust = 0.5,
-    title_size = size_in_pt(size_in_px = 20),
-    # caption centered
+    
+    # caption (centered)
     caption_hjust = 0.5,
+    
+    # misc
+    margin_SMC = 8,
     linewidth_in_pt = 0.9,
     pointsize_in_pt = 1.8
+    
   )
 }

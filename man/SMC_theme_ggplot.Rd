@@ -2,7 +2,7 @@
 % Please edit documentation in R/SMC_theme_ggplot.R
 \name{SMC_theme_ggplot}
 \alias{SMC_theme_ggplot}
-\title{ggplot_SMC_theme}
+\title{SMC-Theme for ggplot2 and plotly}
 \usage{
 SMC_theme_ggplot(..., theme_params = list())
 }
@@ -10,6 +10,12 @@ SMC_theme_ggplot(..., theme_params = list())
 Invisibly returns the current theme.
 }
 \description{
+Core functionality is SMC_theme_ggplot(). It sets all theme parameters for ggplot.
+It must be called at the beginning of each R-/Quarto-/R-Markdown document.
+}
+\details{
+ggplot_SMC_theme
+
 Primary function for the creation of Quarto-Documents in the SMC-Theme: SMC_theme_ggplot().
 It must be called at the beginning of each R-/Quarto-/R-Markdown document.
 Sets font family, font size, padding, etc. Also affects Plotly.
