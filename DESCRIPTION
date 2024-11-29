@@ -25,7 +25,8 @@ Imports:
 	showtext,
 	stringr,
 	svglite,
-	sysfonts
+	sysfonts,
+	htmltools
 Suggests:
 	devtools (>= 1.13),
 	knitr,

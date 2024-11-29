@@ -6,7 +6,12 @@
 A wrapper function for ggplotly that adjusts the theme and some parameters,
 in particular font size, spacing, legend positioning, etc.}
 \usage{
-ggplotly_SMC(..., legende_unten = TRUE, mehrzeiliger_titel = FALSE)
+ggplotly_SMC(
+  ...,
+  legende_unten = TRUE,
+  mehrzeiliger_titel = FALSE,
+  ggplotly_params = list()
+)
 }
 \arguments{
 \item{...}{A ggplot object which is the basis for a plotly object. Also: all parameters that you would usually pass to ggplotly, such as: ... = figure, tooltip = c("x", "y")}

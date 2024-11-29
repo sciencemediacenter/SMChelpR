@@ -15,74 +15,194 @@
 #' tmp_ggplot %>% image_helper("MPG", file.path(tempdir()), plotly = TRUE)
 #' @export ggplotly_SMC
 ggplotly_SMC <- function(
-  ..., legende_unten = TRUE, mehrzeiliger_titel = FALSE
+    ..., legende_unten = TRUE, mehrzeiliger_titel = FALSE, ggplotly_params = list()
 ){
-  # Create a plotly object from the passed ggplot object.
-  # Apply all settings passed to the function, such as tooltip.
-  abbildung <- ggplotly(...) %>%
-    # adjust font size, spacing, etc.
+  ggplot_abbildung <- list(...)[[1]] # extract the ggplot object from the list
+  
+  ggplot_abbildung_built <- plotly_build(ggplot_abbildung)
+  tmp_margins <- ggplot_abbildung_built$x$layout$margin
+  
+  abbildung <- ggplotly(...) |>
     layout(
-
-      title = list(font = list(size = 25)),
-      xaxis = list(title = list(font = list(size = 19)),
-                   tickfont = list(size = 16)),
-      yaxis = list(title = list(font = list(size = 19)),
-                   tickfont = list(size = 16)),
-      legend = list(title = list(font = list(size = 20)), 
-                    font = list(size = 16)),
-
-      # Spacing between the image elements and the text
-      margin = list(
-        b = 20, 
-        l = 60,
-        pad = 10
+      title = list(
+        font = list(
+          family = get_param(ggplotly_params, "font_family", "CircularSMCWeb"),
+          size = get_param(ggplotly_params, "title_size", 20)
+        ),
+        x = get_param(ggplotly_params, "title_hjust", 0.5)
       ),
-
-      # The margins between the declaratory axis texts/tick text (e.g. 2019, 2020, ...) and the axis.
+      xaxis = list(
+        title = list(
+          font = list(
+            family = get_param(ggplotly_params, "font_family", "CircularSMCWeb"),
+            size = get_param(ggplotly_params, "xaxis_title_size", 19)
+          )
+        ),
+        tickfont = list(
+          family = get_param(ggplotly_params, "font_family", "CircularSMCWeb"),
+          size = get_param(ggplotly_params, "xaxis_tickfont_size", 16)
+        )
+      ),
       yaxis = list(
         title = list(
-          standoff = 10
+          font = list(
+            family = get_param(ggplotly_params, "font_family", "CircularSMCWeb"),
+            size = get_param(ggplotly_params, "yaxis_title_size", 19)
+          ),
+          standoff = get_param(ggplotly_params, "yaxis_standoff", 10)
+        ),
+        tickfont = list(
+          family = get_param(ggplotly_params, "font_family", "CircularSMCWeb"),
+          size = get_param(ggplotly_params, "yaxis_tickfont_size", 16)
+        )
+      ),
+      legend = list(
+        title = list(
+          font = list(
+            family = get_param(ggplotly_params, "font_family", "CircularSMCWeb"),
+            size = get_param(ggplotly_params, "legend_title_size", 20)
+          )
+        ),
+        font = list(
+          family = get_param(ggplotly_params, "font_family", "CircularSMCWeb"),
+          size = get_param(ggplotly_params, "legend_font_size", 16)
+        )
+      ),
+      margin = list(
+        b = get_param(ggplotly_params, "margin_bottom", tmp_margins$b),
+        t = get_param(ggplotly_params, "margin_top", tmp_margins$t),
+        l = get_param(ggplotly_params, "margin_left", tmp_margins$l),
+        r = get_param(ggplotly_params, "margin_right", tmp_margins$r),
+        pad = get_param(ggplotly_params, "margin_pad", 0)
+      )
+    )
+  
+  if (legende_unten == TRUE) {
+    abbildung <- abbildung |>
+      layout(
+        legend = list(
+          orientation = "h",
+          entrywidth = get_param(ggplotly_params, "legend_entrywidth", 70),
+          yanchor = "bottom",
+          y = get_param(ggplotly_params, "legend_y", -0.28),
+          xanchor = "center",
+          x = get_param(ggplotly_params, "legend_x", 0.5)
         )
       )
-      
-    )
-
-  # Position legend below the plot
-  if (legende_unten == TRUE){
-    abbildung <- abbildung %>% 
-    layout(
-      legend = list(
-        orientation = "h",
-        entrywidth = 70,
-        yanchor = "bottom",
-        y = -0.28,
-        xanchor = "center",
-        x = 0.5
-      )
-    )
   }
   
-  # If the title has two rows:
-  # Increase the distance between title and plot
-  if(mehrzeiliger_titel == TRUE){
-    abbildung <- abbildung %>% 
+  if (mehrzeiliger_titel == TRUE) {
+    abbildung <- abbildung |>
       layout(
         margin = list(
-          t = -8
+          t = get_param(ggplotly_params, "margin_top_mehrzeiliger_titel", -8)
         )
       )
   }
-
-  # Remove unnecessary buttons from the navbar
-  abbildung <- config(abbildung, modeBarButtonsToRemove = 
+  
+  abbildung <- config(
+    abbildung,
+    modeBarButtonsToRemove =
+      get_param(
+        ggplotly_params,
+        "mode_buttons_to_remove",
+        list(
+          "zoom2d",
+          "pan2d",
+          "select2d",
+          "lasso2d",
+          "zoomIn2d",
+          "zoomOut2d",
+          "autoScale2d",
+          "resetViews",
+          "toggleHover",
+          "toImage",
+          "sendDataToCloud",
+          "toggleSpikelines"
+        )
+      )
+  )
+  
+  abbildung <- abbildung |>
+    layout(
+      font = list(family = "CircularSMCWeb")
+    )
+  
+  abbildung$dependencies <- c(
+    abbildung$dependencies,
     list(
-      "zoom2d", "pan2d", "select2d", "lasso2d",
-      "zoomIn2d", "zoomOut2d", "autoScale2d",
-      "toggleSpikelines", "resetViews", "toggleHover",
-      "toImage", "sendDataToCloud", "toggleSpikelines"
+      htmltools::htmlDependency(
+        name = "circular-font",
+        version = "1.0",
+        src = c(href = "https://media.sciencemediacenter.de/static/fonts/circular"),
+        stylesheet = "web.css"
+      )
     )
   )
-
-  # return the plotly object
+  
   abbildung
+}
+
+
+# plotly uses px as units
+#' @export get_SMC_ggplotly_default_parameters
+get_SMC_ggplotly_default_parameters <- function() {
+  list(
+    # title (centered)
+
+    title_hjust = 0.5,
+    title_size = 20,
+    
+    # axis 
+    xaxis_title_size = 16,
+    xaxis_tickfont_size = 14,
+    yaxis_title_size = 16,
+    yaxis_tickfont_size = 14,
+    yaxis_standoff = 0,
+
+    # legend (centered)
+    legend_x = 0.5,
+    legend_title_size = 16,
+    legend_font_size = 16,
+    legend_entrywidth = 30,
+
+    # if x-axis label given
+    legend_y = -0.22, # x-axis label given
+    # if no x-axis label given 
+    # legend_y = -0.18,
+
+    
+    # caption (centered)
+    caption_hjust = 0.5,
+    
+    # margin
+    margin_bottom = 20,
+    margin_top = 0,
+    margin_right = 0,
+    margin_left = 0,
+    margin_pad = 0,
+    margin_top_mehrzeiliger_titel = -8,
+
+    # font
+    font_family = "CircularSMCWeb",
+
+    # misc
+    margin_SMC = 8,
+    linewidth_in_pt = 0.9,
+    pointsize_in_pt = 1.8,
+    mode_buttons_to_remove = list(
+      "zoom2d",
+      "pan2d",
+      "select2d",
+      "lasso2d",
+      "zoomIn2d",
+      "zoomOut2d",
+      "autoScale2d",
+      "resetViews",
+      "toggleHover",
+      "toImage",
+      "sendDataToCloud",
+      "toggleSpikelines"
+    )
+  )
 }
