@@ -35,37 +35,37 @@ ggplotly_SMC <- function(
         title = list(
           font = list(
             family = get_param(ggplotly_params, "font_family", "CircularSMCWeb"),
-            size = get_param(ggplotly_params, "xaxis_title_size", 19)
+            size = get_param(ggplotly_params, "xaxis_title_size", 16)
           )
         ),
         tickfont = list(
           family = get_param(ggplotly_params, "font_family", "CircularSMCWeb"),
-          size = get_param(ggplotly_params, "xaxis_tickfont_size", 16)
+          size = get_param(ggplotly_params, "xaxis_tickfont_size", 14)
         )
       ),
       yaxis = list(
         title = list(
           font = list(
             family = get_param(ggplotly_params, "font_family", "CircularSMCWeb"),
-            size = get_param(ggplotly_params, "yaxis_title_size", 19)
+            size = get_param(ggplotly_params, "yaxis_title_size", 16)
           ),
           standoff = get_param(ggplotly_params, "yaxis_standoff", 10)
         ),
         tickfont = list(
           family = get_param(ggplotly_params, "font_family", "CircularSMCWeb"),
-          size = get_param(ggplotly_params, "yaxis_tickfont_size", 16)
+          size = get_param(ggplotly_params, "yaxis_tickfont_size", 14)
         )
       ),
       legend = list(
         title = list(
           font = list(
             family = get_param(ggplotly_params, "font_family", "CircularSMCWeb"),
-            size = get_param(ggplotly_params, "legend_title_size", 20)
+            size = get_param(ggplotly_params, "legend_title_size", 16)
           )
         ),
         font = list(
           family = get_param(ggplotly_params, "font_family", "CircularSMCWeb"),
-          size = get_param(ggplotly_params, "legend_font_size", 16)
+          size = get_param(ggplotly_params, "legend_font_size", 14)
         )
       ),
       margin = list(
@@ -165,16 +165,16 @@ get_SMC_ggplotly_default_parameters <- function() {
     xaxis_tickfont_size = 14,
     yaxis_title_size = 16,
     yaxis_tickfont_size = 14,
-    yaxis_standoff = 0,
+    yaxis_standoff = 10,
 
     # legend (centered)
     legend_x = 0.5,
     legend_title_size = 16,
-    legend_font_size = 16,
+    legend_font_size = 14,
     legend_entrywidth = 30,
 
     # if x-axis label given
-    legend_y = -0.22, # x-axis label given
+    legend_y = -0.28, # x-axis label given
     # if no x-axis label given 
     # legend_y = -0.18,
 

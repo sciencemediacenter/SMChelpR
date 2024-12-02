@@ -7,6 +7,8 @@ get_param <- function(plot_parameters, param_name, default_value) {
     }
 }
 
-size_in_pt <- function(size_in_px, dpi = 300) {
+# dpi is set to 300 in the quarto, yet conversion with 96 yields a better fit with plotly figures
+#' @export size_in_pt
+size_in_pt <- function(size_in_px, dpi = 96) {
     return(size_in_px * 72 / dpi)
 }
