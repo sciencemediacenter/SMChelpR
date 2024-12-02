@@ -15,7 +15,7 @@
 #' tmp_ggplot %>% image_helper("MPG", file.path(tempdir()), plotly = TRUE)
 #' @export ggplotly_SMC
 ggplotly_SMC <- function(
-    ..., legende_unten = TRUE, mehrzeiliger_titel = FALSE, ggplotly_params = list()
+    ..., legende_unten = TRUE, mehrzeiliger_titel = FALSE, interactiv = FALSE, ggplotly_params = list()
 ){
   ggplot_abbildung <- list(...)[[1]] # extract the ggplot object from the list
   
@@ -128,20 +128,24 @@ ggplotly_SMC <- function(
       font = list(family = "CircularSMCWeb")
     )
   
-  # https://github.com/quarto-dev/quarto-cli/issues/10339
-  # quarto process currently only allows disk-based assets
-  
-  abbildung$dependencies <- c(
-    abbildung$dependencies,
-    list(
-      htmltools::htmlDependency(
-        name = "circular-font",
-        version = "1.0",
-        src = c(href = "https://media.sciencemediacenter.de/static/fonts/circular"),
-        stylesheet = "web.css"
+  if (interactiv == TRUE) {
+    # if you want to see the plot with correct fonts in interactive session
+    # Note: set to FALSE when rendering Quarto document
+    # https://github.com/quarto-dev/quarto-cli/issues/10339
+    # quarto process currently only allows disk-based assets
+    
+    abbildung$dependencies <- c(
+      abbildung$dependencies,
+      list(
+        htmltools::htmlDependency(
+          name = "circular-font",
+          version = "1.0",
+          src = c(href = "https://media.sciencemediacenter.de/static/fonts/circular"),
+          stylesheet = "web.css"
+        )
       )
     )
-  )
+  }
   
   abbildung
 }
