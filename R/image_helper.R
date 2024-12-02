@@ -47,26 +47,42 @@ image_helper <-
            csv_opt = TRUE,
            plotly = FALSE,
            caption = "",
-           save_svg = TRUE
+           caption_wrap_width = 120,
+           save_svg = TRUE,
+           fig_width = 8,
+           fig_height = 8
           ) {
     pngpfad <- file.path(filepath, paste0(filename, ".png"))
     svgpfad <- file.path(filepath, paste0(filename, ".svg"))
     datenpfad <- file.path(filepath, paste0(filename, ".csv"))
     
-    if(caption != ""){plot <- plot + labs(caption = caption)}
+    if(caption != ""){
+      # only affects png and svg output 
+      # (html text is automatically wrapped according to column width)
+      wrapped_caption <- str_wrap(caption, width = caption_wrap_width) 
+      plot <- plot + labs(caption = wrapped_caption)
+    }
+
     ggsave(plot = plot,
            filename = pngpfad,
-           device = "png")
+           device = "png",
+            width = fig_width,
+            height = fig_height,
+            units = "in",
+            dpi = 300
+           )
+
     if (save_svg == TRUE) {
-      ggsave(plot = plot,
-             filename = svgpfad,
-             device = "svg")
+      svglite(svgpfad, width = fig_width, height = fig_height)
+      print(plot)
+      dev.off()
     } 
     
     # Create HTML code
     HTML_text <- "<center>"
 
     if (plotly == FALSE) {
+      # embed the saved .png in .html
       HTML_text <- HTML_text |>
         paste0(
           '<img src="',
