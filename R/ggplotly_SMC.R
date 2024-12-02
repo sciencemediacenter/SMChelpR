@@ -128,6 +128,9 @@ ggplotly_SMC <- function(
       font = list(family = "CircularSMCWeb")
     )
   
+  # https://github.com/quarto-dev/quarto-cli/issues/10339
+  # quarto process currently only allows disk-based assets
+  
   abbildung$dependencies <- c(
     abbildung$dependencies,
     list(
