@@ -23,5 +23,10 @@ get_param <- function(plot_parameters, param_name, default_value) {
 #' size_in_pt(12, dpi = 96)
 #' @export size_in_pt
 size_in_pt <- function(size_in_px, dpi = 96) {
-    return(size_in_px * 72 / dpi)
+  # Check if dpi is 0 to avoid division by zero error
+  if (dpi == 0) {
+    stop("DPI cannot be zero. Please provide a valid DPI value.")
+  }
+  # Return the converted size in pt
+  return(size_in_px * 72 / dpi)
 }

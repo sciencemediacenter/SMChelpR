@@ -2,9 +2,7 @@
 % Please edit documentation in R/colors_SMC.R
 \name{colors_SMC}
 \alias{colors_SMC}
-\title{colors_SMC
-This function returns one or more color codes from the SMC color palette
-in arbitrary order as a vector or string (single color).}
+\title{colors_SMC}
 \usage{
 colors_SMC(ColorNames = NULL, rev = FALSE)
 }
@@ -17,7 +15,6 @@ colors_SMC(ColorNames = NULL, rev = FALSE)
 An unnamed vector with color codes or a single color code as a string.
 }
 \description{
-colors_SMC
 This function returns one or more color codes from the SMC color palette
 in arbitrary order as a vector or string (single color).
 }

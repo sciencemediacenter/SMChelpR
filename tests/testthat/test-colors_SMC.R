@@ -1,3 +1,7 @@
+######################
+## colors_SMC tests ##
+######################
+
 test_that("colors_SMC_named returns a named list", {
   
   # Test 1: Ensure colors_SMC_named is a list

@@ -3,7 +3,7 @@
 \docType{data}
 \name{colors_SMC_named}
 \alias{colors_SMC_named}
-\title{Predefined color list for SMC}
+\title{List (named) of default colors for SMC}
 \format{
 An object of class \code{list} of length 9.
 }
