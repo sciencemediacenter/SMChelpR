@@ -1,18 +1,20 @@
-#' SMC-Theme for ggplot2 and plotly 
+#' SMC-Theme for ggplot2
 #' 
 #' Core functionality is SMC_theme_ggplot(). It sets all theme parameters for ggplot.
 #' It must be called at the beginning of each R-/Quarto-/R-Markdown document.
-#' 
-
-# several global parameters for the SMC theme
 
 
-#' ggplot_SMC_theme
+#' SMC_theme_ggplot
 #' 
 #' Primary function for the creation of Quarto-Documents in the SMC-Theme: SMC_theme_ggplot().
 #' It must be called at the beginning of each R-/Quarto-/R-Markdown document.
-#' Sets font family, font size, padding, etc. Also affects Plotly.
 #' 
+#' Theme inherits from theme_minimal() and then customizes the following parameters:
+#' font family and sizes, background color, grid color, legend and caption position,
+#' margin size (padding), line width and point size.
+#' 
+#' @param ... Additional parameters to be passed to theme_update().
+#' @param theme_params A list of the customized parameters that can be obtained via [get_SMC_theme_ggplot_default_parameters()].
 #' @return Invisibly returns the current theme.
 #' @examples
 #' SMC_theme_ggplot()
@@ -36,7 +38,10 @@ SMC_theme_ggplot <- function(
   theme_set(theme_minimal()) 
 
   old_theme <- theme_update(
-    # set the font
+    # allow for passing arguments to theme_update
+    ...,
+    
+    # set the font family
     text = element_text(family = "PlusJakartaSans"),
     
     # white background
@@ -56,7 +61,7 @@ SMC_theme_ggplot <- function(
     legend.position = get_param(theme_params, "legend_position", "bottom"),
     
     # Margins and positioning of elements
-    # Note: Margins have no effect on the html, but on the png and svg
+    # Note: Margins have no effect on the ggplotly-figure and thus the html-output, but on the png and svg
     plot.title = element_text(
       margin = margin(
         t = get_param(theme_params, "margin_SMC", 8),
@@ -123,12 +128,22 @@ SMC_theme_ggplot <- function(
   invisible(theme_get())
 }
 
-# ggplot uses px as units
+#' get_SMC_theme_ggplot_default_parameters
+#' 
+#' Function that returns the default parameters that are customized in SMC_theme_ggplot().
+#' This list can be modified and passed to SMC_theme_ggplot() via the theme_params argument.
+#' 
+#' Note: ggplot uses pt as units for font sizes, linewidths and point sizes, whereas plotly uses px.
+#' To account for this, the function size_in_pt() is used to convert from px to pt. 
+#' However, a complete match is difficult to achieve due to the different fonts being used (here: PlusJakartaSans, plotly: embeds Circular from the SMC-Website).
+#' 
+#' @return List of default parameters for SMC_theme_ggplot().
+#' @examples
+#' get_SMC_theme_ggplot_default_parameters()
 #' @export get_SMC_theme_ggplot_default_parameters
 get_SMC_theme_ggplot_default_parameters <- function() {
   list(
     # title (centered)
-
     title_hjust = 0.5,
     title_size = size_in_pt(size_in_px = 18),
 

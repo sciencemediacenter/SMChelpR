@@ -63,7 +63,7 @@ GraphQL_get_table_string(
 In beiden Funktionen kann auch ein anderer Datenserver angegeben werden, um andere GraphQL-Instanzen anzusprechen.
 
 
-Die Hilfsfunktion `querystring_to_tabname_and_vec` erzeugt aus einfachen GraphQL-Abfragen (ohne Filter etc.) kopierbare Parametr für Variablen- und Tabellenname, die direkt in `GraphQL_get_table_vec` eingesetzt werden können.
+Die Hilfsfunktion `querystring_to_tabname_and_vec` erzeugt aus einfachen GraphQL-Abfragen (ohne Filter etc.) kopierbare Parameter für Variablen- und Tabellenname, die direkt in `GraphQL_get_table_vec` eingesetzt werden können.
 
 ```{r}
 querystring_to_tabname_and_vec(
@@ -86,16 +86,18 @@ Für die vom SMC herausgegebenen Data Reports werden einheitliche Grafikeinstell
 ```{r}
 knitr::opts_chunk$set(
   fig.width = 9, 
-  fig.height = 8.5, 
+  fig.height = 8, 
   dpi = 300
 )
 ``` 
 
-Der Aufruf von `SMC_theme_ggplot()` setzt viele Grafikparameter, aufbauende auf das `theme_minimal()` aus dem  `ggplot2` Paket. Darüber hinus wird insbesondere die Schriftart "Aller" und die Farbpalette eingesetzt, die im SMC standardmäßig für Grafiken genutzt wird.
+Der Aufruf von `SMC_theme_ggplot()` setzt viele Grafikparameter, aufbauende auf das `theme_minimal()` aus dem  `ggplot2` Paket. Darüber hinus wird insbesondere die Schriftart ["PlusJakartaSans"]() und die Farbpalette eingesetzt, die im SMC standardmäßig für Grafiken genutzt wird.
 
 ```{r}
 SMC_theme_ggplot()
 ```
+
+Die Funktion `get_SMC_theme_ggplot_default_parameters()` gibt die von `theme_minimal()` abweichenden Parameter zurück, die in `SMC_theme_ggplot()` gesetzt werden. Diese können abgewandelt werden und direkt zurückgegeben werden `SMC_theme_ggplot(theme_params = list(...))`. Sollten spezielle Anpassungen an den Grafiken notwendig sein, können diese über die Funktion `theme_update()` vorgenommen werden oder direkt in den ggplot-Objekten (e.g. `+ theme(panel.grid.minor = element_line(colour = "red"))`)
 
 Die Funktionen `image_helper` und `ggplotly_SMC` benötigen als Basis eine `ggplot2`-Grafik. In diesem Beispiel sind es die monatlichen Aussendungen des SMC im ersten Halbjahr 2022 nach Aussendungsart.
 
@@ -135,7 +137,6 @@ Abbildung <-
     x = "", 
     y = "Anzahl Aussendungen"
   ) 
-  
 ``` 
 
 Die Funktion `image_helper()` erzeugt HTML-Code, der unter eine Grafik gesetzt werden kann, um den Download verschiedener Grafikformate (png und svg) und der für die Grafik notwendigen Daten (csv) anzubieten. Die csv mit den Daten muss dafür im Vorfeld erstellt werden, die Grafiken werden direkt aus dem ggplot-Objekt erzeugt. 

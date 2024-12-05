@@ -2,9 +2,14 @@
 % Please edit documentation in R/SMC_theme_ggplot.R
 \name{SMC_theme_ggplot}
 \alias{SMC_theme_ggplot}
-\title{SMC-Theme for ggplot2 and plotly}
+\title{SMC-Theme for ggplot2}
 \usage{
 SMC_theme_ggplot(..., theme_params = list())
+}
+\arguments{
+\item{...}{Additional parameters to be passed to theme_update().}
+
+\item{theme_params}{A list of the customized parameters that can be obtained via \code{\link[=get_SMC_theme_ggplot_default_parameters]{get_SMC_theme_ggplot_default_parameters()}}.}
 }
 \value{
 Invisibly returns the current theme.
@@ -12,13 +17,15 @@ Invisibly returns the current theme.
 \description{
 Core functionality is SMC_theme_ggplot(). It sets all theme parameters for ggplot.
 It must be called at the beginning of each R-/Quarto-/R-Markdown document.
+SMC_theme_ggplot
 }
 \details{
-ggplot_SMC_theme
-
 Primary function for the creation of Quarto-Documents in the SMC-Theme: SMC_theme_ggplot().
 It must be called at the beginning of each R-/Quarto-/R-Markdown document.
-Sets font family, font size, padding, etc. Also affects Plotly.
+
+Theme inherits from theme_minimal() and then customizes the following parameters:
+font family and sizes, background color, grid color, legend and caption position,
+margin size (padding), line width and point size.
 }
 \examples{
 SMC_theme_ggplot()
