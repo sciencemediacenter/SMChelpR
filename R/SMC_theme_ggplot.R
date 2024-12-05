@@ -23,11 +23,11 @@ SMC_theme_ggplot <- function(
   # to prevent bugs while saving PDFs 
   # the fonts need to be loaded in the following manner
   sysfonts::font_add(
-    family = "CircularSMC", 
-    regular = fs::path_package("fonts", "CircularXX - Latin - Desktop Fonts", "TrueType TTF", "Fonts", "CircularXXTT-Regular.ttf", package = "SMChelpR"),
-    italic = fs::path_package("fonts", "CircularXX - Latin - Desktop Fonts", "TrueType TTF", "Fonts", "CircularXXTT-Italic.ttf", package = "SMChelpR"),
-    bold = fs::path_package("fonts", "CircularXX - Latin - Desktop Fonts", "TrueType TTF", "Fonts", "CircularXXTT-Bold.ttf", package = "SMChelpR"),
-    bolditalic = fs::path_package("fonts", "CircularXX - Latin - Desktop Fonts", "TrueType TTF", "Fonts", "CircularXXTT-BoldItalic.ttf", package = "SMChelpR")
+    family = "PlusJakartaSans", 
+    regular = fs::path_package("fonts", "Plus_Jakarta_Sans", "static", "PlusJakartaSans-Regular.ttf", package = "SMChelpR"),
+    italic = fs::path_package("fonts", "Plus_Jakarta_Sans", "static", "PlusJakartaSans-Italic.ttf", package = "SMChelpR"),
+    bold = fs::path_package("fonts", "Plus_Jakarta_Sans", "static", "PlusJakartaSans-Bold.ttf", package = "SMChelpR"),
+    bolditalic = fs::path_package("fonts", "Plus_Jakarta_Sans", "static", "PlusJakartaSans-BoldItalic.ttf", package = "SMChelpR")
   )
   # https://www.christophenicault.com/post/understand_size_dimension_ggplot2/
   showtext::showtext_opts(dpi = 300)
@@ -37,7 +37,7 @@ SMC_theme_ggplot <- function(
 
   old_theme <- theme_update(
     # set the font
-    text = element_text(family = "CircularSMC"),
+    text = element_text(family = "PlusJakartaSans"),
     
     # white background
     plot.background = element_rect(
@@ -63,7 +63,7 @@ SMC_theme_ggplot <- function(
         b = get_param(theme_params, "margin_SMC", 8)
       ),
       hjust = get_param(theme_params, "title_hjust", 0.5),
-      size = get_param(theme_params, "title_size", size_in_pt(size_in_px = 20)),
+      size = get_param(theme_params, "title_size", size_in_pt(size_in_px = 18)),
     ),
     
     plot.caption = element_text(
@@ -75,10 +75,10 @@ SMC_theme_ggplot <- function(
     ),
     
     axis.title = element_text(
-      size = get_param(theme_params, "axis_title_size", size_in_pt(size_in_px = 16)),
+      size = get_param(theme_params, "axis_title_size", size_in_pt(size_in_px = 14)),
     ),
     axis.text = element_text(
-      size = get_param(theme_params, "axis_text_size", size_in_pt(size_in_px = 14)),
+      size = get_param(theme_params, "axis_text_size", size_in_pt(size_in_px = 12)),
     ),
     axis.text.x = element_text(
       margin = margin(
@@ -100,10 +100,10 @@ SMC_theme_ggplot <- function(
       r = get_param(theme_params, "margin_SMC", 8),
     ),
     legend.title = element_text(
-      size = get_param(theme_params, "legend_title_size", size_in_pt(size_in_px = 16)),
+      size = get_param(theme_params, "legend_title_size", size_in_pt(size_in_px = 14)),
     ),
     legend.text = element_text(
-      size = get_param(theme_params, "legend_text_size", size_in_pt(size_in_px = 14)),
+      size = get_param(theme_params, "legend_text_size", size_in_pt(size_in_px = 12)),
     ),
     
   )
@@ -130,7 +130,7 @@ get_SMC_theme_ggplot_default_parameters <- function() {
     # title (centered)
 
     title_hjust = 0.5,
-    title_size = size_in_pt(size_in_px = 20),
+    title_size = size_in_pt(size_in_px = 18),
 
     # background
     background_fill = "white",
@@ -141,13 +141,13 @@ get_SMC_theme_ggplot_default_parameters <- function() {
     grid_colour = "grey92",
     
     # axis 
-    axis_title_size = size_in_pt(size_in_px = 16),
-    axis_text_size = size_in_pt(size_in_px = 14),
+    axis_title_size = size_in_pt(size_in_px = 14),
+    axis_text_size = size_in_pt(size_in_px = 12),
     
     # legend
     legend_position = "bottom",
-    legend_title_size = size_in_pt(size_in_px = 16),
-    legend_text_size = size_in_pt(size_in_px = 14),
+    legend_title_size = size_in_pt(size_in_px = 14),
+    legend_text_size = size_in_pt(size_in_px = 12),
     
     # caption (centered)
     caption_hjust = 0.5,
