@@ -143,7 +143,7 @@ Die Funktion `image_helper()` erzeugt HTML-Code, der unter eine Grafik gesetzt w
 
 Damit der HTML-Code in einem dynamischen Dokument interpretiert wird, muss im Chunk (oder global) der Parameter `results = 'asis'` gesetzt werden.
 
-Die in `SMC_theme_ggplot()` gesetzten Parameter sind optmiert auf die Verwendung in `image_helper()`. Ein direktes Anzeigen einer Grafik ohne `image_helper()` würde zu einem veränderten Erscheinungsbild führen.
+Die in `SMC_theme_ggplot()` gesetzten Parameter sind optimiert auf die Verwendung in `image_helper()`. Ein direktes Anzeigen einer Grafik ohne `image_helper()` würde zu einem veränderten Erscheinungsbild führen.
 
 
 ```{r image_helper-demonstration, out.width="700 px", results='asis'}
@@ -164,7 +164,7 @@ image_helper(
 )
 ``` 
 
-Alternativ zu statischen `ggplot2`-Grafiken können auch interaktive Plotly-Grafiken erstellt werden. Angepasste Einstellungen hierfür finden sich in `ggplotly_SMC()`. Die `image_helper()` Fuktion muss nun so eingestellt werden, dass die gespeicherten PNGs nicht angezeigt werden und die Plotly-Abbildung muss manuell angezeigt werden.
+Alternativ zu statischen `ggplot2`-Grafiken können auch interaktive Plotly-Grafiken erstellt werden. Angepasste Einstellungen hierfür finden sich in `ggplotly_SMC()`. Die `image_helper()` Funktion muss nun so eingestellt werden, dass die gespeicherten PNGs nicht angezeigt werden (`plotly = TRUE`) und die Plotly-Abbildung muss manuell angezeigt werden.
 
 In dieser Vignette wird aus Gründen der resultierenden Dateigröße auf das Ausführen des Plotly-Chunks verzichtet.
 

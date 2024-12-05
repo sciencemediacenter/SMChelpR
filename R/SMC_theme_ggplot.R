@@ -14,7 +14,7 @@
 #' margin size (padding), line width and point size.
 #' 
 #' @param ... Additional parameters to be passed to theme_update().
-#' @param theme_params A list of the customized parameters that can be obtained via [get_SMC_theme_ggplot_default_parameters()].
+#' @param theme_params list, list of the customized parameters that can be obtained via [get_SMC_ggplotly_default_parameters()].
 #' @return Invisibly returns the current theme.
 #' @examples
 #' SMC_theme_ggplot()

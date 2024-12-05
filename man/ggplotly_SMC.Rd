@@ -2,14 +2,14 @@
 % Please edit documentation in R/ggplotly_SMC.R
 \name{ggplotly_SMC}
 \alias{ggplotly_SMC}
-\title{ggplotly_SMC
-A wrapper function for ggplotly that adjusts the theme and some parameters,
-in particular font size, spacing, legend positioning, etc.}
+\title{ggplotly_SMC}
 \usage{
 ggplotly_SMC(
   ...,
   legende_unten = TRUE,
+  x_axis_label_gegeben = TRUE,
   mehrzeiliger_titel = FALSE,
+  interaktiv = FALSE,
   ggplotly_params = list()
 )
 }
@@ -18,21 +18,27 @@ ggplotly_SMC(
 
 \item{legende_unten}{boolean, FALSE: Legend to the right of the plot; TRUE: Legend below the plot}
 
+\item{x_axis_label_gegeben}{boolean, TRUE: x-axis label is given; FALSE: no x-axis label}
+
 \item{mehrzeiliger_titel}{boolean, TRUE: adjusted spacing between title and plot, if the title spans several lines}
+
+\item{interaktiv}{boolean, TRUE: add font dependencies to interactive plot (needs to be FALSE when rendering Quarto document)}
+
+\item{ggplotly_params}{list, list of parameters to adjust the plotly object}
 }
 \value{
 plotly-object
 }
 \description{
-ggplotly_SMC
-A wrapper function for ggplotly that adjusts the theme and some parameters,
-in particular font size, spacing, legend positioning, etc.
+A wrapper function for ggplotly that is applied onto a ggplot-figure and
+adjusts the theme and some parameters, in particular:
+font sizes, spacing, legend positioning, etc.
 }
 \examples{
 library(ggplot2)
 library(dplyr)
 tmp_ggplot <- ggplot(data = mpg, aes(x = displ, y = hwy))
-tmp_ggplotly <- tmp_ggplot \%>\% ggplotly_SMC()
+tmp_ggplotly <- tmp_ggplot |> ggplotly_SMC()
 tmp_ggplotly
-tmp_ggplot \%>\% image_helper("MPG", file.path(tempdir()), plotly = TRUE)
+tmp_ggplot |> image_helper("MPG", file.path(tempdir()), plotly = TRUE)
 }

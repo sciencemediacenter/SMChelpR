@@ -9,7 +9,7 @@ SMC_theme_ggplot(..., theme_params = list())
 \arguments{
 \item{...}{Additional parameters to be passed to theme_update().}
 
-\item{theme_params}{A list of the customized parameters that can be obtained via \code{\link[=get_SMC_theme_ggplot_default_parameters]{get_SMC_theme_ggplot_default_parameters()}}.}
+\item{theme_params}{list, list of the customized parameters that can be obtained via \code{\link[=get_SMC_ggplotly_default_parameters]{get_SMC_ggplotly_default_parameters()}}.}
 }
 \value{
 Invisibly returns the current theme.
