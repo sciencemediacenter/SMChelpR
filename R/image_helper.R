@@ -47,7 +47,7 @@ image_helper <-
            csv_opt = TRUE,
            plotly = FALSE,
            caption = "",
-           caption_wrap_width = 120,
+           caption_wrap_width = 100,
            save_svg = TRUE,
            fig_width = 8,
            fig_height = 8
