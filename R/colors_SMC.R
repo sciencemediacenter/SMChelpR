@@ -1,4 +1,4 @@
-#' Predefined color list for SMC
+#' List (named) of default colors for SMC
 #'
 #' A named list containing color codes.
 #'
@@ -15,7 +15,7 @@ colors_SMC_named <- list(
   yellow = "#ffff33"
 )
 
-#' Predefined color list for SMC
+#' List (unnamed) of default colors for SMC
 #'
 #' An unnamed list containing color codes.
 #'
@@ -23,14 +23,16 @@ colors_SMC_named <- list(
 colors_SMC_unnamed <- unname(unlist(colors_SMC_named))
 
 #' colors_SMC
+#' 
 #' This function returns one or more color codes from the SMC color palette
 #' in arbitrary order as a vector or string (single color).
+#' 
 #' @param ColorNames A string with a single color code or a vector with several colors.
 #' @param rev  boolean, if TRUE: reverse the return order of the colors.
 #' @return An unnamed vector with color codes or a single color code as a string.
 #' @export colors_SMC
 colors_SMC <- function(ColorNames = NULL, rev = FALSE){
-  # Create a vector containg all color codes from the SMC color palette
+  # Create a vector containing all color codes from the SMC color palette
   ColorValues <- unlist(colors_SMC_named)
 
   # If a single color or a subset of colors is requested, the vector is shortened

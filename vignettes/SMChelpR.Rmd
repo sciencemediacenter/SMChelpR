@@ -91,7 +91,7 @@ knitr::opts_chunk$set(
 )
 ``` 
 
-Der Aufruf von `SMC_theme_ggplot()` setzt viele Grafikparameter, aufbauende auf das `theme_minimal()` aus dem  `ggplot2` Paket. Darüber hinus wird insbesondere die Schriftart ["PlusJakartaSans"]() und die Farbpalette eingesetzt, die im SMC standardmäßig für Grafiken genutzt wird.
+Der Aufruf von `SMC_theme_ggplot()` setzt viele Grafikparameter, aufbauende auf das `theme_minimal()` aus dem  `ggplot2` Paket. Darüber hinus wird insbesondere die Schriftart ["PlusJakartaSans"]() und die Farbpalette eingesetzt, die im SMC standardmäßig für Grafiken genutzt wird (kann via `colors_SMC()` abgerufen werden).
 
 ```{r}
 SMC_theme_ggplot()
