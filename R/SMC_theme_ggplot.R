@@ -13,6 +13,13 @@
 #' font family and sizes, background color, grid color, legend and caption position,
 #' margin size (padding), line width and point size.
 #' 
+#' @details
+#' To generate interactive graphics for the SMC website, we first set the SMC_theme_ggplot(), 
+#' then produce a ggplot-figure with it and finally convert to plotly via ggplotly_SMC().
+#' However, not all parameters set in the SMC_theme_ggplot propagate to the resulting plotly figure.
+#' One noteworthy exception are the margins, which are automatically determined during the conversion.
+#' Nevertheless, the parameters set here define the appearance of the png and svg output.
+#' 
 #' @param ... Additional parameters to be passed to theme_update().
 #' @param theme_params list, list of the customized parameters that can be obtained via [get_SMC_ggplotly_default_parameters()].
 #' @return Invisibly returns the current theme.

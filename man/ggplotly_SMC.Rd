@@ -22,7 +22,7 @@ ggplotly_SMC(
 
 \item{mehrzeiliger_titel}{boolean, TRUE: adjusted spacing between title and plot, if the title spans several lines}
 
-\item{interaktiv}{boolean, TRUE: add font dependencies to interactive plot (needs to be FALSE when rendering Quarto document)}
+\item{interaktiv}{boolean, TRUE: add font dependencies to interactive plot (needs to be FALSE when rendering Quarto document}
 
 \item{ggplotly_params}{list, list of parameters to adjust the plotly object}
 }

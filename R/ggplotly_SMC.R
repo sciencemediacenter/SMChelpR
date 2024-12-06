@@ -15,7 +15,7 @@
 #' @param legende_unten boolean, FALSE: Legend to the right of the plot; TRUE: Legend below the plot
 #' @param x_axis_label_gegeben boolean, TRUE: x-axis label is given; FALSE: no x-axis label
 #' @param mehrzeiliger_titel boolean, TRUE: adjusted spacing between title and plot, if the title spans several lines
-#' @param interaktiv boolean, TRUE: add font dependencies to interactive plot (needs to be FALSE when rendering Quarto document
+#' @param interaktiv boolean, TRUE: add font dependencies to interactive plot (needs to be FALSE when rendering Quarto document)
 #' @param ggplotly_params list, list of parameters to adjust the plotly object
 #' @return plotly-object
 #' @examples

@@ -26,6 +26,12 @@ It must be called at the beginning of each R-/Quarto-/R-Markdown document.
 Theme inherits from theme_minimal() and then customizes the following parameters:
 font family and sizes, background color, grid color, legend and caption position,
 margin size (padding), line width and point size.
+
+To generate interactive graphics for the SMC website, we first set the SMC_theme_ggplot(),
+then produce a ggplot-figure with it and finally convert to plotly via ggplotly_SMC().
+However, not all parameters set in the SMC_theme_ggplot propagate to the resulting plotly figure.
+One noteworthy exception are the margins, which are automatically determined during the conversion.
+Nevertheless, the parameters set here define the appearance of the png and svg output.
 }
 \examples{
 SMC_theme_ggplot()
