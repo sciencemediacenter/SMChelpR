@@ -5,8 +5,14 @@
 
 
 test_that("image_helper() can save a PNG and save_svg = FALSE works", {
-  unlink(file.path(tempdir(), "testfiles_image_helper"), recursive = TRUE)
-
+  # Define the directory path
+  target_dir <- file.path(tempdir(), "testfiles_image_helper")
+  
+  # Ensure the directory exists
+  if (!dir.exists(target_dir)) {
+    dir.create(target_dir, recursive = TRUE)
+  }
+  
   withr::local_package("ggplot2")
   
   # create lineplot with points in SMC-CI
@@ -43,12 +49,21 @@ test_that("image_helper() can save a PNG and save_svg = FALSE works", {
   # check if png and svg file exist
   expect_true(file.exists(file.path(tempdir(), "testfiles_image_helper", "testpng.png")))
   expect_true(!file.exists(file.path(tempdir(), "testfiles_image_helper", "testpng.svg")))
-  unlink(file.path(tempdir(), "testfiles_image_helper"), recursive = TRUE)
+  
+  # Clean up the directory
+  unlink(target_dir, recursive = TRUE)
 })
 
 
 test_that("image_helper() does show the caption for plotly in HTML and can save SVGs. Also: extra_html_tags", {
-  unlink(file.path(tempdir(), "testfiles_image_helper"), recursive = TRUE)
+  # Define the directory path
+  target_dir <- file.path(tempdir(), "testfiles_image_helper")
+  
+  # Ensure the directory exists
+  if (!dir.exists(target_dir)) {
+    dir.create(target_dir, recursive = TRUE)
+  }
+  
   withr::local_package("ggplot2")
   
   # create lineplot with points in SMC-CI
@@ -86,10 +101,20 @@ test_that("image_helper() does show the caption for plotly in HTML and can save 
   # check if png and svg file exist
   expect_true(file.exists(file.path(tempdir(), "testfiles_image_helper", "testfile.png")))
   expect_true(file.exists(file.path(tempdir(), "testfiles_image_helper", "testfile.svg")))
-  unlink(file.path(tempdir(), "testfiles_image_helper"), recursive = TRUE)
+  
+  # Clean up the directory
+  unlink(target_dir, recursive = TRUE)
 })
 
 test_that("image_helper() test plotly and csv_opt params", {
+  # Define the directory path
+  target_dir <- file.path(tempdir(), "testfiles_image_helper")
+  
+  # Ensure the directory exists
+  if (!dir.exists(target_dir)) {
+    dir.create(target_dir, recursive = TRUE)
+  }
+  
   withr::local_package("ggplot2")
   
   # create lineplot with points in SMC-CI
@@ -122,7 +147,9 @@ test_that("image_helper() test plotly and csv_opt params", {
       )
     )
   )
-  unlink(file.path(tempdir(), "testfiles_image_helper"), recursive = TRUE)
+  
+  # Clean up the directory
+  unlink(target_dir, recursive = TRUE)
 })
 
 ##############################
@@ -250,7 +277,7 @@ test_that("image_helper_light() throws error if data or images have more than tw
   )
 })
 
-test_that("image_helper_light() thows error if data or image file path does not exist", {
+test_that("image_helper_light() throws error if data or image file path does not exist", {
   filename <- "test_file_2"
   data <- tibble(
     fileformat = c("csv"),

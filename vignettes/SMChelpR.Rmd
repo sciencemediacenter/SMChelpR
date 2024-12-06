@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-Das Paket `SMChelpR` enthält verschiedene Funktionen, mit denen die [Data Reports des Science Media Center Germany](https://www.sciencemediacenter.de/alle-angebote/suchergebnis/?tx_solr%5Bfilter%5D%5B1%5D=type%3AData+Report) erstellt werden. Neben den Data Reports in html-Format stellen wir auch die Quarto-Dokumente (als Download oder alternativ auf Anfrage) zur Verfügung. Um die Quarto-Dokumente selbst rendern zu können, wird dieses R-Paket benötigt.
+Das Paket `SMChelpR` enthält verschiedene Funktionen, mit denen die [Data Reports des Science Media Center Germany](https://www.sciencemediacenter.de/angebote?story_type=Data+%26+Facts) erstellt werden. Neben den Data Reports in html-Format stellen wir auch die Quarto-Dokumente (als Download oder alternativ auf Anfrage) zur Verfügung. Um die Quarto-Dokumente selbst rendern zu können, wird dieses R-Paket benötigt.
 
 `SMChelpR` enhält in erster Linie Funktionalität für den Datenzugriff über unsere API und angepasste Funktionen zum erstellen der Grafiken.
 
@@ -63,7 +63,7 @@ GraphQL_get_table_string(
 In beiden Funktionen kann auch ein anderer Datenserver angegeben werden, um andere GraphQL-Instanzen anzusprechen.
 
 
-Die Hilfsfunktion `querystring_to_tabname_and_vec` erzeugt aus einfachen GraphQL-Abfragen (ohne Filter etc.) kopierbare Parametr für Variablen- und Tabellenname, die direkt in `GraphQL_get_table_vec` eingesetzt werden können.
+Die Hilfsfunktion `querystring_to_tabname_and_vec` erzeugt aus einfachen GraphQL-Abfragen (ohne Filter etc.) kopierbare Parameter für Variablen- und Tabellenname, die direkt in `GraphQL_get_table_vec` eingesetzt werden können.
 
 ```{r}
 querystring_to_tabname_and_vec(
@@ -86,16 +86,18 @@ Für die vom SMC herausgegebenen Data Reports werden einheitliche Grafikeinstell
 ```{r}
 knitr::opts_chunk$set(
   fig.width = 9, 
-  fig.height = 8.5, 
+  fig.height = 8, 
   dpi = 300
 )
 ``` 
 
-Der Aufruf von `SMC_theme_ggplot()` setzt viele Grafikparameter, aufbauende auf das `theme_minimal()` aus dem  `ggplot2` Paket. Darüber hinus wird insbesondere die Schriftart "Aller" und die Farbpalette eingesetzt, die im SMC standardmäßig für Grafiken genutzt wird.
+Der Aufruf von `SMC_theme_ggplot()` setzt viele Grafikparameter, aufbauende auf das `theme_minimal()` aus dem  `ggplot2` Paket. Darüber hinus wird insbesondere die Schriftart ["PlusJakartaSans"]() und die Farbpalette eingesetzt, die im SMC standardmäßig für Grafiken genutzt wird (kann via `colors_SMC()` abgerufen werden).
 
 ```{r}
 SMC_theme_ggplot()
 ```
+
+Die Funktion `get_SMC_theme_ggplot_default_parameters()` gibt die von `theme_minimal()` abweichenden Parameter zurück, die in `SMC_theme_ggplot()` gesetzt werden. Diese können abgewandelt werden und direkt zurückgegeben werden `SMC_theme_ggplot(theme_params = list(...))`. Sollten spezielle Anpassungen an den Grafiken notwendig sein, können diese über die Funktion `theme_update()` vorgenommen werden oder direkt in den ggplot-Objekten (e.g. `+ theme(panel.grid.minor = element_line(colour = "red"))`)
 
 Die Funktionen `image_helper` und `ggplotly_SMC` benötigen als Basis eine `ggplot2`-Grafik. In diesem Beispiel sind es die monatlichen Aussendungen des SMC im ersten Halbjahr 2022 nach Aussendungsart.
 
@@ -135,14 +137,13 @@ Abbildung <-
     x = "", 
     y = "Anzahl Aussendungen"
   ) 
-  
 ``` 
 
 Die Funktion `image_helper()` erzeugt HTML-Code, der unter eine Grafik gesetzt werden kann, um den Download verschiedener Grafikformate (png und svg) und der für die Grafik notwendigen Daten (csv) anzubieten. Die csv mit den Daten muss dafür im Vorfeld erstellt werden, die Grafiken werden direkt aus dem ggplot-Objekt erzeugt. 
 
 Damit der HTML-Code in einem dynamischen Dokument interpretiert wird, muss im Chunk (oder global) der Parameter `results = 'asis'` gesetzt werden.
 
-Die in `SMC_theme_ggplot()` gesetzten Parameter sind optmiert auf die Verwendung in `image_helper()`. Ein direktes Anzeigen einer Grafik ohne `image_helper()` würde zu einem veränderten Erscheinungsbild führen.
+Die in `SMC_theme_ggplot()` gesetzten Parameter sind optimiert auf die Verwendung in `image_helper()`. Ein direktes Anzeigen einer Grafik ohne `image_helper()` würde zu einem veränderten Erscheinungsbild führen.
 
 
 ```{r image_helper-demonstration, out.width="700 px", results='asis'}
@@ -163,7 +164,7 @@ image_helper(
 )
 ``` 
 
-Alternativ zu statischen `ggplot2`-Grafiken können auch interaktive Plotly-Grafiken erstellt werden. Angepasste Einstellungen hierfür finden sich in `ggplotly_SMC()`. Die `image_helper()` Fuktion muss nun so eingestellt werden, dass die gespeicherten PNGs nicht angezeigt werden und die Plotly-Abbildung muss manuell angezeigt werden.
+Alternativ zu statischen `ggplot2`-Grafiken können auch interaktive Plotly-Grafiken erstellt werden. Angepasste Einstellungen hierfür finden sich in `ggplotly_SMC()`. Die `image_helper()` Funktion muss nun so eingestellt werden, dass die gespeicherten PNGs nicht angezeigt werden (`plotly = TRUE`) und die Plotly-Abbildung muss manuell angezeigt werden.
 
 In dieser Vignette wird aus Gründen der resultierenden Dateigröße auf das Ausführen des Plotly-Chunks verzichtet.
 

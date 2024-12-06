@@ -14,7 +14,10 @@
 #' @param csv_opt boolean, FALSE: no link to a CSV-Download will be provided; default: TRUE.
 #' @param plotly boolean: FALSE, a PNG of the provided ggplot-object will be displayed. TRUE: no figure is shown, plotly-figures must be displayed manually bforehand. Default: FALSE
 #' @param caption string: If not empty: text for the caption, e.g. sources.
+#' @param caption_wrap_width integer: Width for wrapping the caption text. Default: 100.
 #' @param save_svg boolean: Generation of the corresponding svg. Default: TRUE. For very detailed graphics, you should refrain from creating a sv-graphic, since the file size can become too large.
+#' @param fig_width numeric: Width of the figure in inches. Default: 9.
+#' @param fig_height numeric: Height of the figure in inches. Default: 8.
 #' @param captions vector: A vector with all the captions for the plot.
 #' @param data tibble: A dataframe with two columns 1) fileformat, and 2) filename_suffix. This dataframe is used to generate a link to each data set needed to generate the plot, usually there is one data set per plot, but sometimes there are more.
 #' @param images tibble: A dataframe with two columns 1) fileformat, and 2) filename_suffix. This dataframe is used to generate links to files storing the plot in different image formats.
@@ -37,7 +40,6 @@
 #' write(0, file = file.path(tempdir(), "a_extra_json_suffix.json"))
 #' write(0, file = file.path(tempdir(), "a.html"))
 #' image_helper_light(captions, filename, filepath, data, images)
-
 #' @export image_helper
 image_helper <-
   function(plot,
@@ -47,26 +49,42 @@ image_helper <-
            csv_opt = TRUE,
            plotly = FALSE,
            caption = "",
-           save_svg = TRUE
+           caption_wrap_width = 100,
+           save_svg = TRUE,
+           fig_width = 9,
+           fig_height = 8
           ) {
     pngpfad <- file.path(filepath, paste0(filename, ".png"))
     svgpfad <- file.path(filepath, paste0(filename, ".svg"))
     datenpfad <- file.path(filepath, paste0(filename, ".csv"))
     
-    if(caption != ""){plot <- plot + labs(caption = caption)}
+    if(caption != ""){
+      # only affects png and svg output 
+      # (html text is automatically wrapped according to column width)
+      wrapped_caption <- str_wrap(caption, width = caption_wrap_width) 
+      plot <- plot + labs(caption = wrapped_caption)
+    }
+
     ggsave(plot = plot,
            filename = pngpfad,
-           device = "png")
+           device = "png",
+            width = fig_width,
+            height = fig_height,
+            units = "in",
+            dpi = 300
+           )
+
     if (save_svg == TRUE) {
-      ggsave(plot = plot,
-             filename = svgpfad,
-             device = "svg")
+      svglite(svgpfad, width = fig_width, height = fig_height)
+      print(plot)
+      dev.off()
     } 
     
     # Create HTML code
     HTML_text <- "<center>"
 
     if (plotly == FALSE) {
+      # embed the saved .png in .html
       HTML_text <- HTML_text |>
         paste0(
           '<img src="',
