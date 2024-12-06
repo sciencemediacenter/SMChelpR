@@ -6,6 +6,11 @@
 \usage{
 size_in_pt(size_in_px, dpi = 96)
 }
+\arguments{
+\item{size_in_px}{numeric, size in pixels.}
+
+\item{dpi}{numeric, dots per inch.}
+}
 \description{
 Conversion between units of font sizes, linewidths and point sizes in ggplot2 and plotly.
 }

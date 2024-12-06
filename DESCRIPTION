@@ -27,8 +27,8 @@ Imports:
 	svglite,
 	sysfonts,
 	htmltools,
-	leaflet,
-	scales
+	htmlwidgets,
+	leaflet
 Suggests:
 	devtools (>= 1.13),
 	knitr,
@@ -37,7 +37,8 @@ Suggests:
 	tidyverse,
 	vdiffr,
 	withr,
-	readr
+	readr,
+	grDevices
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 VignetteBuilder: knitr

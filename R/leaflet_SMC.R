@@ -10,13 +10,13 @@
 #' leafletOptions, setView, setMaxBounds, and prepends a html-extra_style.
 #' 
 #' @param ... Additional parameters to be passed to leafletOptions().
-#' @param theme_params list, list of the customized parameters that can be obtained via [get_base_map_parameters()].
+#' @param base_map_parameters list, list of the customized parameters that can be obtained via [get_base_map_parameters()].
 #' @return Leaflet map widget
 #' @examples
 #' create_base_map(base_map_parameters = get_base_map_parameters())
 #' @export create_base_map
 create_base_map <- function(..., base_map_parameters = list()) {
-  map <- leaflet(
+  map <- leaflet::leaflet(
     options = leafletOptions(
       ...,
       
@@ -71,7 +71,7 @@ get_base_map_parameters <-  function() {
     scrollWheelZoom = FALSE,
     maxBoundsViscosity = 0.5,
     # If maxBounds is set, this option controls how solid the bounds are when dragging
-    extra_style = tags$style(".leaflet-container { background: white !important; }")
+    extra_style = htmltools::tags$style(".leaflet-container { background: white !important; }")
   )
 }
 
@@ -104,7 +104,7 @@ map_add_choropleth_layer <- function(map,
       fillOpacity = choropleth_layer_parameters$fillOpacity,
       weight = choropleth_layer_parameters$weight,
       labelOptions = choropleth_layer_parameters$labelOptions,
-      highlight = choropleth_layer_parameters$highlight,
+      highlightOptions = choropleth_layer_parameters$highlightOptions,
       
       # organizational parameters
       options = choropleth_layer_parameters$options,
@@ -131,7 +131,7 @@ get_choropleth_layer_parameters <- function() {
       "background" = "#f4efe1",
       "font-size" = "12px"
     )),
-    highlight = highlightOptions(
+    highlightOptions = highlightOptions(
       # on mouseover
       weight = 3,
       color = "black",
@@ -160,7 +160,7 @@ addLegendCustom <- function(map, position, colors, labels, sizes, title = NULL, 
                            sizes, "px;margin-top: 4px;line-height: ", sizes, "px;'>", 
                            labels, "</div>")
   
-  return(addLegend(map, position, colors = colorAdditions, 
+  return(leaflet::addLegend(map, position, colors = colorAdditions, 
                    labels = labelAdditions, opacity = opacity, title = title
   ))
 }

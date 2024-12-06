@@ -5,5 +5,9 @@
 #' @import fs
 #' @import svglite
 #' @import dplyr
+#' @import stringr
+#' @import leaflet
+#' @import htmltools
+#' @import grDevices
 #'  
 NCC <- 1701 

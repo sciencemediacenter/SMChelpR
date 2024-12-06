@@ -21,10 +21,13 @@ system("R CMD build SMChelpR --resave-data")
 # verify current version
 system("R CMD check SMChelpR_0.0-9.tar.gz --as-cran")
 
-###############################################
+##############################################
 ## Install locally to test for hidden errors ##
 ###############################################
+# devtools::install_deps("SMChelpR")
+# devtools::check("SMChelpR")
 devtools::install("SMChelpR")
+devtools::test_coverage("SMChelpR")
 
 
 #########################

@@ -13,7 +13,10 @@ image_helper(
   csv_opt = TRUE,
   plotly = FALSE,
   caption = "",
-  save_svg = TRUE
+  caption_wrap_width = 100,
+  save_svg = TRUE,
+  fig_width = 9,
+  fig_height = 8
 )
 
 image_helper_light(
@@ -41,7 +44,13 @@ image_helper_light(
 
 \item{caption}{string: If not empty: text for the caption, e.g. sources.}
 
+\item{caption_wrap_width}{integer: Width for wrapping the caption text. Default: 100.}
+
 \item{save_svg}{boolean: Generation of the corresponding svg. Default: TRUE. For very detailed graphics, you should refrain from creating a sv-graphic, since the file size can become too large.}
+
+\item{fig_width}{numeric: Width of the figure in inches. Default: 9.}
+
+\item{fig_height}{numeric: Height of the figure in inches. Default: 8.}
 
 \item{captions}{vector: A vector with all the captions for the plot.}
 

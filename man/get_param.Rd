@@ -6,6 +6,13 @@
 \usage{
 get_param(plot_parameters, param_name, default_value)
 }
+\arguments{
+\item{plot_parameters}{list, list of parameters.}
+
+\item{param_name}{character, name of the parameter to be retrieved.}
+
+\item{default_value}{any, default value to be returned if the parameter is not present.}
+}
 \description{
 Helper that allows to get a parameter from a list of parameters or a default value if the parameter is not present.
 }

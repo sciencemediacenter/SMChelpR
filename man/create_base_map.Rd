@@ -10,7 +10,7 @@ create_base_map(..., base_map_parameters = list())
 \arguments{
 \item{...}{Additional parameters to be passed to leafletOptions().}
 
-\item{theme_params}{list, list of the customized parameters that can be obtained via \code{\link[=get_base_map_parameters]{get_base_map_parameters()}}.}
+\item{base_map_parameters}{list, list of the customized parameters that can be obtained via \code{\link[=get_base_map_parameters]{get_base_map_parameters()}}.}
 }
 \value{
 Leaflet map widget
