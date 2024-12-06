@@ -4,11 +4,18 @@
 #' adjusts the theme and some parameters, in particular:
 #' font sizes, spacing, legend positioning, etc.
 #' 
+#' @details 
+#' This function applies the "CircularSMCWeb" font-family, used on the [SMC Website](https://www.sciencemediacenter.de/), 
+#' ensuring that data report figures render correctly on the site. 
+#' For interactive sessions, you can preview figures with the website font by setting `interaktiv = TRUE`. 
+#' However, due to Quarto's limitation with "disk-based" assets (see [GitHub Issue](https://github.com/quarto-dev/quarto-cli/issues/10339)), 
+#' you must set `interaktiv = FALSE` before rendering.
+#' 
 #' @param ... A ggplot object which is the basis for a plotly object. Also: all parameters that you would usually pass to ggplotly, such as: ... = figure, tooltip = c("x", "y")
 #' @param legende_unten boolean, FALSE: Legend to the right of the plot; TRUE: Legend below the plot
 #' @param x_axis_label_gegeben boolean, TRUE: x-axis label is given; FALSE: no x-axis label
 #' @param mehrzeiliger_titel boolean, TRUE: adjusted spacing between title and plot, if the title spans several lines
-#' @param interaktiv boolean, TRUE: add font dependencies to interactive plot (needs to be FALSE when rendering Quarto document)
+#' @param interaktiv boolean, TRUE: add font dependencies to interactive plot (needs to be FALSE when rendering Quarto document
 #' @param ggplotly_params list, list of parameters to adjust the plotly object
 #' @return plotly-object
 #' @examples

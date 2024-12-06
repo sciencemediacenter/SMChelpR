@@ -34,6 +34,13 @@ A wrapper function for ggplotly that is applied onto a ggplot-figure and
 adjusts the theme and some parameters, in particular:
 font sizes, spacing, legend positioning, etc.
 }
+\details{
+This function applies the "CircularSMCWeb" font-family, used on the \href{https://www.sciencemediacenter.de/}{SMC Website},
+ensuring that data report figures render correctly on the site.
+For interactive sessions, you can preview figures with the website font by setting \code{interaktiv = TRUE}.
+However, due to Quarto's limitation with "disk-based" assets (see \href{https://github.com/quarto-dev/quarto-cli/issues/10339}{GitHub Issue}),
+you must set \code{interaktiv = FALSE} before rendering.
+}
 \examples{
 library(ggplot2)
 library(dplyr)
