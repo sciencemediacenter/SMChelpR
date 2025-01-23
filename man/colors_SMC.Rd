@@ -17,4 +17,20 @@ An unnamed vector with color codes or a single color code as a string.
 \description{
 This function returns one or more color codes from the SMC color palette
 in arbitrary order as a vector or string (single color).
+Available colors include: "blue", "green", "purple", "orange", "brown", "pink", "grey", "red", "yellow".
+}
+\examples{
+# Retrieve all available color codes
+colors_SMC()
+
+# Retrieve a single color code
+colors_SMC(ColorNames = "red")
+# [1] "#e41a1c"
+
+# Retrieve multiple color codes
+colors_SMC(ColorNames = c("blue", "yellow"))
+# [1] "#377eb8" "#ffff33"
+
+# Reverse the order of the colors
+colors_SMC(rev = TRUE)
 }

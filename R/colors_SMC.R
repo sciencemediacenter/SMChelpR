@@ -26,10 +26,25 @@ colors_SMC_unnamed <- unname(unlist(colors_SMC_named))
 #' 
 #' This function returns one or more color codes from the SMC color palette
 #' in arbitrary order as a vector or string (single color).
+#' Available colors include: "blue", "green", "purple", "orange", "brown", "pink", "grey", "red", "yellow".
 #' 
 #' @param ColorNames A string with a single color code or a vector with several colors.
 #' @param rev  boolean, if TRUE: reverse the return order of the colors.
 #' @return An unnamed vector with color codes or a single color code as a string.
+#' @examples
+#' # Retrieve all available color codes
+#' colors_SMC()
+#'
+#' # Retrieve a single color code
+#' colors_SMC(ColorNames = "red")
+#' # [1] "#e41a1c"
+#'
+#' # Retrieve multiple color codes
+#' colors_SMC(ColorNames = c("blue", "yellow"))
+#' # [1] "#377eb8" "#ffff33"
+#'
+#' # Reverse the order of the colors
+#' colors_SMC(rev = TRUE)
 #' @export colors_SMC
 colors_SMC <- function(ColorNames = NULL, rev = FALSE){
   # Create a vector containing all color codes from the SMC color palette
