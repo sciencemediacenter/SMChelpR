@@ -2,7 +2,7 @@ Package: SMChelpR
 Title: SMC Tools for Data Reports in R
 Version: 0.1-0
 Authors@R: c(
-	person("Lars", "Koppers", email="lars.koppers@sciencemediacenter.de", role=c("aut", "cre"), comment = c(ORCID = "0000-0002-1642-9616")), 
+	person("Lars", "Koppers", email="lars.koppers@sciencemediacenter.de", role=c("aut", "cre"), comment = c(ORCID = "0000-0002-1642-9616", ROR = "04k90qk38")), 
 	person("Clarissa", "Staudt", email="", role=c("aut"), comment = c(ORCID = "0000-0001-8161-5768")), 
 	person("Alexander", "Mühlhausen", email="", role=c("aut")),
 	person("Laura", "Bahamón Jiménez", email="", role=c("aut")),
