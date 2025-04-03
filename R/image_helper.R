@@ -167,7 +167,7 @@ process_data_tibble <- function(data, filename, filepath, type) {
           path,
           '" download>',
           filename_suffix,
-          ' Als ',
+          ' als ',
           toupper(fileformat),
           '.</a>'
         ),
