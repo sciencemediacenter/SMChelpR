@@ -19,7 +19,7 @@ setwd("..")
 system("R CMD build SMChelpR --resave-data")
 
 # verify current version
-system("R CMD check SMChelpR_0.1-1.tar.gz --as-cran")
+system("R CMD check SMChelpR_0.1-2.tar.gz --as-cran")
 
 ###############################################
 ## Install locally to test for hidden errors ##
