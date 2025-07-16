@@ -30,14 +30,15 @@ Imports:
 	htmlwidgets,
 	leaflet,
 	httr2,
-	purrr
+	purrr,
+	glue,
+	vdiffr
 Suggests:
 	devtools (>= 1.13),
 	knitr,
 	rmarkdown (>= 1.9),
 	testthat (>= 3.0.0),
 	tidyverse,
-	vdiffr,
 	withr,
 	readr,
 	grDevices

@@ -11,6 +11,7 @@
 #' @import grDevices
 #' @import vdiffr
 #' @import httr2
-#' @import purrr
-#'
+#' @import glue
+#' @importFrom purrr map map_df pluck as_vector
+#' @importFrom jsonlite toJSON fromJSON
 NCC <- 1701

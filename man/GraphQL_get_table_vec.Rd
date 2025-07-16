@@ -2,24 +2,50 @@
 % Please edit documentation in R/GraphQL_get_table.R
 \name{GraphQL_get_table_vec}
 \alias{GraphQL_get_table_vec}
-\title{Get Data from GraphQL API (vector‑style)}
+\title{Retrieve data from a GraphQL API with pagination (vector-style)}
 \usage{
 GraphQL_get_table_vec(
   tabellenname,
   variablen,
-  datenserver = "https://data.smclab.io/v1/graphql"
+  where = NULL,
+  datenserver = "https://data.smclab.io/v1/graphql",
+  page_size = 1000,
+  max_pages = Inf
 )
 }
 \arguments{
-\item{tabellenname}{character string name of queried table}
+\item{tabellenname}{character string; name of the table/entity to query in the GraphQL schema}
 
-\item{variablen}{character vector containing the desired variable names}
+\item{variablen}{character vector; field names to retrieve from the GraphQL endpoint}
 
-\item{datenserver}{character string URL of the GraphQL endpoint}
+\item{where}{character string; optional GraphQL-formatted condition string for filtering results}
+
+\item{datenserver}{character string; URL of the GraphQL endpoint (defaults to "https://data.smclab.io/v1/graphql")}
+
+\item{page_size}{integer; number of records to fetch per request (defaults to 1000)}
+
+\item{max_pages}{integer; maximum number of pages to retrieve (defaults to Inf for all available pages)}
 }
 \value{
-tibble with the requested data
+tibble containing all retrieved data with columns matching the requested fields
 }
 \description{
-Get Data from GraphQL API (vector‑style)
+Fetches data from a GraphQL endpoint using automatic pagination to handle large result sets.
+The function constructs GraphQL queries, handles pagination, and combines results into a single tibble.
+}
+\examples{
+# Basic query for story data with default pagination
+GraphQL_get_table_vec(
+  tabellenname = "test_R_Packages_test_story",
+  variablen = c("publication_date", "story_no", "title")
+)
+
+# Query with filtering and custom page size
+GraphQL_get_table_vec(
+  tabellenname = "test_R_Packages_test_story",
+  variablen = c("publication_date", "ressort", "story_no", "title"),
+  where = 'publication_date: {_gt: "2022-01-01"}',
+  page_size = 500,
+  max_pages = 10
+)
 }
