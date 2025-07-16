@@ -9,5 +9,8 @@
 #' @import leaflet
 #' @import htmltools
 #' @import grDevices
-#'  
-NCC <- 1701 
+#' @import vdiffr
+#' @import httr2
+#' @import purrr
+#'
+NCC <- 1701

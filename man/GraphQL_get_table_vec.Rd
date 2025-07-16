@@ -2,17 +2,11 @@
 % Please edit documentation in R/GraphQL_get_table.R
 \name{GraphQL_get_table_vec}
 \alias{GraphQL_get_table_vec}
-\alias{GraphQL_get_table_string}
-\title{Get Data from GraphQL API}
+\title{Get Data from GraphQL API (vector‑style)}
 \usage{
 GraphQL_get_table_vec(
   tabellenname,
   variablen,
-  datenserver = "https://data.smclab.io/v1/graphql"
-)
-
-GraphQL_get_table_string(
-  querystring,
   datenserver = "https://data.smclab.io/v1/graphql"
 )
 }
@@ -21,47 +15,11 @@ GraphQL_get_table_string(
 
 \item{variablen}{character vector containing the desired variable names}
 
-\item{datenserver}{character string mit URL der Datenbank, default: https://data.smclab.io/v1/graphql}
-
-\item{querystring}{character string contains a valid GraphQL query}
+\item{datenserver}{character string URL of the GraphQL endpoint}
 }
 \value{
 tibble with the requested data
 }
 \description{
-functions to query data via a GraphQL API. Here \code{GraphQL_get_table_vec} allows a query specifying the table name and the desired variable names.
-\code{GraphQL_get_table_string} allows more complex queries by passing a complete GraphQL query as character-string.
-}
-\details{
-The functions are primarily intended to make the \href{https://github.com/sciencemediacenter/DataCollection}{Data Collection}
-of the \href{https://www.sciencemediacenter.de/}{SMC} accessible. By adjusting the parameter 'data server',
-other instances can also be accessed.
-}
-\examples{
-GraphQL_get_table_vec(
-  tabellenname = "test_R_Packages_test_story",
-  variablen = c(
-    "story_no",
-    "ressort",
-    "title",
-    "publication_date",
-    "type",
-    "url"
-  )
-)
-
-GraphQL_get_table_string(
-'query MyQuery {
-   test_R_Packages_test_story(
-     limit: 10, 
-     where: {story_no: {_gt: 22021}, 
-     ressort: {_eq: "Medizin & Lebenswissenschaften"}}) {
-   publication_date
-   url
-   type
-   title
-   story_no
-   }
-}'
-)
+Get Data from GraphQL API (vector‑style)
 }
