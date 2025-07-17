@@ -8,7 +8,8 @@ GraphQL_get_table_string(
   querystring,
   datenserver = "https://data.smclab.io/v1/graphql",
   max_tries = 3,
-  backoff = function(i) 2^i * 100
+  backoff = function(i) 2^i * 100,
+  ssl_options = NULL
 )
 }
 \arguments{
@@ -20,6 +21,9 @@ GraphQL_get_table_string(
 
 \item{backoff}{function; determines wait time between retries in milliseconds, default is exponential backoff
 starting at 100ms (function(i) 2^i * 100)}
+
+\item{ssl_options}{list; optional SSL configuration parameters passed to req_options().
+Examples: list(ssl_verifypeer = 0, ssl_verifyhost = 0) or list(cainfo = "stern.int.crt")}
 }
 \value{
 tibble with the requested data

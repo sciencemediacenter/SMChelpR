@@ -113,6 +113,8 @@ stop_graphql_errors <- function(json_errors) {
 #' @param max_tries integer; maximum number of retry attempts for failed requests (defaults to 3)
 #' @param backoff function; determines wait time between retries in milliseconds, default is exponential backoff
 #'        starting at 100ms (function(i) 2^i * 100)
+#' @param ssl_options list; optional SSL configuration parameters passed to req_options().
+#'        Examples: list(ssl_verifypeer = 0, ssl_verifyhost = 0) or list(cainfo = "stern.int.crt")
 #'
 #' @return tibble containing all retrieved data with columns matching the requested fields
 #' @export
@@ -133,6 +135,13 @@ stop_graphql_errors <- function(json_errors) {
 #'   max_pages = 10,
 #'   max_tries = 5
 #' )
+#'
+#' # With SSL certificate verification disabled
+#' GraphQL_get_table_vec(
+#'   tabellenname = "test_R_Packages_test_story",
+#'   variablen = c("publication_date", "story_no", "title"),
+#'   ssl_options = list(ssl_verifypeer = 0, ssl_verifyhost = 0)
+#' )
 GraphQL_get_table_vec <- function(
     tabellenname,
     variablen,
@@ -141,7 +150,8 @@ GraphQL_get_table_vec <- function(
     page_size = 1000,
     max_pages = Inf,
     max_tries = 3,
-    backoff = function(i) 2^i * 100
+    backoff = function(i) 2^i * 100,
+    ssl_options = NULL
 ) {
     # Initialize result tibble and pagination variables
     all_results <- tibble()
@@ -160,11 +170,18 @@ GraphQL_get_table_vec <- function(
             where = where
         )
 
-        resp <- request(datenserver) |>
+        req <- request(datenserver) |>
             req_progress() |>
             req_method("POST") |>
             req_headers(`Content-Type` = "application/json") |>
-            req_body_json(list(query = query_text)) |>
+            req_body_json(list(query = query_text))
+
+        # Apply SSL options if provided
+        if (!is.null(ssl_options)) {
+            req <- req |> do.call(what = req_options, args = ssl_options)
+        }
+
+        resp <- req |>
             req_retry(max_tries = max_tries, backoff = backoff) |>
             req_perform()
 
@@ -212,18 +229,28 @@ GraphQL_get_table_vec <- function(
 #' @param max_tries integer; maximum number of retry attempts for failed requests (defaults to 3)
 #' @param backoff function; determines wait time between retries in milliseconds, default is exponential backoff
 #'        starting at 100ms (function(i) 2^i * 100)
+#' @param ssl_options list; optional SSL configuration parameters passed to req_options().
+#'        Examples: list(ssl_verifypeer = 0, ssl_verifyhost = 0) or list(cainfo = "stern.int.crt")
 #' @return tibble with the requested data
 #' @export
 GraphQL_get_table_string <- function(
     querystring,
     datenserver = "https://data.smclab.io/v1/graphql",
     max_tries = 3,
-    backoff = function(i) 2^i * 100
+    backoff = function(i) 2^i * 100,
+    ssl_options = NULL
 ) {
-    resp <- request(datenserver) |>
+    req <- request(datenserver) |>
         req_method("POST") |>
         req_headers(`Content-Type` = "application/json") |>
-        req_body_json(list(query = querystring)) |>
+        req_body_json(list(query = querystring))
+
+    # Apply SSL options if provided
+    if (!is.null(ssl_options)) {
+        req <- req |> do.call(what = req_options, args = ssl_options)
+    }
+
+    resp <- req |>
         req_retry(max_tries = max_tries, backoff = backoff) |>
         req_perform()
 

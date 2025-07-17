@@ -12,7 +12,8 @@ GraphQL_get_table_vec(
   page_size = 1000,
   max_pages = Inf,
   max_tries = 3,
-  backoff = function(i) 2^i * 100
+  backoff = function(i) 2^i * 100,
+  ssl_options = NULL
 )
 }
 \arguments{
@@ -32,6 +33,9 @@ GraphQL_get_table_vec(
 
 \item{backoff}{function; determines wait time between retries in milliseconds, default is exponential backoff
 starting at 100ms (function(i) 2^i * 100)}
+
+\item{ssl_options}{list; optional SSL configuration parameters passed to req_options().
+Examples: list(ssl_verifypeer = 0, ssl_verifyhost = 0) or list(cainfo = "stern.int.crt")}
 }
 \value{
 tibble containing all retrieved data with columns matching the requested fields
@@ -56,5 +60,12 @@ GraphQL_get_table_vec(
   page_size = 500,
   max_pages = 10,
   max_tries = 5
+)
+
+# With SSL certificate verification disabled
+GraphQL_get_table_vec(
+  tabellenname = "test_R_Packages_test_story",
+  variablen = c("publication_date", "story_no", "title"),
+  ssl_options = list(ssl_verifypeer = 0, ssl_verifyhost = 0)
 )
 }
