@@ -6,17 +6,25 @@
 \usage{
 GraphQL_get_table_string(
   querystring,
-  datenserver = "https://data.smclab.io/v1/graphql"
+  datenserver = "https://data.smclab.io/v1/graphql",
+  max_tries = 3,
+  backoff = function(i) 2^i * 100
 )
 }
 \arguments{
 \item{querystring}{a complete GraphQL query (including operation name or anonymous)}
 
 \item{datenserver}{character string URL of the GraphQL endpoint}
+
+\item{max_tries}{integer; maximum number of retry attempts for failed requests (defaults to 3)}
+
+\item{backoff}{function; determines wait time between retries in milliseconds, default is exponential backoff
+starting at 100ms (function(i) 2^i * 100)}
 }
 \value{
 tibble with the requested data
 }
 \description{
-Get Data from GraphQL API (raw query string)
+Executes a raw GraphQL query string against a GraphQL endpoint and returns the results.
+Includes automatic retry logic to handle temporary network issues such as HTTP 502 errors.
 }

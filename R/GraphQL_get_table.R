@@ -102,6 +102,7 @@ stop_graphql_errors <- function(json_errors) {
 #'
 #' Fetches data from a GraphQL endpoint using automatic pagination to handle large result sets.
 #' The function constructs GraphQL queries, handles pagination, and combines results into a single tibble.
+#' Includes automatic retry logic to handle temporary network issues such as HTTP 502 errors.
 #'
 #' @param tabellenname character string; name of the table/entity to query in the GraphQL schema
 #' @param variablen character vector; field names to retrieve from the GraphQL endpoint
@@ -109,6 +110,9 @@ stop_graphql_errors <- function(json_errors) {
 #' @param datenserver character string; URL of the GraphQL endpoint (defaults to "https://data.smclab.io/v1/graphql")
 #' @param page_size integer; number of records to fetch per request (defaults to 1000)
 #' @param max_pages integer; maximum number of pages to retrieve (defaults to Inf for all available pages)
+#' @param max_tries integer; maximum number of retry attempts for failed requests (defaults to 3)
+#' @param backoff function; determines wait time between retries in milliseconds, default is exponential backoff
+#'        starting at 100ms (function(i) 2^i * 100)
 #'
 #' @return tibble containing all retrieved data with columns matching the requested fields
 #' @export
@@ -120,13 +124,14 @@ stop_graphql_errors <- function(json_errors) {
 #'   variablen = c("publication_date", "story_no", "title")
 #' )
 #'
-#' # Query with filtering and custom page size
+#' # Query with filtering, custom page size and increased retry attempts
 #' GraphQL_get_table_vec(
 #'   tabellenname = "test_R_Packages_test_story",
 #'   variablen = c("publication_date", "ressort", "story_no", "title"),
 #'   where = 'publication_date: {_gt: "2022-01-01"}',
 #'   page_size = 500,
-#'   max_pages = 10
+#'   max_pages = 10,
+#'   max_tries = 5
 #' )
 GraphQL_get_table_vec <- function(
     tabellenname,
@@ -134,7 +139,9 @@ GraphQL_get_table_vec <- function(
     where = NULL,
     datenserver = "https://data.smclab.io/v1/graphql",
     page_size = 1000,
-    max_pages = Inf
+    max_pages = Inf,
+    max_tries = 3,
+    backoff = function(i) 2^i * 100
 ) {
     # Initialize result tibble and pagination variables
     all_results <- tibble()
@@ -158,6 +165,7 @@ GraphQL_get_table_vec <- function(
             req_method("POST") |>
             req_headers(`Content-Type` = "application/json") |>
             req_body_json(list(query = query_text)) |>
+            req_retry(max_tries = max_tries, backoff = backoff) |>
             req_perform()
 
         # Catch errors in the JSON
@@ -196,18 +204,27 @@ GraphQL_get_table_vec <- function(
 
 #' Get Data from GraphQL API (raw query string)
 #'
+#' Executes a raw GraphQL query string against a GraphQL endpoint and returns the results.
+#' Includes automatic retry logic to handle temporary network issues such as HTTP 502 errors.
+#'
 #' @param querystring a complete GraphQL query (including operation name or anonymous)
 #' @param datenserver character string URL of the GraphQL endpoint
+#' @param max_tries integer; maximum number of retry attempts for failed requests (defaults to 3)
+#' @param backoff function; determines wait time between retries in milliseconds, default is exponential backoff
+#'        starting at 100ms (function(i) 2^i * 100)
 #' @return tibble with the requested data
 #' @export
 GraphQL_get_table_string <- function(
     querystring,
-    datenserver = "https://data.smclab.io/v1/graphql"
+    datenserver = "https://data.smclab.io/v1/graphql",
+    max_tries = 3,
+    backoff = function(i) 2^i * 100
 ) {
     resp <- request(datenserver) |>
         req_method("POST") |>
         req_headers(`Content-Type` = "application/json") |>
         req_body_json(list(query = querystring)) |>
+        req_retry(max_tries = max_tries, backoff = backoff) |>
         req_perform()
 
     json_resp <- resp |>

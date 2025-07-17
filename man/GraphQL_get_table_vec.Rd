@@ -10,7 +10,9 @@ GraphQL_get_table_vec(
   where = NULL,
   datenserver = "https://data.smclab.io/v1/graphql",
   page_size = 1000,
-  max_pages = Inf
+  max_pages = Inf,
+  max_tries = 3,
+  backoff = function(i) 2^i * 100
 )
 }
 \arguments{
@@ -25,6 +27,11 @@ GraphQL_get_table_vec(
 \item{page_size}{integer; number of records to fetch per request (defaults to 1000)}
 
 \item{max_pages}{integer; maximum number of pages to retrieve (defaults to Inf for all available pages)}
+
+\item{max_tries}{integer; maximum number of retry attempts for failed requests (defaults to 3)}
+
+\item{backoff}{function; determines wait time between retries in milliseconds, default is exponential backoff
+starting at 100ms (function(i) 2^i * 100)}
 }
 \value{
 tibble containing all retrieved data with columns matching the requested fields
@@ -32,6 +39,7 @@ tibble containing all retrieved data with columns matching the requested fields
 \description{
 Fetches data from a GraphQL endpoint using automatic pagination to handle large result sets.
 The function constructs GraphQL queries, handles pagination, and combines results into a single tibble.
+Includes automatic retry logic to handle temporary network issues such as HTTP 502 errors.
 }
 \examples{
 # Basic query for story data with default pagination
@@ -40,12 +48,13 @@ GraphQL_get_table_vec(
   variablen = c("publication_date", "story_no", "title")
 )
 
-# Query with filtering and custom page size
+# Query with filtering, custom page size and increased retry attempts
 GraphQL_get_table_vec(
   tabellenname = "test_R_Packages_test_story",
   variablen = c("publication_date", "ressort", "story_no", "title"),
   where = 'publication_date: {_gt: "2022-01-01"}',
   page_size = 500,
-  max_pages = 10
+  max_pages = 10,
+  max_tries = 5
 )
 }
