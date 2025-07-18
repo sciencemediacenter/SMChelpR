@@ -178,7 +178,7 @@ GraphQL_get_table_vec <- function(
 
         # Apply SSL options if provided
         if (!is.null(ssl_options)) {
-            req <- req |> do.call(what = req_options, args = ssl_options)
+            req <- do.call(req_options, c(list(req), ssl_options))
         }
 
         resp <- req |>
@@ -247,7 +247,7 @@ GraphQL_get_table_string <- function(
 
     # Apply SSL options if provided
     if (!is.null(ssl_options)) {
-        req <- req |> do.call(what = req_options, args = ssl_options)
+        req <- do.call(req_options, c(list(req), ssl_options))
     }
 
     resp <- req |>
