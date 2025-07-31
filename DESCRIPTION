@@ -15,7 +15,7 @@ BugReports: https://github.com/sciencemediacenter/SMChelpR/issues
 License: GPL (>= 2)
 Encoding: UTF-8
 Depends:
-	R (>= 4.0.0),
+	R (>= 4.1.0),
 Imports:
 	dplyr,
 	ggplot2, 
@@ -32,12 +32,14 @@ Imports:
 	httr2,
 	purrr,
 	glue,
-	vdiffr
+	geojsonsf,
+	rlang
 Suggests:
 	devtools (>= 1.13),
 	knitr,
 	rmarkdown (>= 1.9),
 	testthat (>= 3.0.0),
+	vdiffr,
 	tidyverse,
 	withr,
 	readr,

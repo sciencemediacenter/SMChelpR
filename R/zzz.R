@@ -12,6 +12,8 @@
 #' @import vdiffr
 #' @import httr2
 #' @import glue
+#' @import geojsonsf
 #' @importFrom purrr map map_df pluck as_vector
 #' @importFrom jsonlite toJSON fromJSON
+#' @importFrom rlang :=
 NCC <- 1701
