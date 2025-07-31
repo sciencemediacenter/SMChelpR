@@ -21,10 +21,12 @@ Takes a tibble with a geometry column from GraphQL and converts it to a simple f
 The function handles the JSON structure that GraphQL returns for geometries.
 }
 \examples{
+\dontrun{
 # Pipe-friendly usage
 polygons_sf <- GraphQL_get_table_vec(
   tabellenname = "spatial_data",
   variablen = c("id", "name", "geometry")
 ) |>
   convert_geometry_column()
+}
 }

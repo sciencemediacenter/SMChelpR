@@ -32,6 +32,7 @@ Imports:
 	httr2,
 	purrr,
 	glue,
+	sf,
 	geojsonsf,
 	rlang
 Suggests:

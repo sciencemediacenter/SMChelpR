@@ -9,9 +9,9 @@
 #' @import leaflet
 #' @import htmltools
 #' @import grDevices
-#' @import vdiffr
 #' @import httr2
 #' @import glue
+#' @import sf
 #' @import geojsonsf
 #' @importFrom purrr map map_df pluck as_vector
 #' @importFrom jsonlite toJSON fromJSON

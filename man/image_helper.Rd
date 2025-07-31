@@ -77,10 +77,10 @@ an "alt" text (consisting of the image name) and possibly other HTML tags.
 \examples{
 library(ggplot2)
 library(dplyr)
-tmp_ggplot <- 
+tmp_ggplot <-
   ggplot(data = mpg, aes(x = displ, y = hwy)) +
   geom_point()
-tmp_ggplot \%>\% image_helper("MPG", file.path(tempdir())) 
+tmp_ggplot |> image_helper("MPG", file.path(tempdir()))
 filename <- "a"
 filepath <- tempdir()
 data <- tibble(fileformat = c("csv", "json"), filename_suffix = c("", "extra_json_suffix"))
