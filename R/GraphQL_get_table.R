@@ -338,8 +338,8 @@ convert_geometry_column <- function(
 
     # Complete the transformation
     sf_data <- sf_data |>
-        mutate(!!sym(geom_col) := do.call(c, geom_obj)) |>
-        select(-geom_obj, -crs_value) |>
+        mutate(!!sym(geom_col) := do.call(c, get("geom_obj"))) |>
+        select(-"geom_obj", -"crs_value") |>
         sf::st_as_sf(crs = crs_val)
 
     return(sf_data)
