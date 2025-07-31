@@ -24,11 +24,10 @@ system("R CMD check SMChelpR_0.1-3.tar.gz --as-cran")
 ###############################################
 ## Install locally to test for hidden errors ##
 ###############################################
-devtools::install_deps("SMChelpR")
-devtools::check("SMChelpR")
+# devtools::install_deps("SMChelpR")
+# devtools::check("SMChelpR")
 devtools::install("SMChelpR")
-devtools::test_coverage("SMChelpR")
-
+# devtools::test_coverage("SMChelpR")
 
 #########################
 ## Install from github ##

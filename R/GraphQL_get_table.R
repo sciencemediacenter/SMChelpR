@@ -280,3 +280,67 @@ GraphQL_get_table_string <- function(
 
     return(tbl)
 }
+
+
+#' Convert a GraphQL geometry column to sf
+#'
+#' Takes a tibble with a geometry column from GraphQL and converts it to a simple features (sf) object.
+#' The function handles the JSON structure that GraphQL returns for geometries.
+#'
+#' @param tbl A tibble containing a geometry column in GraphQL format
+#' @param geom_col The name of the geometry column (defaults to "geometry")
+#' @param crs_default The default CRS to use if none is found in the data (defaults to 4326)
+#'
+#' @return A tibble converted to an sf object with proper geometry
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' # Pipe-friendly usage
+#' polygons_sf <- GraphQL_get_table_vec(
+#'   tabellenname = "spatial_data",
+#'   variablen = c("id", "name", "geometry")
+#' ) |>
+#'   convert_geometry_column()
+#' }
+convert_geometry_column <- function(
+    tbl,
+    geom_col = "geometry",
+    crs_default = 4326
+) {
+    # Function to convert a single geometry row to sf geometry
+    convert_geom <- function(geom_row) {
+        # Create a proper GeoJSON structure
+        geojson_str <- jsonlite::toJSON(
+            list(
+                type = geom_row$type,
+                crs = geom_row$crs,
+                coordinates = geom_row$coordinates[[1]]
+            ),
+            auto_unbox = TRUE
+        )
+
+        # Convert to sf geometry
+        geojsonsf::geojson_sfc(geojson_str)
+    }
+
+    # Apply conversion to each row
+    sf_data <- tbl |>
+        rowwise() |>
+        mutate(
+            geom_obj = list(convert_geom(.data[[geom_col]])),
+            crs_value = .data[[geom_col]]$crs$properties$name %||% crs_default # Extract CRS or use default
+        ) |>
+        ungroup()
+
+    # Extract the CRS value before calling st_as_sf
+    crs_val <- sf_data$crs_value[1]
+
+    # Complete the transformation
+    sf_data <- sf_data |>
+        mutate(!!sym(geom_col) := do.call(c, geom_obj)) |>
+        select(-geom_obj, -crs_value) |>
+        sf::st_as_sf(crs = crs_val)
+
+    return(sf_data)
+}
