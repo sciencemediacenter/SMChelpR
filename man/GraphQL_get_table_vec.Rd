@@ -2,66 +2,70 @@
 % Please edit documentation in R/GraphQL_get_table.R
 \name{GraphQL_get_table_vec}
 \alias{GraphQL_get_table_vec}
-\alias{GraphQL_get_table_string}
-\title{Get Data from GraphQL API}
+\title{Retrieve data from a GraphQL API with pagination (vector-style)}
 \usage{
 GraphQL_get_table_vec(
   tabellenname,
   variablen,
-  datenserver = "https://data.smclab.io/v1/graphql"
-)
-
-GraphQL_get_table_string(
-  querystring,
-  datenserver = "https://data.smclab.io/v1/graphql"
+  where = NULL,
+  datenserver = "https://data.smclab.io/v1/graphql",
+  page_size = 1000,
+  max_pages = Inf,
+  max_tries = 3,
+  backoff = function(i) 2^i * 100,
+  ssl_options = NULL
 )
 }
 \arguments{
-\item{tabellenname}{character string name of queried table}
+\item{tabellenname}{character string; name of the table/entity to query in the GraphQL schema}
 
-\item{variablen}{character vector containing the desired variable names}
+\item{variablen}{character vector; field names to retrieve from the GraphQL endpoint}
 
-\item{datenserver}{character string mit URL der Datenbank, default: https://data.smclab.io/v1/graphql}
+\item{where}{character string; optional GraphQL-formatted condition string for filtering results}
 
-\item{querystring}{character string contains a valid GraphQL query}
+\item{datenserver}{character string; URL of the GraphQL endpoint (defaults to "https://data.smclab.io/v1/graphql")}
+
+\item{page_size}{integer; number of records to fetch per request (defaults to 1000)}
+
+\item{max_pages}{integer; maximum number of pages to retrieve (defaults to Inf for all available pages)}
+
+\item{max_tries}{integer; maximum number of retry attempts for failed requests (defaults to 3)}
+
+\item{backoff}{function; determines wait time between retries in milliseconds, default is exponential backoff
+starting at 100ms (function(i) 2^i * 100)}
+
+\item{ssl_options}{list; optional SSL configuration parameters passed to req_options().
+Examples: list(ssl_verifypeer = 0, ssl_verifyhost = 0) or list(cainfo = "stern.int.crt")}
 }
 \value{
-tibble with the requested data
+tibble containing all retrieved data with columns matching the requested fields
 }
 \description{
-functions to query data via a GraphQL API. Here \code{GraphQL_get_table_vec} allows a query specifying the table name and the desired variable names.
-\code{GraphQL_get_table_string} allows more complex queries by passing a complete GraphQL query as character-string.
-}
-\details{
-The functions are primarily intended to make the \href{https://github.com/sciencemediacenter/DataCollection}{Data Collection}
-of the \href{https://www.sciencemediacenter.de/}{SMC} accessible. By adjusting the parameter 'data server',
-other instances can also be accessed.
+Fetches data from a GraphQL endpoint using automatic pagination to handle large result sets.
+The function constructs GraphQL queries, handles pagination, and combines results into a single tibble.
+Includes automatic retry logic to handle temporary network issues such as HTTP 502 errors.
 }
 \examples{
+# Basic query for story data with default pagination
 GraphQL_get_table_vec(
   tabellenname = "test_R_Packages_test_story",
-  variablen = c(
-    "story_no",
-    "ressort",
-    "title",
-    "publication_date",
-    "type",
-    "url"
-  )
+  variablen = c("publication_date", "story_no", "title")
 )
 
-GraphQL_get_table_string(
-'query MyQuery {
-   test_R_Packages_test_story(
-     limit: 10, 
-     where: {story_no: {_gt: 22021}, 
-     ressort: {_eq: "Medizin & Lebenswissenschaften"}}) {
-   publication_date
-   url
-   type
-   title
-   story_no
-   }
-}'
+# Query with filtering, custom page size and increased retry attempts
+GraphQL_get_table_vec(
+  tabellenname = "test_R_Packages_test_story",
+  variablen = c("publication_date", "ressort", "story_no", "title"),
+  where = 'publication_date: {_gt: "2022-01-01"}',
+  page_size = 500,
+  max_pages = 10,
+  max_tries = 5
+)
+
+# With SSL certificate verification disabled
+GraphQL_get_table_vec(
+  tabellenname = "test_R_Packages_test_story",
+  variablen = c("publication_date", "story_no", "title"),
+  ssl_options = list(ssl_verifypeer = 0, ssl_verifyhost = 0)
 )
 }

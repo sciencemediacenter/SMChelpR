@@ -9,5 +9,11 @@
 #' @import leaflet
 #' @import htmltools
 #' @import grDevices
-#'  
-NCC <- 1701 
+#' @import httr2
+#' @import glue
+#' @import sf
+#' @import geojsonsf
+#' @importFrom purrr map map_df pluck as_vector
+#' @importFrom jsonlite toJSON fromJSON
+#' @importFrom rlang :=
+NCC <- 1701

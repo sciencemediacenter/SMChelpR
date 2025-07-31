@@ -19,34 +19,53 @@ library(SMChelpR)
 
 ### Datenzugriff
 
-Viele Daten, die für die Data Reports verwendet werden, sind in der [SMC Data Collection](https://github.com/sciencemediacenter/DataCollection) verfügbar. Der Zugriff erfolgt über GraphQL. In R bieten wir zwei Wrapper für die im Paket [ghql](https://cran.r-project.org/package=ghql) verfügbaren Funktionen für einen Datenzugriff über GraphQL an.
+Viele Daten, die für die Data Reports verwendet werden, sind in der [SMC Data Collection](https://github.com/sciencemediacenter/DataCollection) verfügbar. Der Zugriff erfolgt über GraphQL. In R bieten wir zwei Wrapper für einen Datenzugriff über GraphQL an.
 
-Mit `GraphQL_get_table_vec` können einfache komplettabfragen von Datensätzen durchgeführt werden. Als Eingabeparameter werden mindestens `tabellenname` und `variablen` benötigt.
+Mit `GraphQL_get_table_vec` können einfache Komplettabfragen von Datensätzen durchgeführt werden. Als Eingabeparameter werden mindestens `tabellenname` und `variablen` benötigt.
 Für diese Vignette wird ein kleiner Testdatensatz verwendet. Der Datensatz mit den Aussendungen des SMC ist in der Tabelle `smc_story_meta` zu finden.
 
 ```{r}
 
-(
-  story_data <-
-    GraphQL_get_table_vec(
-      tabellenname = "test_R_Packages_test_story",
-      variablen = c(
-        "story_no",
-        "ressort",
-        "title",
-        "publication_date",
-        "type",
-        "url"
-      )
+(story_data <-
+  GraphQL_get_table_vec(
+    tabellenname = "test_R_Packages_test_story",
+    variablen = c(
+      "story_no",
+      "ressort",
+      "title",
+      "publication_date",
+      "type",
+      "url"
     )
-)
+  ))
 ```
+
+Außerdem erlaubt `GraphQL_get_table_vec` mittels `where`-Klauseln spezifischere Abfragen. Die Parameter `page_size` und `max_pages` können bei großen Datensätzen zur Pagination benutzt werden (setze `max_pages=Inf`) oder auch zum Abfragen eines Teildatensatzes dienen (z.B. auf GraphQL `limit=10` entspricht `max_pages=1` mit `page_size=10`).
+```{r}
+
+(story_data <-
+  GraphQL_get_table_vec(
+    tabellenname = "test_R_Packages_test_story",
+    variablen = c(
+      "publication_date",
+      "ressort",
+      "story_no",
+      "title",
+      "type",
+      "url"
+    ),
+    where = 'publication_date: {_lt: "2022-01-12"}',
+    page_size = 1,
+    max_pages = 5,
+  ))
+```
+
 
 Für komplexere Abfragen kann `GraphQL_get_table_string` genutzt werden. Diese Funktion akzeptiert eine valide GraphQL query, mit der z.B. auch weitere Filter gesetzt oder die Zahl der zurückgegebenen Einträge limitiert werden können.
 
 ```{r}
 GraphQL_get_table_string(
-'query MyQuery {
+  'query MyQuery {
    test_R_Packages_test_story(
      limit: 10, 
      where: {story_no: {_gt: 22021}, 
@@ -67,7 +86,7 @@ Die Hilfsfunktion `querystring_to_tabname_and_vec` erzeugt aus einfachen GraphQL
 
 ```{r}
 querystring_to_tabname_and_vec(
-"query MyQuery {
+  "query MyQuery {
   smc_story_meta {
   story_no
   title
@@ -76,7 +95,8 @@ querystring_to_tabname_and_vec(
   ressort
   publication_date
   }
-}")
+}"
+)
 ```
 
 ### Hilfsfunktionen für Grafiken in dynamischen Dokumenten
@@ -85,8 +105,8 @@ Für die vom SMC herausgegebenen Data Reports werden einheitliche Grafikeinstell
 
 ```{r}
 knitr::opts_chunk$set(
-  fig.width = 9, 
-  fig.height = 8, 
+  fig.width = 9,
+  fig.height = 8,
   dpi = 300
 )
 ``` 
@@ -103,30 +123,34 @@ Die Funktionen `image_helper` und `ggplotly_SMC` benötigen als Basis eine `ggpl
 
 ```{r lineplot}
 
-caption_demo <- 
+caption_demo <-
   "Anzahl der Aussendung nach Aussendungsart.\nBerechnungen: Science Media Center Germany."
 
 
-storys_per_month <- 
-  story_data %>% 
-  filter(!is.na(publication_date)) %>% 
-  mutate(Monat = floor_date(as.Date(publication_date), "month")) %>% 
+storys_per_month <-
+  story_data |>
+  filter(!is.na(publication_date)) |>
+  mutate(Monat = floor_date(as.Date(publication_date), "month")) |>
   count(type, Monat)
 
-Abbildung <- 
-  storys_per_month %>% 
-  full_join(expand_grid(
-    type = unique(storys_per_month$type), 
-    Monat = unique(storys_per_month$Monat)), by = c("Monat", "type")) %>% 
-  mutate(n = if_else(is.na(n), 0L, n)) %>% 
+Abbildung <-
+  storys_per_month |>
+  full_join(
+    expand_grid(
+      type = unique(storys_per_month$type),
+      Monat = unique(storys_per_month$Monat)
+    ),
+    by = c("Monat", "type")
+  ) |>
+  mutate(n = if_else(is.na(n), 0L, n)) |>
   ggplot(aes(x = Monat, y = n, colour = type)) +
   geom_line() +
   geom_point() +
   scale_x_date(
-    date_breaks = "1 month", 
-    date_labels = "%b %y", 
+    date_breaks = "1 month",
+    date_labels = "%b %y",
     expand = c(0.01, 0.01)
-  ) + 
+  ) +
   theme(legend.title = element_blank()) +
   scale_y_continuous(
     expand = c(0.01, 0.01)
@@ -134,9 +158,9 @@ Abbildung <-
   labs(
     title = "SMC-Aussendungen im ersten Halbjahr 2022",
     caption = caption_demo,
-    x = "", 
+    x = "",
     y = "Anzahl Aussendungen"
-  ) 
+  )
 ``` 
 
 Die Funktion `image_helper()` erzeugt HTML-Code, der unter eine Grafik gesetzt werden kann, um den Download verschiedener Grafikformate (png und svg) und der für die Grafik notwendigen Daten (csv) anzubieten. Die csv mit den Daten muss dafür im Vorfeld erstellt werden, die Grafiken werden direkt aus dem ggplot-Objekt erzeugt. 
@@ -152,7 +176,7 @@ filepath <-
 dir.create(filepath, showWarnings = FALSE)
 
 dateiname <- "Aussendungen_SMC_H1_2022"
-  
+
 write_csv(story_data, file.path(filepath, paste0(dateiname, ".csv")))
 
 
@@ -175,13 +199,14 @@ ggplotly_SMC(Abbildung)
 
 ```{r lineplot-plotly-image-helper, results='asis'}
 
-
 image_helper(
   Abbildung,
   filename = dateiname,
   filepath = filepath,
   plotly = TRUE,
-  caption = paste("Die Abbildung wurde mit plotly erstellt, sodass einige ggplot Features wie Untertitel oder Bildunterschriften nicht mehr verfügbar sind. Entpsrechend müssten entsprechende captions jetzt hier eingefügt werden.")
+  caption = paste(
+    "Die Abbildung wurde mit plotly erstellt, sodass einige ggplot Features wie Untertitel oder Bildunterschriften nicht mehr verfügbar sind. Entpsrechend müssten entsprechende captions jetzt hier eingefügt werden."
+  )
 )
 
 ```
