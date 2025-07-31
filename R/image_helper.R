@@ -1,12 +1,12 @@
 #' image_helper.R
 #'
 #' Function to create generic image captions in dynamic documents.
-#' For this purpose, HTML code is created, which contains a link to the data needed to create this figure. 
+#' For this purpose, HTML code is created, which contains a link to the data needed to create this figure.
 #' Also includes links to download the figure in different formats.
-#' 
-#' The functions image_helper_light(), image_helper() return a list containing the file path, the title including links, 
+#'
+#' The functions image_helper_light(), image_helper() return a list containing the file path, the title including links,
 #' an "alt" text (consisting of the image name) and possibly other HTML tags.
-#' 
+#'
 #' @param plot ggplot-object: The ggplot-object to be used for static images.
 #' @param filename string: The name of the image file, without file extension.
 #' @param filepath file.path: The path to the folder in which the image file should be saved. (For image_helper(), CSV must be placed manually, PNG and SVG are stored automatically).
@@ -27,10 +27,10 @@
 #' @examples
 #' library(ggplot2)
 #' library(dplyr)
-#' tmp_ggplot <- 
+#' tmp_ggplot <-
 #'   ggplot(data = mpg, aes(x = displ, y = hwy)) +
 #'   geom_point()
-#' tmp_ggplot %>% image_helper("MPG", file.path(tempdir())) 
+#' tmp_ggplot |> image_helper("MPG", file.path(tempdir()))
 #' filename <- "a"
 #' filepath <- tempdir()
 #' data <- tibble(fileformat = c("csv", "json"), filename_suffix = c("", "extra_json_suffix"))
@@ -42,44 +42,46 @@
 #' image_helper_light(captions, filename, filepath, data, images)
 #' @export image_helper
 image_helper <-
-  function(plot,
-           filename,
-           filepath,
-           extra_html_tags = 'width = "100%" data-zoom="1"',
-           csv_opt = TRUE,
-           plotly = FALSE,
-           caption = "",
-           caption_wrap_width = 100,
-           save_svg = TRUE,
-           fig_width = 9,
-           fig_height = 8
-          ) {
+  function(
+    plot,
+    filename,
+    filepath,
+    extra_html_tags = 'width = "100%" data-zoom="1"',
+    csv_opt = TRUE,
+    plotly = FALSE,
+    caption = "",
+    caption_wrap_width = 100,
+    save_svg = TRUE,
+    fig_width = 9,
+    fig_height = 8
+  ) {
     pngpfad <- file.path(filepath, paste0(filename, ".png"))
     svgpfad <- file.path(filepath, paste0(filename, ".svg"))
     datenpfad <- file.path(filepath, paste0(filename, ".csv"))
-    
-    if(caption != ""){
-      # only affects png and svg output 
+
+    if (caption != "") {
+      # only affects png and svg output
       # (html text is automatically wrapped according to column width)
-      wrapped_caption <- str_wrap(caption, width = caption_wrap_width) 
+      wrapped_caption <- str_wrap(caption, width = caption_wrap_width)
       plot <- plot + labs(caption = wrapped_caption)
     }
 
-    ggsave(plot = plot,
-           filename = pngpfad,
-           device = "png",
-            width = fig_width,
-            height = fig_height,
-            units = "in",
-            dpi = 300
-           )
+    ggsave(
+      plot = plot,
+      filename = pngpfad,
+      device = "png",
+      width = fig_width,
+      height = fig_height,
+      units = "in",
+      dpi = 300
+    )
 
     if (save_svg == TRUE) {
       svglite(svgpfad, width = fig_width, height = fig_height)
       print(plot)
       dev.off()
-    } 
-    
+    }
+
     # Create HTML code
     HTML_text <- "<center>"
 
@@ -98,7 +100,7 @@ image_helper <-
         )
     }
 
-    if(caption != "" & plotly){
+    if (caption != "" & plotly) {
       HTML_text <- HTML_text |>
         paste0(
           "<small>",
@@ -122,9 +124,9 @@ image_helper <-
         pngpfad,
         '" download>Als PNG.</a>',
         sep = ""
-      ) 
+      )
 
-    if (save_svg == TRUE){
+    if (save_svg == TRUE) {
       HTML_text <- HTML_text |>
         paste0(
           ' <a href ="',
@@ -135,7 +137,7 @@ image_helper <-
     }
     HTML_text <- HTML_text |>
       paste0("</center> <br>")
-      
+
     cat(HTML_text)
     invisible(HTML_text)
   }
@@ -146,23 +148,33 @@ globalVariables(c("filename_suffix", "fileformat", "download_link"))
 process_data_tibble <- function(data, filename, filepath, type) {
   columns <- names(data)
   column_length <- length(columns)
-  correct_column_names <- ("fileformat" %in% columns & "filename_suffix" %in% columns)
+  correct_column_names <- ("fileformat" %in%
+    columns &
+    "filename_suffix" %in% columns)
   if (column_length != 2 | !correct_column_names) {
-    message <- paste("Parameter", type, "should have two columns only. Their names should be: 'fileformat', and 'filename_suffix'")
+    message <- paste(
+      "Parameter",
+      type,
+      "should have two columns only. Their names should be: 'fileformat', and 'filename_suffix'"
+    )
     stop(message)
   }
-  
-  data <- data %>%
+
+  data <- data |>
     mutate(
       path = if_else(
-        filename_suffix != "", 
-        file.path(filepath, paste0(filename, "_", filename_suffix, ".", fileformat)), # paste0 because sep must be ""
+        filename_suffix != "",
+        file.path(
+          filepath,
+          paste0(filename, "_", filename_suffix, ".", fileformat)
+        ), # paste0 because sep must be ""
         file.path(filepath, paste0(filename, ".", fileformat)) # paste0 because sep must be ""
       ),
       file_exists = file.exists(path),
       download_link = if_else(
         file_exists,
-        paste0( # paste0 because sep must be ""
+        paste0(
+          # paste0 because sep must be ""
           '<a href ="',
           path,
           '" download>',
@@ -174,51 +186,56 @@ process_data_tibble <- function(data, filename, filepath, type) {
         NA
       )
     )
-  
+
   if (!all(data$file_exists)) {
-    message <- paste("Data files missing: check if data files exist or correct parameter", type, "in image_helper_light()")
+    message <- paste(
+      "Data files missing: check if data files exist or correct parameter",
+      type,
+      "in image_helper_light()"
+    )
     stop(message)
   }
-  
+
   # data_download_links <- apply(data, 1, create_links)
   data_download_links <- data |>
     filter(!is.na(download_link)) |>
     pull(download_link)
-  
-  data_download_links_str <- paste(data_download_links, collapse=" ") # mind collapse parameter!! else as many html_texts as links
-  
+
+  data_download_links_str <- paste(data_download_links, collapse = " ") # mind collapse parameter!! else as many html_texts as links
+
   data_download_links_str
 }
 
 #' @export image_helper_light
 #' @rdname image_helper
 image_helper_light <- function(
-    captions,
-    filename=NULL,
-    filepath=NULL,
-    data=NULL,
-    images=NULL,
-    static_image=FALSE,
-    static_image_parameters=""
+  captions,
+  filename = NULL,
+  filepath = NULL,
+  data = NULL,
+  images = NULL,
+  static_image = FALSE,
+  static_image_parameters = ""
 ) {
-  
   # Create HTML code
   HTML_text <- "<center>"
-  
+
   if (static_image == TRUE & !is.null(images)) {
-    
     static_image_paths <- images |>
       mutate(
         path = if_else(
-          filename_suffix != "", 
-          file.path(filepath, paste0(filename, "_", filename_suffix, ".", fileformat)), # paste0 because sep must be ""
+          filename_suffix != "",
+          file.path(
+            filepath,
+            paste0(filename, "_", filename_suffix, ".", fileformat)
+          ), # paste0 because sep must be ""
           file.path(filepath, paste0(filename, ".", fileformat)) # paste0 because sep must be ""
         ),
         file_exists = file.exists(path)
       ) |>
       filter(file_exists == TRUE) |>
       pull(path)
-    
+
     HTML_text <- HTML_text |>
       paste0(
         '<img src="',
@@ -231,50 +248,63 @@ image_helper_light <- function(
         sep = ""
       )
   }
-  
-  caption_str <- paste(captions, collapse=" | ")
+
+  caption_str <- paste(captions, collapse = " | ")
   HTML_text <- HTML_text |>
-    paste0( # paste0 because sep must be ""
+    paste0(
+      # paste0 because sep must be ""
       "<small>",
       caption_str,
       "</small> <br>"
     )
-  
+
   if (!is.null(data)) {
     if (is.null(filename) | is.null(filepath)) {
-      stop("Parameters filename and filepath are required if data parameter is passed to image_helper_light()")
+      stop(
+        "Parameters filename and filepath are required if data parameter is passed to image_helper_light()"
+      )
     }
-    
+
     HTML_text <- HTML_text |>
       paste0("Die Daten zur Erstellung dieser Abbildung herunterladen: ") # paste0 because sep must be ""
-    
+
     # make paths for all data formats
-    data_download_links_str <- process_data_tibble(data, filename, filepath, "data")
-    
+    data_download_links_str <- process_data_tibble(
+      data,
+      filename,
+      filepath,
+      "data"
+    )
+
     HTML_text <- HTML_text |>
       paste(data_download_links_str, "<br>") # paste because sep must be " "
-    
   }
-  
+
   if (!is.null(images)) {
     if (is.null(filename) | is.null(filepath)) {
-      stop("Parameters filename and filepath are required if images parameter is passed to image_helper_light()")
+      stop(
+        "Parameters filename and filepath are required if images parameter is passed to image_helper_light()"
+      )
     }
-    
+
     HTML_text <- HTML_text |>
       paste0("Diese Abbildung herunterladen: ") # paste0 because sep must be ""
-    
+
     # make paths for all image formats
-    images_download_links_str <- process_data_tibble(images, filename, filepath, "images")
-    
+    images_download_links_str <- process_data_tibble(
+      images,
+      filename,
+      filepath,
+      "images"
+    )
+
     HTML_text <- HTML_text |>
       paste(images_download_links_str) # paste0 because sep must be " "
-    
   }
-  
+
   HTML_text <- HTML_text |>
     paste("</center> <br>")
-  
+
   cat(HTML_text)
   invisible(HTML_text)
 }

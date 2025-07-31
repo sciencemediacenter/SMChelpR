@@ -128,21 +128,21 @@ caption_demo <-
 
 
 storys_per_month <-
-  story_data %>%
-  filter(!is.na(publication_date)) %>%
-  mutate(Monat = floor_date(as.Date(publication_date), "month")) %>%
+  story_data |>
+  filter(!is.na(publication_date)) |>
+  mutate(Monat = floor_date(as.Date(publication_date), "month")) |>
   count(type, Monat)
 
 Abbildung <-
-  storys_per_month %>%
+  storys_per_month |>
   full_join(
     expand_grid(
       type = unique(storys_per_month$type),
       Monat = unique(storys_per_month$Monat)
     ),
     by = c("Monat", "type")
-  ) %>%
-  mutate(n = if_else(is.na(n), 0L, n)) %>%
+  ) |>
+  mutate(n = if_else(is.na(n), 0L, n)) |>
   ggplot(aes(x = Monat, y = n, colour = type)) +
   geom_line() +
   geom_point() +
