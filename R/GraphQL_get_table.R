@@ -1,13 +1,14 @@
 #' Build a GraphQL query string
 #'
 #' Creates a properly formatted GraphQL query string to retrieve data from a GraphQL endpoint.
-#' The function supports filtering, pagination, and field selection.
+#' The function supports filtering, pagination, ordering, and field selection.
 #'
 #' @param tabellenname character string name of queried table
 #' @param variablen character vector containing the desired variable names (fields to retrieve)
 #' @param limit integer; optional maximum number of records to return
 #' @param offset integer; optional number of records to skip (for pagination)
 #' @param where character string; optional GraphQL-formatted condition for filtering results
+#' @param order_by character string; optional GraphQL-formatted ordering specification (e.g., "field1: asc, field2: desc")
 #'
 #' @return character string containing a formatted GraphQL query
 #' @export
@@ -20,7 +21,7 @@
 #'   offset = 20
 #' )
 #'
-#' # With filtering
+#' # With filtering and ordering
 #' build_graphql_query(
 #'    tabellenname = "test_R_Packages_test_story",
 #'    variablen = c(
@@ -31,14 +32,16 @@
 #'        "type",
 #'        "url"
 #'    ),
-#'    where = 'publication_date: {_lt: "2022-01-12"}'
+#'    where = 'publication_date: {_lt: "2022-01-12"}',
+#'    order_by = "publication_date: asc, story_no: desc"
 #')
 build_graphql_query <- function(
     tabellenname,
     variablen,
     limit = NULL,
     offset = NULL,
-    where = NULL
+    where = NULL,
+    order_by = NULL
 ) {
     # Format the fields list
     fields <- paste(variablen, collapse = "\n    ")
@@ -48,11 +51,15 @@ build_graphql_query <- function(
     if (!is.null(where)) {
         args <- c(args, paste0("where: {", where, "}"))
     }
-    if (!is.null(limit)) {
-        args <- c(args, sprintf("limit: %d", limit))
+    if (!is.null(order_by)) {
+        args <- c(args, paste0("order_by: {", order_by, "}"))
     }
-    if (!is.null(offset)) {
-        args <- c(args, sprintf("offset: %d", offset))
+    # Only add limit and offset if limit is not Inf
+    if (!is.null(limit) && is.finite(limit)) {
+        args <- c(args, sprintf("limit: %d", limit))
+        if (!is.null(offset)) {
+            args <- c(args, sprintf("offset: %d", offset))
+        }
     }
 
     # Glue into ( ... ) or omit if empty
@@ -98,17 +105,22 @@ stop_graphql_errors <- function(json_errors) {
 }
 
 
-#' Retrieve data from a GraphQL API with pagination (vector-style)
+#' Retrieve data from a GraphQL API with optional offset-pagination (vector-style)
 #'
-#' Fetches data from a GraphQL endpoint using automatic pagination to handle large result sets.
-#' The function constructs GraphQL queries, handles pagination, and combines results into a single tibble.
+#' Fetches data from a GraphQL endpoint. By default, retrieves all data in a single request.
+#' When `page_size` is set to a finite number, uses automatic pagination to handle large result sets.
+#' The function constructs GraphQL queries, handles pagination when enabled, and combines results into a single tibble.
 #' Includes automatic retry logic to handle temporary network issues such as HTTP 502 errors.
 #'
 #' @param tabellenname character string; name of the table/entity to query in the GraphQL schema
 #' @param variablen character vector; field names to retrieve from the GraphQL endpoint
 #' @param where character string; optional GraphQL-formatted condition string for filtering results
+#' @param order_by character string; optional GraphQL-formatted ordering specification for consistent pagination
+#'        (e.g., "publication_date: asc, story_no: desc"). Recommended to prevent duplicates during pagination.
 #' @param datenserver character string; URL of the GraphQL endpoint (defaults to "https://data.smclab.io/v1/graphql")
-#' @param page_size integer; number of records to fetch per request (defaults to 1000)
+#' @param page_size integer; number of records to fetch per request. Use `Inf` (default) to fetch all
+#'        records in a single request without pagination. When set to a finite number, enables pagination
+#'        with that many records per page.
 #' @param max_pages integer; maximum number of pages to retrieve (defaults to Inf for all available pages)
 #' @param max_tries integer; maximum number of retry attempts for failed requests (defaults to 3)
 #' @param backoff function; determines wait time between retries in milliseconds, default is exponential backoff
@@ -120,20 +132,20 @@ stop_graphql_errors <- function(json_errors) {
 #' @export
 #'
 #' @examples
-#' # Basic query for story data with default pagination
+#' # Basic query fetching all data without pagination (default behavior)
 #' GraphQL_get_table_vec(
 #'   tabellenname = "test_R_Packages_test_story",
 #'   variablen = c("publication_date", "story_no", "title")
 #' )
 #'
-#' # Query with filtering, custom page size and increased retry attempts
+#' # Query with pagination enabled (finite page_size)
 #' GraphQL_get_table_vec(
 #'   tabellenname = "test_R_Packages_test_story",
 #'   variablen = c("publication_date", "ressort", "story_no", "title"),
 #'   where = 'publication_date: {_gt: "2022-01-01"}',
+#'   order_by = "publication_date: asc, story_no: asc",
 #'   page_size = 500,
-#'   max_pages = 10,
-#'   max_tries = 5
+#'   max_pages = 10
 #' )
 #'
 #' # With SSL certificate verification disabled
@@ -146,14 +158,62 @@ GraphQL_get_table_vec <- function(
     tabellenname,
     variablen,
     where = NULL,
+    order_by = NULL,
     datenserver = "https://data.smclab.io/v1/graphql",
-    page_size = 1000,
+    page_size = Inf,
     max_pages = Inf,
     max_tries = 3,
     backoff = function(i) 2^i * 100,
     ssl_options = NULL
 ) {
-    # Initialize result tibble and pagination variables
+    # Handle the special case where page_size is Inf (no pagination)
+    if (is.infinite(page_size)) {
+        # Single query without pagination
+        query_text <- build_graphql_query(
+            tabellenname = tabellenname,
+            variablen = variablen,
+            limit = Inf, # Ignore limit and offset
+            offset = NULL,
+            where = where,
+            order_by = order_by
+        )
+
+        req <- request(datenserver) |>
+            req_progress() |>
+            req_method("POST") |>
+            req_headers(`Content-Type` = "application/json") |>
+            req_body_json(list(query = query_text))
+
+        # Apply SSL options if provided
+        if (!is.null(ssl_options)) {
+            req <- do.call(req_options, c(list(req), ssl_options))
+        }
+
+        resp <- req |>
+            req_retry(max_tries = max_tries, backoff = backoff) |>
+            req_perform()
+
+        # Catch errors in the JSON
+        json <- tryCatch(
+            resp |> resp_body_json(simplifyVector = TRUE),
+            error = function(e) stop("Failed to parse JSON: ", e$message)
+        )
+
+        # Check for GraphQL errors
+        if (!is.null(json$errors) && length(json$errors) > 0) {
+            stop_graphql_errors(json$errors)
+        }
+
+        # Extract and return all data
+        result <- json |>
+            pluck("data", tabellenname) |>
+            as_tibble()
+
+        message(glue("Retrieved {nrow(result)} rows (no pagination)"))
+        return(result)
+    }
+
+    # Original pagination logic for finite page_size
     all_results <- tibble()
     current_offset <- 0
     page_count <- 0
@@ -167,7 +227,8 @@ GraphQL_get_table_vec <- function(
             variablen = variablen,
             limit = page_size,
             offset = current_offset,
-            where = where
+            where = where,
+            order_by = order_by
         )
 
         req <- request(datenserver) |>

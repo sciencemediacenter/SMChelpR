@@ -2,14 +2,15 @@
 % Please edit documentation in R/GraphQL_get_table.R
 \name{GraphQL_get_table_vec}
 \alias{GraphQL_get_table_vec}
-\title{Retrieve data from a GraphQL API with pagination (vector-style)}
+\title{Retrieve data from a GraphQL API with optional offset-pagination (vector-style)}
 \usage{
 GraphQL_get_table_vec(
   tabellenname,
   variablen,
   where = NULL,
+  order_by = NULL,
   datenserver = "https://data.smclab.io/v1/graphql",
-  page_size = 1000,
+  page_size = Inf,
   max_pages = Inf,
   max_tries = 3,
   backoff = function(i) 2^i * 100,
@@ -23,9 +24,14 @@ GraphQL_get_table_vec(
 
 \item{where}{character string; optional GraphQL-formatted condition string for filtering results}
 
+\item{order_by}{character string; optional GraphQL-formatted ordering specification for consistent pagination
+(e.g., "publication_date: asc, story_no: desc"). Recommended to prevent duplicates during pagination.}
+
 \item{datenserver}{character string; URL of the GraphQL endpoint (defaults to "https://data.smclab.io/v1/graphql")}
 
-\item{page_size}{integer; number of records to fetch per request (defaults to 1000)}
+\item{page_size}{integer; number of records to fetch per request. Use \code{Inf} (default) to fetch all
+records in a single request without pagination. When set to a finite number, enables pagination
+with that many records per page.}
 
 \item{max_pages}{integer; maximum number of pages to retrieve (defaults to Inf for all available pages)}
 
@@ -41,25 +47,26 @@ Examples: list(ssl_verifypeer = 0, ssl_verifyhost = 0) or list(cainfo = "stern.i
 tibble containing all retrieved data with columns matching the requested fields
 }
 \description{
-Fetches data from a GraphQL endpoint using automatic pagination to handle large result sets.
-The function constructs GraphQL queries, handles pagination, and combines results into a single tibble.
+Fetches data from a GraphQL endpoint. By default, retrieves all data in a single request.
+When \code{page_size} is set to a finite number, uses automatic pagination to handle large result sets.
+The function constructs GraphQL queries, handles pagination when enabled, and combines results into a single tibble.
 Includes automatic retry logic to handle temporary network issues such as HTTP 502 errors.
 }
 \examples{
-# Basic query for story data with default pagination
+# Basic query fetching all data without pagination (default behavior)
 GraphQL_get_table_vec(
   tabellenname = "test_R_Packages_test_story",
   variablen = c("publication_date", "story_no", "title")
 )
 
-# Query with filtering, custom page size and increased retry attempts
+# Query with pagination enabled (finite page_size)
 GraphQL_get_table_vec(
   tabellenname = "test_R_Packages_test_story",
   variablen = c("publication_date", "ressort", "story_no", "title"),
   where = 'publication_date: {_gt: "2022-01-01"}',
+  order_by = "publication_date: asc, story_no: asc",
   page_size = 500,
-  max_pages = 10,
-  max_tries = 5
+  max_pages = 10
 )
 
 # With SSL certificate verification disabled

@@ -9,7 +9,8 @@ build_graphql_query(
   variablen,
   limit = NULL,
   offset = NULL,
-  where = NULL
+  where = NULL,
+  order_by = NULL
 )
 }
 \arguments{
@@ -22,13 +23,15 @@ build_graphql_query(
 \item{offset}{integer; optional number of records to skip (for pagination)}
 
 \item{where}{character string; optional GraphQL-formatted condition for filtering results}
+
+\item{order_by}{character string; optional GraphQL-formatted ordering specification (e.g., "field1: asc, field2: desc")}
 }
 \value{
 character string containing a formatted GraphQL query
 }
 \description{
 Creates a properly formatted GraphQL query string to retrieve data from a GraphQL endpoint.
-The function supports filtering, pagination, and field selection.
+The function supports filtering, pagination, ordering, and field selection.
 }
 \examples{
 build_graphql_query(
@@ -38,7 +41,7 @@ build_graphql_query(
   offset = 20
 )
 
-# With filtering
+# With filtering and ordering
 build_graphql_query(
    tabellenname = "test_R_Packages_test_story",
    variablen = c(
@@ -49,6 +52,7 @@ build_graphql_query(
        "type",
        "url"
    ),
-   where = 'publication_date: {_lt: "2022-01-12"}'
+   where = 'publication_date: {_lt: "2022-01-12"}',
+   order_by = "publication_date: asc, story_no: desc"
 )
 }
