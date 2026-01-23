@@ -213,6 +213,12 @@ GraphQL_get_table_vec <- function(
         return(result)
     }
 
+    # Return error if page_size == Inf and order_by argument is missing
+    if (is.null(order_by)) {
+        stop("order_by argument required to ensure correct data fetching.
+             It is recommended to order by a unique and non-nullable variable.")
+    }
+
     # Original pagination logic for finite page_size
     all_results <- tibble()
     current_offset <- 0
@@ -301,6 +307,12 @@ GraphQL_get_table_string <- function(
     backoff = function(i) 2^i * 100,
     ssl_options = NULL
 ) {
+    # Return error if limit is provided but order_by is not
+    if (grepl("limit:", querystring) & !grepl("order_by:", querystring)) {
+        stop("order_by argument required to ensure correct data fetching.
+             It is recommended to order by a unique and non-nullable variable.")
+    }
+
     req <- request(datenserver) |>
         req_method("POST") |>
         req_headers(`Content-Type` = "application/json") |>

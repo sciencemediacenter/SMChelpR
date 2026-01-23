@@ -71,6 +71,17 @@ test_that("GraphQL_get_table_vec Error handling", {
     ),
     "field 'test_R_Packages_test_story2' not found"
   )
+  
+  # Test page_size != Inf and order_by == NULL
+  expect_error(
+    GraphQL_get_table_vec(
+      tabellenname = "test_R_Packages_test_story",
+      variablen = c("story_no"),
+      datenserver = "https://data.smclab.io/v1/graphql",
+      page_size = 10
+    ),
+    "order_by argument required to ensure correct data fetching."
+  )
 })
 
 test_that("GraphQL_get_table_vec default datenserver", {
@@ -181,6 +192,23 @@ test_that("GraphQL_get_table_string Error handling", {
     ),
     c(0, 0)
   )
+  
+  expect_error(
+    GraphQL_get_table_string(
+      'query MyQuery {
+  test_R_Packages_test_story(limit: 10) {
+    story_no
+    ressort
+    title
+    publication_date
+    type
+    url
+  }
+}',
+      datenserver = "https://data.smclab.io/v1/graphql"
+    ),
+    "order_by argument required to ensure correct data fetching."
+  )
 })
 
 test_that("GraphQL_get_table_string default datenserver", {
@@ -201,7 +229,7 @@ test_that("GraphQL_get_table_string complex querys", {
   expect_equal(
     GraphQL_get_table_string(
       'query MyQuery {
-  test_R_Packages_test_story(limit: 1, where: {story_no: {_gt: 22021}, ressort: {_eq: "Medizin & Lebenswissenschaften"}}) {
+  test_R_Packages_test_story(limit: 1, order_by: {story_no: asc}, where: {story_no: {_gt: 22021}, ressort: {_eq: "Medizin & Lebenswissenschaften"}}) {
     publication_date
     url
     type
@@ -210,6 +238,6 @@ test_that("GraphQL_get_table_string complex querys", {
   }
 }'
     )$title[1],
-    "Testdaten Mögliches Risiko für Missbildungen durch Diabetestherapie bei Vater"
+    "Testdaten gesundheitliche Auswirkungen von Chemikaliengemischen mit endokriner Wirkung"
   )
 })
