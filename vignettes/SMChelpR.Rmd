@@ -57,6 +57,7 @@ Außerdem erlaubt `GraphQL_get_table_vec` mittels `where`-Klauseln spezifischere
     where = 'publication_date: {_lt: "2022-01-12"}',
     page_size = 1,
     max_pages = 5,
+    order_by = "story_no: asc"
   ))
 ```
 
@@ -67,7 +68,8 @@ Für komplexere Abfragen kann `GraphQL_get_table_string` genutzt werden. Diese F
 GraphQL_get_table_string(
   'query MyQuery {
    test_R_Packages_test_story(
-     limit: 10, 
+     limit: 10,
+     order_by: {story_no: asc},
      where: {story_no: {_gt: 22021}, 
      ressort: {_eq: "Medizin & Lebenswissenschaften"}}) {
    publication_date

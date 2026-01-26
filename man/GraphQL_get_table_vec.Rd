@@ -6,6 +6,7 @@
 \usage{
 GraphQL_get_table_vec(
   tabellenname,
+  schema,
   variablen,
   where = NULL,
   order_by = NULL,
@@ -19,6 +20,8 @@ GraphQL_get_table_vec(
 }
 \arguments{
 \item{tabellenname}{character string; name of the table/entity to query in the GraphQL schema}
+
+\item{schema}{character string; optional name of the database schema}
 
 \item{variablen}{character vector; field names to retrieve from the GraphQL endpoint}
 
