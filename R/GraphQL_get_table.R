@@ -113,6 +113,7 @@ stop_graphql_errors <- function(json_errors) {
 #' Includes automatic retry logic to handle temporary network issues such as HTTP 502 errors.
 #'
 #' @param tabellenname character string; name of the table/entity to query in the GraphQL schema
+#' @param schema character string; optional name of the database schema
 #' @param variablen character vector; field names to retrieve from the GraphQL endpoint
 #' @param where character string; optional GraphQL-formatted condition string for filtering results
 #' @param order_by character string; optional GraphQL-formatted ordering specification for consistent pagination
@@ -156,6 +157,7 @@ stop_graphql_errors <- function(json_errors) {
 #' )
 GraphQL_get_table_vec <- function(
     tabellenname,
+    schema,
     variablen,
     where = NULL,
     order_by = NULL,
@@ -166,6 +168,11 @@ GraphQL_get_table_vec <- function(
     backoff = function(i) 2^i * 100,
     ssl_options = NULL
 ) {
+    # Paste schema and tabellenname together if schema is stated
+    if(!missing(schema)){
+      tabellenname <- glue("{schema}_{tabellenname}")
+    }
+  
     # Handle the special case where page_size is Inf (no pagination)
     if (is.infinite(page_size)) {
         # Single query without pagination

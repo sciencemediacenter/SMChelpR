@@ -94,6 +94,25 @@ test_that("GraphQL_get_table_vec default datenserver", {
   )
 })
 
+test_that("GraphQL_get_table_vec with schema argument", {
+  expect_identical(
+    GraphQL_get_table_vec(
+      tabellenname = "test_story",
+      schema = "test_R_Packages",
+      variablen = c(
+        "story_no",
+        "ressort",
+        "title",
+        "publication_date",
+        "type",
+        "url"
+      ),
+      datenserver = "https://data.smclab.io/v1/graphql"
+    ),
+    story_testdaten_vec
+  )
+})
+
 
 ##############################
 ## GraphQL_get_table_string ##
