@@ -32,8 +32,9 @@ devtools::install("SMChelpR")
 #########################
 ## Install from github ##
 #########################
-setwd("./SMChelpR")
-readRenviron(".env")
-# devtools::install_github("sciencemediacenter/SMChelpR", ref = "master", auth_token = Sys.getenv("token"))
-devtools::install_github("sciencemediacenter/SMChelpR", ref = "master")
+
+pak::pak(
+    "sciencemediacenter/SMChelpR@master"
+)
+
 library(SMChelpR)
