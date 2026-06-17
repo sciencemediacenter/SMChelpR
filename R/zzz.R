@@ -13,6 +13,7 @@
 #' @import glue
 #' @import sf
 #' @import geojsonsf
+#' @importFrom DT JS
 #' @importFrom purrr map map_df pluck as_vector
 #' @importFrom jsonlite toJSON fromJSON
 #' @importFrom rlang :=
