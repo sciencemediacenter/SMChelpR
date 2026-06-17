@@ -26,7 +26,7 @@ test_that("ggplotly_SMC() legend params are set by default", {
 
   # check if legend params are set
   expect_equal(legend$orientation, "h")
-  expect_equal(legend$entrywidth, 70)
+  expect_equal(legend$entrywidth, Inf)
   expect_equal(legend$yanchor, "bottom")
   expect_equal(legend$y, -0.28)
   expect_equal(legend$xanchor, "center")
