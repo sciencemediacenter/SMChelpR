@@ -45,7 +45,10 @@ Suggests:
 	tidyverse,
 	withr,
 	readr,
-	grDevices
+	grDevices,
+	chromote,
+	rsvg,
+	echarts4r
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 VignetteBuilder: knitr
