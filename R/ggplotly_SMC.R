@@ -12,7 +12,7 @@
 #' you must set `interaktiv = FALSE` before rendering.
 #'
 #' @param ... A ggplot object which is the basis for a plotly object. Also: all parameters that you would usually pass to ggplotly, such as: ... = figure, tooltip = c("x", "y")
-#' @param legende_unten boolean, FALSE: Legend to the right of the plot; TRUE: Legend below the plot
+#' @param legende_unten boolean, TRUE: apply SMC custom positioning for the legend below the plot (horizontal, centered, shifted down via `legend_y`). FALSE: keep the legend position derived from the ggplot theme (with `SMC_theme_ggplot()` this defaults to `legend.position = "bottom"`, so the legend stays below the plot unless the underlying ggplot theme places it elsewhere).
 #' @param x_axis_label_gegeben boolean, TRUE: x-axis label is given; FALSE: no x-axis label
 #' @param mehrzeiliger_titel boolean, TRUE: adjusted spacing between title and plot, if the title spans several lines
 #' @param interaktiv boolean, TRUE: add font dependencies to interactive plot (needs to be FALSE when rendering Quarto document)
