@@ -7,7 +7,7 @@
 format_SMC_datatable(
   table,
   columns,
-  digits = NULL,
+  digits = 1,
   decimal_mark = ",",
   big_mark = "thin_space",
   na_text = "keine Daten"
@@ -19,9 +19,9 @@ format_SMC_datatable(
 \item{columns}{character, names of the columns to format (matched against
 the column names of the table data).}
 
-\item{digits}{integer or NULL, number of decimals. \code{NULL} (default) uses 0
-decimals for whole numbers and 1 decimal otherwise; an integer forces that
-number of decimals for every value.}
+\item{digits}{integer or NULL, number of decimals. An integer (default \code{1})
+forces that number of decimals for every value; \code{NULL} uses 0 decimals for
+whole numbers and 1 decimal otherwise.}
 
 \item{decimal_mark}{character, decimal mark used in the displayed value.
 Defaults to ",".}
@@ -44,9 +44,9 @@ narrow space as thousands separator) while sorting and filtering keep working
 on the underlying numeric data. \code{NA}/\code{null} cells are rendered as \code{na_text}.
 }
 \details{
-By default (\code{digits = NULL}) whole numbers are shown without decimals and
-non-integers with one decimal. Set \code{digits} to a fixed integer to force a
-constant number of decimals for all values.
+By default (\code{digits = 1}) every value is shown with one decimal. Pass
+\code{digits = NULL} for a dynamic mode that shows whole numbers without decimals
+and non-integers with one decimal.
 }
 \examples{
 library(DT)
