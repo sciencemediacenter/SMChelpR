@@ -16,7 +16,7 @@ ggplotly_SMC(
 \arguments{
 \item{...}{A ggplot object which is the basis for a plotly object. Also: all parameters that you would usually pass to ggplotly, such as: ... = figure, tooltip = c("x", "y")}
 
-\item{legende_unten}{boolean, FALSE: Legend to the right of the plot; TRUE: Legend below the plot}
+\item{legende_unten}{boolean, TRUE: apply SMC custom positioning for the legend below the plot (horizontal, centered, shifted down via \code{legend_y}). FALSE: keep the legend position derived from the ggplot theme (with \code{SMC_theme_ggplot()} this defaults to \code{legend.position = "bottom"}, so the legend stays below the plot unless the underlying ggplot theme places it elsewhere).}
 
 \item{x_axis_label_gegeben}{boolean, TRUE: x-axis label is given; FALSE: no x-axis label}
 
