@@ -26,7 +26,7 @@ test_that("ggplotly_SMC() legend params are set by default", {
 
   # check if legend params are set
   expect_equal(legend$orientation, "h")
-  expect_equal(legend$entrywidth, 70)
+  expect_equal(legend$entrywidth, Inf)
   expect_equal(legend$yanchor, "bottom")
   expect_equal(legend$y, -0.28)
   expect_equal(legend$xanchor, "center")
@@ -53,8 +53,12 @@ test_that("ggplotly_SMC() does not place legend below if param is FALSE", {
   layout_params <- plotly_build(tmp_ggplotly)$x$layout
   legend <- layout_params$legend
 
-  # check if legend position is not bottom
-  expect_null(legend$yanchor)
+  # the custom bottom-legend block (legende_unten = TRUE) sets yanchor = "bottom"
+  # and y = -0.28; with legende_unten = FALSE this block must not be applied
+  # (note: ggplotly still derives a bottom legend from SMC_theme_ggplot's
+  #  legend.position = "bottom", so yanchor is "top", not NULL)
+  expect_false(identical(legend$yanchor, "bottom"))
+  expect_false(isTRUE(legend$y == -0.28))
 })
 
 

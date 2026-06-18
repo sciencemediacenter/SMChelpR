@@ -23,6 +23,20 @@ The package primarily contains two types of functions:
 - Functions to retrieve the [data API](https://github.com/sciencemediacenter/DataCollection) of the SMC.
 - Functions to create the graphics included in the report.
 
-The package can be easily installed using `devtools`:
+## Installation
 
-`devtools::install_github("sciencemediacenter/SMChelpR")`
+Install from GitHub with [pak](https://pak.r-lib.org/):
+
+```r
+# default: hard dependencies only
+pak::pak("sciencemediacenter/SMChelpR")
+
+# also install suggested packages
+pak::pak("sciencemediacenter/SMChelpR", dependencies = TRUE)
+```
+
+The default install covers the core functionality. The suggested packages
+(`echarts4r`, `chromote`, `rsvg`) are only needed for `export_echart_png_html_svg()`
+and are pulled in by `dependencies = TRUE`. Without them, that function stops
+with a message telling you what to install (`chromote` needs a headless
+Chrome/Chromium, `rsvg` needs the system library `librsvg`).
