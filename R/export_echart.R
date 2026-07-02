@@ -86,8 +86,12 @@ export_echart_png_html_svg <- function(
     deviceScaleFactor = 1,
     mobile = FALSE
   )
-  b$Page$navigate(paste0("file://", normalizePath(tmp_html)))
-  b$Page$loadEventFired()
+  # Event VOR navigate() abonnieren: bei schnellen Seiten (kleine Widgets,
+  # neuere Chrome-Versionen) feuert loadEventFired sonst, bevor der Listener
+  # registriert ist, und das nachtraegliche Warten laeuft in den Timeout.
+  p_load <- b$Page$loadEventFired(wait_ = FALSE)
+  b$Page$navigate(paste0("file://", normalizePath(tmp_html)), wait_ = FALSE)
+  b$wait_for(p_load)
   Sys.sleep(delay)
 
   svg_text <- b$Runtime$evaluate(paste0(
