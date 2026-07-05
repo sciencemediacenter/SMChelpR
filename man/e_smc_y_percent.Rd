@@ -4,7 +4,13 @@
 \alias{e_smc_y_percent}
 \title{e_smc_y_percent}
 \usage{
-e_smc_y_percent(e, name = NULL, extend_to = NULL, interval = NULL)
+e_smc_y_percent(
+  e,
+  name = NULL,
+  extend_to = NULL,
+  interval = NULL,
+  echarts_params = list()
+)
 }
 \arguments{
 \item{e}{an \code{echarts4r} chart.}
@@ -16,6 +22,9 @@ e_smc_y_percent(e, name = NULL, extend_to = NULL, interval = NULL)
 
 \item{interval}{numeric or \code{NULL}. Fixed tick interval; defaults to 20
 when \code{extend_to} is set.}
+
+\item{echarts_params}{list, selective overrides of the style constants
+(see \code{\link[=get_SMC_echarts_default_parameters]{get_SMC_echarts_default_parameters()}}).}
 }
 \value{
 The modified \code{echarts4r} chart.

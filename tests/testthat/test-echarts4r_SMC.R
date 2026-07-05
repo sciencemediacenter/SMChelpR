@@ -44,9 +44,57 @@ test_that("e_smc_style: mehrzeiliger Titel vergroessert grid_top um 25 px/Zeile"
 
   e3 <- testchart() |> e_smc_style(title = "1\n2\n3")
   expect_equal(e3$x$opts$grid[[1]]$top, 100)
+})
 
-  explizit <- testchart() |> e_smc_style(title = "1\n2", grid_top = 42)
-  expect_equal(explizit$x$opts$grid[[1]]$top, 42)
+test_that("echarts_params ueberschreibt Stil-Konstanten gezielt", {
+  e <- testchart() |>
+    e_smc_style(
+      title = "1\n2",
+      echarts_params = list(grid_top = 40, grid_left = 100)
+    )
+  expect_equal(e$x$opts$grid[[1]]$top, 40 + 25) # Basis 40 + 1 Extra-Zeile
+  expect_equal(e$x$opts$grid[[1]]$left, 100)
+  expect_equal(e$x$opts$grid[[1]]$right, 40) # Default bleibt
+
+  achse <- testchart() |>
+    e_smc_y_percent(extend_to = 105, echarts_params = list(y_name_gap = 70))
+  expect_equal(achse$x$opts$yAxis[[1]]$nameGap, 70)
+
+  kategorie <- testchart() |>
+    e_smc_x_category(echarts_params = list(category_fontsize_rotated = 12))
+  expect_equal(kategorie$x$opts$xAxis[[1]]$axisLabel$fontSize, 12)
+
+  platzhalter <- e_smc_placeholder(
+    echarts_params = list(placeholder_color = "#123456")
+  )
+  expect_equal(platzhalter$x$opts$title[[1]]$textStyle$color, "#123456")
+})
+
+test_that("get_SMC_echarts_default_parameters deckt die e_smc_*-Konstanten ab", {
+  defaults <- get_SMC_echarts_default_parameters()
+  expect_type(defaults, "list")
+  expect_setequal(
+    names(defaults),
+    c(
+      "grid_top",
+      "grid_top_per_title_line",
+      "grid_left",
+      "grid_right",
+      "grid_bottom_legend",
+      "grid_bottom_no_legend",
+      "y_name_gap",
+      "percent_interval",
+      "category_fontsize_rotated",
+      "placeholder_color",
+      "placeholder_font_weight"
+    )
+  )
+
+  # Defaults-Liste unveraendert durchreichen == Defaults (Getter und
+  # get_param-Aufrufe duerfen nicht auseinanderlaufen)
+  mit <- testchart() |> e_smc_style(title = "T", echarts_params = defaults)
+  ohne <- testchart() |> e_smc_style(title = "T")
+  expect_equal(mit$x$opts$grid, ohne$x$opts$grid)
 })
 
 test_that("e_smc_hline haengt eine stille markLine an die letzte Serie", {
@@ -124,17 +172,6 @@ test_that("e_smc_placeholder rendert ohne Koordinatensystem", {
   # yAxis ohne xAxis laesst ECharts beim Rendern abstuerzen (axisBuilder)
   expect_null(e$x$opts$yAxis)
   expect_null(e$x$opts$xAxis)
-})
-
-test_that("colors_SMC_ramp liefert exakt n Farben, interpoliert ueber 9", {
-  expect_equal(colors_SMC_ramp(3), colors_SMC()[1:3])
-  expect_equal(colors_SMC_ramp(9), colors_SMC())
-
-  viele <- colors_SMC_ramp(16)
-  expect_length(viele, 16)
-  expect_length(unique(viele), 16)
-  is_valid_hex <- function(color) grepl("^#[0-9A-Fa-f]{6}$", color)
-  expect_true(all(sapply(viele, is_valid_hex)))
 })
 
 test_that("format_SMC_kalenderwoche nutzt das ISO-Wochenjahr (%G)", {

@@ -59,18 +59,19 @@ js_smc_achse_monat <- function(show_year = TRUE) {
 #' @details
 #' The grid `top` grows by 25 px per additional title line (`"\n"` in
 #' `title`), the grid `bottom` is 60 px without a legend and 80 px with one —
-#' both following the SMC ECharts style standard. Pass `grid_top`/
-#' `grid_bottom` to override.
+#' both following the SMC ECharts style standard. All underlying constants
+#' can be overridden selectively via `echarts_params`; see
+#' [get_SMC_echarts_default_parameters()] for the full list.
 #'
 #' @param e an `echarts4r` chart.
 #' @param title character or `NULL`. Chart title, centered; use `"\n"` for
 #'   multi-line titles.
 #' @param legend one of `"bottom"` (horizontal legend at the bottom, default),
 #'   `"none"` (hidden) or `"scroll"` (scrollable, for more than ~8 series).
-#' @param grid_top,grid_bottom numeric or `NULL`. Explicit grid distances in
-#'   px; if `NULL` they are derived from `title` and `legend`.
 #' @param colors character vector of series colors. Default: [colors_SMC()];
 #'   for more series than colors see [colors_SMC_ramp()].
+#' @param echarts_params list, selective overrides of the style constants
+#'   (see [get_SMC_echarts_default_parameters()]).
 #' @return The modified `echarts4r` chart.
 #' @examples
 #' \dontrun{
@@ -78,36 +79,42 @@ js_smc_achse_monat <- function(show_year = TRUE) {
 #'   echarts4r::e_charts(Datum) |>
 #'   echarts4r::e_line(Wert) |>
 #'   e_smc_style(title = "Beispiel", legend = "none")
+#'
+#' # gezielt eine Konstante ueberschreiben
+#' df |>
+#'   echarts4r::e_charts(Datum) |>
+#'   echarts4r::e_line(Wert) |>
+#'   e_smc_style(title = "Beispiel", echarts_params = list(grid_left = 100))
 #' }
 #' @export e_smc_style
 e_smc_style <- function(
   e,
   title = NULL,
   legend = c("bottom", "none", "scroll"),
-  grid_top = NULL,
-  grid_bottom = NULL,
-  colors = colors_SMC()
+  colors = colors_SMC(),
+  echarts_params = list()
 ) {
   legend <- match.arg(legend)
 
-  if (is.null(grid_top)) {
-    extra_zeilen <- if (is.null(title)) {
-      0L
-    } else {
-      lengths(regmatches(title, gregexpr("\n", title, fixed = TRUE)))
-    }
-    grid_top <- 50 + 25 * extra_zeilen
+  extra_zeilen <- if (is.null(title)) {
+    0L
+  } else {
+    lengths(regmatches(title, gregexpr("\n", title, fixed = TRUE)))
   }
-  if (is.null(grid_bottom)) {
-    grid_bottom <- if (legend == "none") 60 else 80
+  grid_top <- get_param(echarts_params, "grid_top", 50) +
+    get_param(echarts_params, "grid_top_per_title_line", 25) * extra_zeilen
+  grid_bottom <- if (legend == "none") {
+    get_param(echarts_params, "grid_bottom_no_legend", 60)
+  } else {
+    get_param(echarts_params, "grid_bottom_legend", 80)
   }
 
   e <- e |>
     echarts4r::e_color(colors) |>
     echarts4r::e_grid(
       top = grid_top,
-      left = 80,
-      right = 40,
+      left = get_param(echarts_params, "grid_left", 80),
+      right = get_param(echarts_params, "grid_right", 40),
       bottom = grid_bottom
     ) |>
     echarts4r::e_toolbox_feature("dataZoom", yAxisIndex = FALSE) |>
@@ -176,12 +183,20 @@ e_smc_hline <- function(e, y, opacity = 0.5, color = "#666666") {
 #'   (e.g. 105 so a 100 % line stays visible).
 #' @param interval numeric or `NULL`. Fixed tick interval; defaults to 20
 #'   when `extend_to` is set.
+#' @param echarts_params list, selective overrides of the style constants
+#'   (see [get_SMC_echarts_default_parameters()]).
 #' @return The modified `echarts4r` chart.
 #' @export e_smc_y_percent
-e_smc_y_percent <- function(e, name = NULL, extend_to = NULL, interval = NULL) {
+e_smc_y_percent <- function(
+  e,
+  name = NULL,
+  extend_to = NULL,
+  interval = NULL,
+  echarts_params = list()
+) {
   achse <- list(
     nameLocation = "middle",
-    nameGap = 50,
+    nameGap = get_param(echarts_params, "y_name_gap", 50),
     axisLabel = list(formatter = "{value} %")
   )
   if (!is.null(name)) {
@@ -189,7 +204,7 @@ e_smc_y_percent <- function(e, name = NULL, extend_to = NULL, interval = NULL) {
   }
   if (!is.null(extend_to)) {
     if (is.null(interval)) {
-      interval <- 20
+      interval <- get_param(echarts_params, "percent_interval", 20)
     }
     achse$max <- htmlwidgets::JS(sprintf(
       "function(value) {
@@ -240,12 +255,14 @@ e_smc_x_time <- function(e, show_year = TRUE) {
 #'
 #' @param e an `echarts4r` chart.
 #' @param rotate numeric label rotation in degrees. Default: 45.
+#' @param echarts_params list, selective overrides of the style constants
+#'   (see [get_SMC_echarts_default_parameters()]).
 #' @return The modified `echarts4r` chart.
 #' @export e_smc_x_category
-e_smc_x_category <- function(e, rotate = 45) {
+e_smc_x_category <- function(e, rotate = 45, echarts_params = list()) {
   label <- list(rotate = rotate)
   if (rotate == 45) {
-    label$fontSize <- 10
+    label$fontSize <- get_param(echarts_params, "category_fontsize_rotated", 10)
   }
   echarts4r::e_x_axis(
     e,
@@ -323,40 +340,81 @@ e_smc_tooltip <- function(
 #'
 #' @param message character message shown in the chart center. Default:
 #'   `"Daten derzeit nicht verfügbar"`.
+#' @param echarts_params list, selective overrides of the style constants
+#'   (see [get_SMC_echarts_default_parameters()]).
 #' @return An `echarts4r` chart.
 #' @export e_smc_placeholder
-e_smc_placeholder <- function(message = "Daten derzeit nicht verfügbar") {
+e_smc_placeholder <- function(
+  message = "Daten derzeit nicht verfügbar",
+  echarts_params = list()
+) {
   e <- echarts4r::e_charts() |>
     echarts4r::e_title(
       text = message,
       left = "center",
       top = "middle",
-      textStyle = list(color = colors_SMC("grey"), fontWeight = "normal")
+      textStyle = list(
+        color = get_param(
+          echarts_params,
+          "placeholder_color",
+          colors_SMC("grey")
+        ),
+        fontWeight = get_param(
+          echarts_params,
+          "placeholder_font_weight",
+          "normal"
+        )
+      )
     )
   e$x$opts$yAxis <- NULL
   e
 }
 
-#' colors_SMC_ramp
+#' get_SMC_echarts_default_parameters
 #'
-#' SMC color palette for exactly `n` series: the first `n` SMC colors, or —
-#' when `n` exceeds the palette size — `n` distinct colors interpolated
-#' across the full palette via `grDevices::colorRampPalette()`. Use this
-#' instead of letting ECharts recycle the palette (recycling assigns the
-#' same color to different series).
+#' Returns the style constants used by the `e_smc_*` functions — the SMC
+#' ECharts style standard as data. Modify entries selectively and pass the
+#' list to the respective function via its `echarts_params` argument
+#' (analogous to [get_SMC_ggplotly_default_parameters()] /
+#' `ggplotly_params`).
 #'
-#' @param n integer number of colors needed.
-#' @return Character vector of `n` color codes.
+#' Per-figure semantics (title, legend variant, unit, digits, rotation,
+#' `extend_to`) remain regular function arguments; `echarts_params` only
+#' carries the style constants that are otherwise invisible defaults.
+#'
+#' @return List of default parameters for the `e_smc_*` functions:
+#' * `grid_top`, `grid_top_per_title_line`, `grid_left`, `grid_right`,
+#'   `grid_bottom_legend`, `grid_bottom_no_legend` — grid geometry in px
+#'   ([e_smc_style()]).
+#' * `y_name_gap`, `percent_interval` — y axis ([e_smc_y_percent()]).
+#' * `category_fontsize_rotated` — rotated category labels
+#'   ([e_smc_x_category()]).
+#' * `placeholder_color`, `placeholder_font_weight` —
+#'   ([e_smc_placeholder()]).
 #' @examples
-#' colors_SMC_ramp(3)
-#' colors_SMC_ramp(16)
-#' @export colors_SMC_ramp
-colors_SMC_ramp <- function(n) {
-  farben <- colors_SMC()
-  if (n <= length(farben)) {
-    return(farben[seq_len(n)])
-  }
-  grDevices::colorRampPalette(farben)(n)
+#' get_SMC_echarts_default_parameters()
+#' @export get_SMC_echarts_default_parameters
+get_SMC_echarts_default_parameters <- function() {
+  list(
+    # grid (px) — top grows per additional title line
+    grid_top = 50,
+    grid_top_per_title_line = 25,
+    grid_left = 80,
+    grid_right = 40,
+    grid_bottom_legend = 80,
+    grid_bottom_no_legend = 60,
+
+    # y axis
+    y_name_gap = 50,
+    percent_interval = 20,
+
+    # category x axis (only applied when rotate = 45)
+    category_fontsize_rotated = 10,
+
+    # placeholder chart
+    placeholder_color = colors_SMC("grey"),
+    placeholder_font_weight = "normal"
+  )
 }
 
 #' format_SMC_kalenderwoche

@@ -4,12 +4,15 @@
 \alias{e_smc_x_category}
 \title{e_smc_x_category}
 \usage{
-e_smc_x_category(e, rotate = 45)
+e_smc_x_category(e, rotate = 45, echarts_params = list())
 }
 \arguments{
 \item{e}{an \code{echarts4r} chart.}
 
 \item{rotate}{numeric label rotation in degrees. Default: 45.}
+
+\item{echarts_params}{list, selective overrides of the style constants
+(see \code{\link[=get_SMC_echarts_default_parameters]{get_SMC_echarts_default_parameters()}}).}
 }
 \value{
 The modified \code{echarts4r} chart.

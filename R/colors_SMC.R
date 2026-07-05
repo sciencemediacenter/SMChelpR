@@ -23,11 +23,11 @@ colors_SMC_named <- list(
 colors_SMC_unnamed <- unname(unlist(colors_SMC_named))
 
 #' colors_SMC
-#' 
+#'
 #' This function returns one or more color codes from the SMC color palette
 #' in arbitrary order as a vector or string (single color).
 #' Available colors include: "blue", "green", "purple", "orange", "brown", "pink", "grey", "red", "yellow".
-#' 
+#'
 #' @param ColorNames A string with a single color code or a vector with several colors.
 #' @param rev  boolean, if TRUE: reverse the return order of the colors.
 #' @return An unnamed vector with color codes or a single color code as a string.
@@ -46,7 +46,7 @@ colors_SMC_unnamed <- unname(unlist(colors_SMC_named))
 #' # Reverse the order of the colors
 #' colors_SMC(rev = TRUE)
 #' @export colors_SMC
-colors_SMC <- function(ColorNames = NULL, rev = FALSE){
+colors_SMC <- function(ColorNames = NULL, rev = FALSE) {
   # Create a vector containing all color codes from the SMC color palette
   ColorValues <- unlist(colors_SMC_named)
 
@@ -61,6 +61,28 @@ colors_SMC <- function(ColorNames = NULL, rev = FALSE){
     ColorValues <- rev(ColorValues)
   }
 
-  # Return the color codes as a vector or a single string 
+  # Return the color codes as a vector or a single string
   return(unname(ColorValues))
+}
+
+#' colors_SMC_ramp
+#'
+#' SMC color palette for exactly `n` series: the first `n` SMC colors, or —
+#' when `n` exceeds the palette size — `n` distinct colors interpolated
+#' across the full palette via `grDevices::colorRampPalette()`. Use this
+#' instead of letting a chart library recycle the palette (recycling assigns
+#' the same color to different series).
+#'
+#' @param n integer number of colors needed.
+#' @return Character vector of `n` color codes.
+#' @examples
+#' colors_SMC_ramp(3)
+#' colors_SMC_ramp(16)
+#' @export colors_SMC_ramp
+colors_SMC_ramp <- function(n) {
+  farben <- colors_SMC()
+  if (n <= length(farben)) {
+    return(farben[seq_len(n)])
+  }
+  grDevices::colorRampPalette(farben)(n)
 }

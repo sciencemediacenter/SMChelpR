@@ -4,11 +4,17 @@
 \alias{e_smc_placeholder}
 \title{e_smc_placeholder}
 \usage{
-e_smc_placeholder(message = "Daten derzeit nicht verfügbar")
+e_smc_placeholder(
+  message = "Daten derzeit nicht verfügbar",
+  echarts_params = list()
+)
 }
 \arguments{
 \item{message}{character message shown in the chart center. Default:
 \code{"Daten derzeit nicht verfügbar"}.}
+
+\item{echarts_params}{list, selective overrides of the style constants
+(see \code{\link[=get_SMC_echarts_default_parameters]{get_SMC_echarts_default_parameters()}}).}
 }
 \value{
 An \code{echarts4r} chart.

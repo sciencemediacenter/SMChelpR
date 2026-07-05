@@ -8,9 +8,8 @@ e_smc_style(
   e,
   title = NULL,
   legend = c("bottom", "none", "scroll"),
-  grid_top = NULL,
-  grid_bottom = NULL,
-  colors = colors_SMC()
+  colors = colors_SMC(),
+  echarts_params = list()
 )
 }
 \arguments{
@@ -22,11 +21,11 @@ multi-line titles.}
 \item{legend}{one of \code{"bottom"} (horizontal legend at the bottom, default),
 \code{"none"} (hidden) or \code{"scroll"} (scrollable, for more than ~8 series).}
 
-\item{grid_top, grid_bottom}{numeric or \code{NULL}. Explicit grid distances in
-px; if \code{NULL} they are derived from \code{title} and \code{legend}.}
-
 \item{colors}{character vector of series colors. Default: \code{\link[=colors_SMC]{colors_SMC()}};
 for more series than colors see \code{\link[=colors_SMC_ramp]{colors_SMC_ramp()}}.}
+
+\item{echarts_params}{list, selective overrides of the style constants
+(see \code{\link[=get_SMC_echarts_default_parameters]{get_SMC_echarts_default_parameters()}}).}
 }
 \value{
 The modified \code{echarts4r} chart.
@@ -41,8 +40,9 @@ and an optional centered title.
 \details{
 The grid \code{top} grows by 25 px per additional title line (\code{"\\n"} in
 \code{title}), the grid \code{bottom} is 60 px without a legend and 80 px with one —
-both following the SMC ECharts style standard. Pass \code{grid_top}/
-\code{grid_bottom} to override.
+both following the SMC ECharts style standard. All underlying constants
+can be overridden selectively via \code{echarts_params}; see
+\code{\link[=get_SMC_echarts_default_parameters]{get_SMC_echarts_default_parameters()}} for the full list.
 }
 \examples{
 \dontrun{
@@ -50,5 +50,11 @@ df |>
   echarts4r::e_charts(Datum) |>
   echarts4r::e_line(Wert) |>
   e_smc_style(title = "Beispiel", legend = "none")
+
+# gezielt eine Konstante ueberschreiben
+df |>
+  echarts4r::e_charts(Datum) |>
+  echarts4r::e_line(Wert) |>
+  e_smc_style(title = "Beispiel", echarts_params = list(grid_left = 100))
 }
 }
