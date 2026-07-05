@@ -20,9 +20,11 @@ Depends:
 Imports:
 	dplyr,
 	DT,
+	echarts4r,
 	ggplot2,
 	fs,
-	jsonlite, 
+	grDevices,
+	jsonlite,
 	plotly,
 	showtext,
 	stringr,
@@ -46,10 +48,8 @@ Suggests:
 	tidyverse,
 	withr,
 	readr,
-	grDevices,
 	chromote,
-	rsvg,
-	echarts4r
+	rsvg
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
 Config/testthat/edition: 3
