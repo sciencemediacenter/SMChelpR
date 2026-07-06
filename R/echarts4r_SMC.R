@@ -48,6 +48,15 @@ js_smc_achse_monat <- function(show_year = TRUE) {
   ))
 }
 
+# JS axis-label formatter for time axes at year granularity: "1950".
+js_smc_achse_jahr <- function() {
+  htmlwidgets::JS(
+    "function(value) {
+      return String(new Date(value).getFullYear());
+    }"
+  )
+}
+
 #' e_smc_style
 #'
 #' Apply the SMC ECharts base style to an `echarts4r` chart in one call:
@@ -138,6 +147,72 @@ e_smc_style <- function(
   e
 }
 
+# Internal: markLine label for e_smc_hline()/e_smc_vline() — hidden unless
+# `label` is a string, in which case it's shown per the SMC annotation-label
+# standard (fontSize 11), colored like the line unless told otherwise.
+e_smc_markline_label <- function(label, position, color) {
+  if (is.null(label)) {
+    list(show = FALSE)
+  } else {
+    list(
+      show = TRUE,
+      formatter = label,
+      position = position,
+      color = color,
+      fontSize = 11
+    )
+  }
+}
+
+# Internal: attach one markLine data-item (`point`, e.g. `list(yAxis = 100,
+# ...)`) to a dedicated invisible "phantom" line series named
+# `phantom_name`, creating that series on first use. A markLine shares its
+# host series' legend visibility, so a reference line attached directly to
+# a real series disappears when that series is toggled off; hosting it on
+# its own always-shown series avoids that. The phantom series is excluded
+# from the legend by whitelisting whichever series already exist at the
+# time it's first created — so this must run after all real data series
+# have been added, and before e_smc_style() (which sets other legend keys
+# but does not touch an existing legend$data).
+#
+# Adds one extra entry to e$x$opts$series: if used together with
+# e_facet() (which infers its row/col grid from length(series)), call
+# e_facet() first, or pass explicit rows/cols, to avoid miscounting panels.
+e_smc_add_phantom_markline <- function(e, point, phantom_name) {
+  series_names <- vapply(
+    e$x$opts$series,
+    function(s) if (is.null(s$name)) "" else s$name,
+    character(1)
+  )
+  idx <- which(series_names == phantom_name)
+
+  if (length(idx) == 0) {
+    if (is.null(e$x$opts$legend$data)) {
+      if (is.null(e$x$opts$legend)) {
+        e$x$opts$legend <- list()
+      }
+      e$x$opts$legend$data <- as.list(series_names)
+    }
+    e$x$opts$series[[length(e$x$opts$series) + 1]] <- list(
+      name = phantom_name,
+      type = "line",
+      data = list(),
+      showSymbol = FALSE,
+      silent = TRUE,
+      tooltip = list(show = FALSE),
+      lineStyle = list(opacity = 0),
+      markLine = list(symbol = "none", data = list(point))
+    )
+  } else {
+    e$x$opts$series[[idx]]$markLine$data <- append(
+      e$x$opts$series[[idx]]$markLine$data,
+      list(point)
+    )
+  }
+
+  e
+}
+
 #' e_smc_hline
 #'
 #' Add a horizontal reference line (the `echarts4r` counterpart of
@@ -148,21 +223,97 @@ e_smc_style <- function(
 #' this with [e_smc_y_percent()] and its `extend_to` argument (or an explicit
 #' axis `max`), otherwise the line is silently clipped.
 #'
+#' Calling `e_smc_hline()`/`e_smc_vline()` more than once on the same chart
+#' is safe — each call's own `color`/`opacity`/`type`/`label` is preserved
+#' regardless of how many reference lines already exist.
+#'
 #' @param e an `echarts4r` chart.
 #' @param y numeric, y position of the line.
 #' @param opacity numeric line opacity. Default: 0.5.
 #' @param color character line color. Default: `"#666666"`.
+#' @param type character line style: `"solid"` (default), `"dashed"` or
+#'   `"dotted"`.
+#' @param label character or `NULL` (default). `NULL` draws an unlabeled
+#'   line. A string is shown as the markLine label — `fontSize = 11` per the
+#'   SMC annotation-label standard, colored to match `color` (pass a more
+#'   legible `color` than the line's if it needs one, e.g. a light line with
+#'   a dark label).
+#' @param label_position character, ECharts markLine label `position`.
+#'   Default: `"insideStartTop"` (label just past the start of the line,
+#'   above it).
+#' @param use_phantom_series logical. `FALSE` (default) attaches the line to
+#'   every series currently on the chart, matching the standard `markLine`
+#'   behavior — visible as long as at least one series is shown. Set `TRUE`
+#'   to instead host it on a dedicated invisible series, so it stays visible
+#'   no matter which real series the reader toggles off via the legend. Add
+#'   all real data series to the chart, and call this (with
+#'   `use_phantom_series = TRUE`) before `e_smc_style()`.
 #' @return The modified `echarts4r` chart.
 #' @export e_smc_hline
-e_smc_hline <- function(e, y, opacity = 0.5, color = "#666666") {
-  echarts4r::e_mark_line(
-    e,
-    data = list(yAxis = y),
-    symbol = "none",
-    silent = TRUE,
-    label = list(show = FALSE),
-    lineStyle = list(color = color, type = "solid", opacity = opacity)
+e_smc_hline <- function(
+  e,
+  y,
+  opacity = 0.5,
+  color = "#666666",
+  type = "solid",
+  label = NULL,
+  label_position = "insideStartTop",
+  use_phantom_series = FALSE
+) {
+  point <- list(
+    yAxis = y,
+    label = e_smc_markline_label(label, label_position, color),
+    lineStyle = list(color = color, type = type, opacity = opacity)
   )
+  if (use_phantom_series) {
+    e_smc_add_phantom_markline(e, point, "SMC_hline_phantom")
+  } else {
+    echarts4r::e_mark_line(e, symbol = "none", silent = TRUE, data = point)
+  }
+}
+
+#' e_smc_vline
+#'
+#' Add a vertical reference line (the `echarts4r` counterpart of
+#' `ggplot2::geom_vline()`): a silent `markLine`. Typical uses: a "today"
+#' marker on a time axis, or a target date.
+#'
+#' Calling `e_smc_hline()`/`e_smc_vline()` more than once on the same chart
+#' is safe — each call's own `color`/`opacity`/`type`/`label` is preserved
+#' regardless of how many reference lines already exist.
+#'
+#' @param e an `echarts4r` chart.
+#' @param x x position of the line — a `Date` on a time axis.
+#' @param opacity numeric line opacity. Default: 0.5.
+#' @param color character line color. Default: `"#666666"`.
+#' @param type character line style: `"solid"` (default), `"dashed"` or
+#'   `"dotted"`.
+#' @param label character or `NULL` (default), see [e_smc_hline()].
+#' @param label_position character, see [e_smc_hline()]. Default:
+#'   `"insideStartTop"`.
+#' @param use_phantom_series logical, see [e_smc_hline()]. Default: `FALSE`.
+#' @return The modified `echarts4r` chart.
+#' @export e_smc_vline
+e_smc_vline <- function(
+  e,
+  x,
+  opacity = 0.5,
+  color = "#666666",
+  type = "solid",
+  label = NULL,
+  label_position = "insideStartTop",
+  use_phantom_series = FALSE
+) {
+  point <- list(
+    xAxis = x,
+    label = e_smc_markline_label(label, label_position, color),
+    lineStyle = list(color = color, type = type, opacity = opacity)
+  )
+  if (use_phantom_series) {
+    e_smc_add_phantom_markline(e, point, "SMC_vline_phantom")
+  } else {
+    echarts4r::e_mark_line(e, symbol = "none", silent = TRUE, data = point)
+  }
 }
 
 #' e_smc_y_percent
@@ -223,21 +374,38 @@ e_smc_y_percent <- function(
 
 #' e_smc_x_time
 #'
-#' Time x axis in the SMC style: visible axis line and German month labels
-#' ("Mär '24", or "Mär" without the year) — echarts4r has no locale
-#' argument, so this injects a JS formatter.
+#' Time x axis in the SMC style: visible axis line and German date labels —
+#' echarts4r has no locale argument, so this injects a JS formatter. At
+#' `granularity = "day"` (the default) labels are month names ("Mär '24", or
+#' "Mär" without the year); at `granularity = "year"` labels are the plain
+#' year ("1950"), for annual time series where month-level labels would be
+#' meaningless.
+#'
+#' The x values must be real dates (or timestamps) either way — echarts4r
+#' has no separate "year" axis type, so a bare year like `1950` used
+#' directly as the x value is misread as 1950 milliseconds after the epoch.
+#' Convert first, e.g. `as.Date(paste0(Jahr, "-01-01"))`.
 #'
 #' @param e an `echarts4r` chart.
 #' @param show_year logical, append the two-digit year to the month label.
 #'   Set to `FALSE` when all series are mapped onto one common year (e.g.
-#'   year-over-year comparisons). Default: `TRUE`.
+#'   year-over-year comparisons). Ignored at `granularity = "year"` (the
+#'   year is always shown). Default: `TRUE`.
+#' @param granularity `"day"` (month labels, for daily/monthly data) or
+#'   `"year"` (plain year labels, for annual data). Default: `"day"`.
 #' @return The modified `echarts4r` chart.
 #' @export e_smc_x_time
-e_smc_x_time <- function(e, show_year = TRUE) {
+e_smc_x_time <- function(e, show_year = TRUE, granularity = c("day", "year")) {
+  granularity <- match.arg(granularity)
+  formatter <- if (granularity == "year") {
+    js_smc_achse_jahr()
+  } else {
+    js_smc_achse_monat(show_year)
+  }
   echarts4r::e_x_axis(
     e,
     axisLine = list(show = TRUE),
-    axisLabel = list(formatter = js_smc_achse_monat(show_year))
+    axisLabel = list(formatter = formatter)
   )
 }
 
@@ -286,7 +454,12 @@ e_smc_x_category <- function(e, rotate = 45, echarts_params = list()) {
 #' @param axis_type `"time"` (header is a German date) or `"category"`
 #'   (header is the category label). Default: `"time"`.
 #' @param show_year logical, include the year in the date header (time axes
-#'   only). Default: `TRUE`.
+#'   only, `granularity = "day"` only — at `granularity = "year"` the year
+#'   is always shown). Default: `TRUE`.
+#' @param granularity `"day"` (date header "1. Mär '24") or `"year"` (header
+#'   is just the year, e.g. "1950") — time axes only, matches the
+#'   `granularity` used on the paired [e_smc_x_time()] axis. Default:
+#'   `"day"`.
 #' @return The modified `echarts4r` chart.
 #' @export e_smc_tooltip
 e_smc_tooltip <- function(
@@ -294,11 +467,16 @@ e_smc_tooltip <- function(
   unit = "",
   digits = 1,
   axis_type = c("time", "category"),
-  show_year = TRUE
+  show_year = TRUE,
+  granularity = c("day", "year")
 ) {
   axis_type <- match.arg(axis_type)
+  granularity <- match.arg(granularity)
 
-  kopf <- if (axis_type == "time") {
+  kopf <- if (axis_type == "time" && granularity == "year") {
+    "var d = new Date(params[0].axisValue);
+    var kopf = d.getFullYear();"
+  } else if (axis_type == "time") {
     sprintf(
       "var monate = %s;
       var d = new Date(params[0].axisValue);

@@ -9,7 +9,8 @@ e_smc_tooltip(
   unit = "",
   digits = 1,
   axis_type = c("time", "category"),
-  show_year = TRUE
+  show_year = TRUE,
+  granularity = c("day", "year")
 )
 }
 \arguments{
@@ -24,7 +25,13 @@ Default: \code{""}.}
 (header is the category label). Default: \code{"time"}.}
 
 \item{show_year}{logical, include the year in the date header (time axes
-only). Default: \code{TRUE}.}
+only, \code{granularity = "day"} only — at \code{granularity = "year"} the year
+is always shown). Default: \code{TRUE}.}
+
+\item{granularity}{\code{"day"} (date header "1. Mär '24") or \code{"year"} (header
+is just the year, e.g. "1950") — time axes only, matches the
+\code{granularity} used on the paired \code{\link[=e_smc_x_time]{e_smc_x_time()}} axis. Default:
+\code{"day"}.}
 }
 \value{
 The modified \code{echarts4r} chart.
