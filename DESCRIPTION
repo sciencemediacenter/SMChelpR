@@ -1,6 +1,6 @@
 Package: SMChelpR
 Title: SMC Tools for Data Reports in R
-Version: 0.1-7
+Version: 0.1-8
 Authors@R: c(
 	person("Lars", "Koppers", email="lars.koppers@sciencemediacenter.de", role=c("aut", "cre"), comment = c(ORCID = "0000-0002-1642-9616")), 
 	person("Clarissa", "Staudt", email="", role=c("aut"), comment = c(ORCID = "0000-0001-8161-5768")), 
@@ -20,9 +20,11 @@ Depends:
 Imports:
 	dplyr,
 	DT,
+	echarts4r,
 	ggplot2,
 	fs,
-	jsonlite, 
+	grDevices,
+	jsonlite,
 	plotly,
 	showtext,
 	stringr,
@@ -46,10 +48,8 @@ Suggests:
 	tidyverse,
 	withr,
 	readr,
-	grDevices,
 	chromote,
-	rsvg,
-	echarts4r
+	rsvg
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
 Config/testthat/edition: 3

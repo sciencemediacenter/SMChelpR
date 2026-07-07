@@ -61,3 +61,13 @@ test_that("colors_SMC behaves as expected", {
   expect_true(is.na(result[[2]]))
   
 })
+test_that("colors_SMC_ramp liefert exakt n Farben, interpoliert ueber 9", {
+  expect_equal(colors_SMC_ramp(3), colors_SMC()[1:3])
+  expect_equal(colors_SMC_ramp(9), colors_SMC())
+
+  viele <- colors_SMC_ramp(16)
+  expect_length(viele, 16)
+  expect_length(unique(viele), 16)
+  is_valid_hex <- function(color) grepl("^#[0-9A-Fa-f]{6}$", color)
+  expect_true(all(sapply(viele, is_valid_hex)))
+})
