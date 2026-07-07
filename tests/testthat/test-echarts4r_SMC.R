@@ -97,15 +97,120 @@ test_that("get_SMC_echarts_default_parameters deckt die e_smc_*-Konstanten ab", 
   expect_equal(mit$x$opts$grid, ohne$x$opts$grid)
 })
 
-test_that("e_smc_hline haengt eine stille markLine an die letzte Serie", {
+test_that("e_smc_hline haengt eine stille markLine an alle Serien", {
   e <- testchart() |> e_smc_hline(100, opacity = 0.6)
   mark <- e$x$opts$series[[1]]$markLine
 
   expect_equal(mark$data[[1]]$yAxis, 100)
+  expect_equal(mark$symbol, "none")
   expect_equal(mark$silent, TRUE)
-  expect_false(mark$label$show)
-  expect_equal(mark$lineStyle$opacity, 0.6)
-  expect_equal(mark$lineStyle$type, "solid")
+  expect_false(mark$data[[1]]$label$show)
+  expect_equal(mark$data[[1]]$lineStyle$opacity, 0.6)
+  expect_equal(mark$data[[1]]$lineStyle$type, "solid")
+})
+
+test_that("e_smc_hline/e_smc_vline unterstuetzen type = 'dashed'", {
+  h <- testchart() |> e_smc_hline(100, type = "dashed")
+  expect_equal(h$x$opts$series[[1]]$markLine$data[[1]]$lineStyle$type, "dashed")
+
+  v <- testchart() |> e_smc_vline(as.Date("2024-01-01"), type = "dashed")
+  expect_equal(v$x$opts$series[[1]]$markLine$data[[1]]$lineStyle$type, "dashed")
+})
+
+test_that("e_smc_hline/e_smc_vline zeigen ein Label, wenn `label` gesetzt ist", {
+  ohne <- testchart() |> e_smc_hline(100)
+  expect_false(ohne$x$opts$series[[1]]$markLine$data[[1]]$label$show)
+
+  mit <- testchart() |>
+    e_smc_hline(100, color = "#000000", label = "Ziel: 100 GW")
+  label <- mit$x$opts$series[[1]]$markLine$data[[1]]$label
+  expect_true(label$show)
+  expect_equal(label$formatter, "Ziel: 100 GW")
+  expect_equal(label$position, "insideStartTop")
+  expect_equal(label$color, "#000000")
+  expect_equal(label$fontSize, 11)
+
+  eigene_position <- testchart() |>
+    e_smc_hline(100, label = "Ziel", label_position = "end")
+  expect_equal(
+    eigene_position$x$opts$series[[1]]$markLine$data[[1]]$label$position,
+    "end"
+  )
+
+  v <- testchart() |> e_smc_vline(as.Date("2024-01-01"), label = "Heute")
+  expect_true(v$x$opts$series[[1]]$markLine$data[[1]]$label$show)
+})
+
+test_that("e_smc_hline mit Label und use_phantom_series kombiniert beides", {
+  e <- testchart() |>
+    e_smc_hline(100, label = "Ziel: 100 GW", use_phantom_series = TRUE)
+  point <- e$x$opts$series[[2]]$markLine$data[[1]]
+  expect_true(point$label$show)
+  expect_equal(point$yAxis, 100)
+})
+
+test_that("e_smc_hline bleibt bei mehreren Aufrufen pro Linie eigenstaendig stylebar", {
+  # Regression: e_mark_line() mergt ab dem zweiten Aufruf auf dieselbe Serie
+  # nur `data` und verwirft lineStyle/label aus diesem Aufruf, wenn die
+  # Werte auf oberster Ebene statt je Punkt in `data` stehen
+  e <- testchart() |>
+    e_smc_hline(100, color = "blue") |>
+    e_smc_hline(50, color = "red", opacity = 0.9)
+  mark <- e$x$opts$series[[1]]$markLine
+
+  expect_length(mark$data, 2)
+  expect_equal(mark$data[[1]]$yAxis, 100)
+  expect_equal(mark$data[[1]]$lineStyle$color, "blue")
+  expect_equal(mark$data[[2]]$yAxis, 50)
+  expect_equal(mark$data[[2]]$lineStyle$color, "red")
+  expect_equal(mark$data[[2]]$lineStyle$opacity, 0.9)
+})
+
+test_that("e_smc_vline verhaelt sich wie e_smc_hline, nur auf der x-Achse", {
+  e <- testchart() |> e_smc_vline(as.Date("2024-01-01"), color = "blue")
+  mark <- e$x$opts$series[[1]]$markLine
+
+  expect_equal(mark$data[[1]]$xAxis, as.Date("2024-01-01"))
+  expect_equal(mark$symbol, "none")
+  expect_equal(mark$silent, TRUE)
+  expect_false(mark$data[[1]]$label$show)
+  expect_equal(mark$data[[1]]$lineStyle$color, "blue")
+
+  e2 <- e |> e_smc_vline(as.Date("2024-06-01"), color = "red")
+  mark2 <- e2$x$opts$series[[1]]$markLine
+  expect_length(mark2$data, 2)
+  expect_equal(mark2$data[[2]]$lineStyle$color, "red")
+})
+
+test_that("use_phantom_series haengt die Linie an eine eigene, unsichtbare Serie", {
+  e <- testchart() |> e_smc_hline(100, use_phantom_series = TRUE)
+
+  expect_length(e$x$opts$series, 2)
+  phantom <- e$x$opts$series[[2]]
+  expect_equal(phantom$name, "SMC_hline_phantom")
+  expect_equal(phantom$lineStyle$opacity, 0)
+  expect_true(phantom$silent)
+  expect_equal(phantom$markLine$data[[1]]$yAxis, 100)
+  # die echte Serie ("y", aus testchart()) traegt keine markLine
+  expect_null(e$x$opts$series[[1]]$markLine)
+  # Legende auf die echten Serien beschraenkt, Phantom-Serie ausgeschlossen
+  expect_equal(e$x$opts$legend$data, list("y"))
+
+  # zweite Referenzlinie landet auf derselben Phantom-Serie, nicht auf einer weiteren
+  e2 <- e |> e_smc_hline(50, use_phantom_series = TRUE)
+  expect_length(e2$x$opts$series, 2)
+  expect_length(e2$x$opts$series[[2]]$markLine$data, 2)
+})
+
+test_that("e_smc_vline mit use_phantom_series nutzt eine eigene Phantom-Serie", {
+  e <- testchart() |>
+    e_smc_vline(as.Date("2024-01-01"), use_phantom_series = TRUE)
+
+  expect_length(e$x$opts$series, 2)
+  phantom <- e$x$opts$series[[2]]
+  expect_equal(phantom$name, "SMC_vline_phantom")
+  expect_equal(phantom$markLine$data[[1]]$xAxis, as.Date("2024-01-01"))
+  expect_equal(e$x$opts$legend$data, list("y"))
 })
 
 test_that("e_smc_y_percent formatiert Prozent und dehnt die Achse optional", {
@@ -137,6 +242,20 @@ test_that("e_smc_x_time setzt Achsenlinie und deutschen Monats-Formatter", {
   )
 })
 
+test_that("e_smc_x_time granularity = 'year' zeigt nur die Jahreszahl", {
+  e <- testchart() |> e_smc_x_time(granularity = "year")
+  achse <- e$x$opts$xAxis[[1]]
+  formatter <- as.character(achse$axisLabel$formatter)
+  expect_match(formatter, "getFullYear", fixed = TRUE)
+  expect_no_match(formatter, "getMonth")
+
+  # axisLabel-Formatter muessen einen String zurueckgeben — ein rohes
+  # getFullYear() (Number) laesst ECharts intern in getFormattedLabel() mit
+  # "(e || '').replace is not a function" abstuerzen (leerer Chart, kein
+  # Fehler auf R-Seite sichtbar)
+  expect_match(formatter, "String(", fixed = TRUE)
+})
+
 test_that("e_smc_x_category rotiert Labels und zeigt die Achsenlinie", {
   e <- testchart() |> e_smc_x_category()
   achse <- e$x$opts$xAxis[[1]]
@@ -162,6 +281,21 @@ test_that("e_smc_tooltip baut axis-Trigger mit deutschem Formatter", {
   expect_no_match(
     as.character(kategorie$x$opts$tooltip$formatter),
     "getMonth"
+  )
+})
+
+test_that("e_smc_tooltip granularity = 'year' zeigt nur die Jahreszahl im Kopf", {
+  e <- testchart() |> e_smc_tooltip(granularity = "year")
+  formatter <- as.character(e$x$opts$tooltip$formatter)
+  expect_match(formatter, "getFullYear", fixed = TRUE)
+  expect_no_match(formatter, "getMonth")
+
+  # granularity wird bei axis_type = "category" ignoriert
+  kategorie <- testchart() |>
+    e_smc_tooltip(axis_type = "category", granularity = "year")
+  expect_no_match(
+    as.character(kategorie$x$opts$tooltip$formatter),
+    "getFullYear"
   )
 })
 
