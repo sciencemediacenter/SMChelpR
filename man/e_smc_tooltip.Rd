@@ -10,7 +10,8 @@ e_smc_tooltip(
   digits = 1,
   axis_type = c("time", "category"),
   show_year = TRUE,
-  granularity = c("day", "year")
+  granularity = c("day", "year"),
+  snap = FALSE
 )
 }
 \arguments{
@@ -32,6 +33,12 @@ is always shown). Default: \code{TRUE}.}
 is just the year, e.g. "1950") — time axes only, matches the
 \code{granularity} used on the paired \code{\link[=e_smc_x_time]{e_smc_x_time()}} axis. Default:
 \code{"day"}.}
+
+\item{snap}{logical: add a vertical axis-pointer line that snaps to the
+nearest data point instead of following the mouse — visible feedback
+for which day is selected on dense time axes. This must be set here
+rather than via a second \code{\link[echarts4r:e_tooltip]{echarts4r::e_tooltip()}} call, which would
+reset \code{trigger} and \code{formatter} to their defaults. Default: \code{FALSE}.}
 }
 \value{
 The modified \code{echarts4r} chart.

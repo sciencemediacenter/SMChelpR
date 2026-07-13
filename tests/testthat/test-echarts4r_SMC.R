@@ -318,3 +318,32 @@ test_that("format_SMC_kalenderwoche nutzt das ISO-Wochenjahr (%G)", {
   montage <- seq.Date(as.Date("2022-01-03"), as.Date("2026-06-29"), "week")
   expect_equal(anyDuplicated(format_SMC_kalenderwoche(montage)), 0L)
 })
+
+test_that("e_smc_x_time(pad_right) verlaengert die Achse hinter das Datenmaximum", {
+  # testchart: 2024-01-01..2024-01-10 -> Spanne 9 Tage; 9 * 0.5 -> 5 Tage
+  e <- testchart() |> e_smc_x_time(pad_right = 0.5)
+  expect_equal(e$x$opts$xAxis[[1]]$max, "2024-01-15")
+  # mindestens 1 Tag Puffer, auch bei winzigem Anteil
+  e <- testchart() |> e_smc_x_time(pad_right = 0.001)
+  expect_equal(e$x$opts$xAxis[[1]]$max, "2024-01-11")
+  # Formatter und Achsenlinie bleiben erhalten
+  expect_false(is.null(e$x$opts$xAxis[[1]]$axisLabel$formatter))
+  expect_true(e$x$opts$xAxis[[1]]$axisLine$show)
+  # Default: kein max gesetzt
+  e <- testchart() |> e_smc_x_time()
+  expect_null(e$x$opts$xAxis[[1]]$max)
+})
+
+test_that("e_smc_tooltip(snap) ergaenzt die springende axisPointer-Linie", {
+  e <- testchart() |> e_smc_tooltip(unit = " %", snap = TRUE)
+  expect_equal(
+    e$x$opts$tooltip$axisPointer,
+    list(type = "line", snap = TRUE)
+  )
+  # trigger und Formatter bleiben unangetastet
+  expect_equal(e$x$opts$tooltip$trigger, "axis")
+  expect_false(is.null(e$x$opts$tooltip$formatter))
+  # Default: kein axisPointer
+  e <- testchart() |> e_smc_tooltip()
+  expect_null(e$x$opts$tooltip$axisPointer)
+})

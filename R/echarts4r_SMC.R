@@ -393,20 +393,50 @@ e_smc_y_percent <- function(
 #'   year is always shown). Default: `TRUE`.
 #' @param granularity `"day"` (month labels, for daily/monthly data) or
 #'   `"year"` (plain year labels, for annual data). Default: `"day"`.
+#' @param pad_right numeric or `NULL`: if set, extend the axis beyond the
+#'   last data point by this share of the date range (e.g. `0.02`), at
+#'   least one day. ECharts fits time axes exactly to the data maximum,
+#'   which leaves the most recent value a ~1 px wide hover target at the
+#'   grid edge; with the padding, hovering anywhere in the empty margin
+#'   snaps the axis tooltip to the last point (Plotly-like behaviour).
+#'   The dates are read from the chart's own data. Default: `NULL`
+#'   (no padding).
 #' @return The modified `echarts4r` chart.
 #' @export e_smc_x_time
-e_smc_x_time <- function(e, show_year = TRUE, granularity = c("day", "year")) {
+e_smc_x_time <- function(
+  e,
+  show_year = TRUE,
+  granularity = c("day", "year"),
+  pad_right = NULL
+) {
   granularity <- match.arg(granularity)
   formatter <- if (granularity == "year") {
     js_smc_achse_jahr()
   } else {
     js_smc_achse_monat(show_year)
   }
-  echarts4r::e_x_axis(
+  args <- list(
     e,
     axisLine = list(show = TRUE),
     axisLabel = list(formatter = formatter)
   )
+  if (!is.null(pad_right)) {
+    daten_x <- as.Date(do.call(
+      c,
+      lapply(e$x$data, function(d) d[[e$x$mapping$x]])
+    ))
+    pad_tage <- max(
+      1,
+      ceiling(
+        as.numeric(
+          max(daten_x, na.rm = TRUE) - min(daten_x, na.rm = TRUE)
+        ) *
+          pad_right
+      )
+    )
+    args$max <- format(max(daten_x, na.rm = TRUE) + pad_tage, "%Y-%m-%d")
+  }
+  do.call(echarts4r::e_x_axis, args)
 }
 
 #' e_smc_x_category
@@ -460,6 +490,11 @@ e_smc_x_category <- function(e, rotate = 45, echarts_params = list()) {
 #'   is just the year, e.g. "1950") — time axes only, matches the
 #'   `granularity` used on the paired [e_smc_x_time()] axis. Default:
 #'   `"day"`.
+#' @param snap logical: add a vertical axis-pointer line that snaps to the
+#'   nearest data point instead of following the mouse — visible feedback
+#'   for which day is selected on dense time axes. This must be set here
+#'   rather than via a second [echarts4r::e_tooltip()] call, which would
+#'   reset `trigger` and `formatter` to their defaults. Default: `FALSE`.
 #' @return The modified `echarts4r` chart.
 #' @export e_smc_tooltip
 e_smc_tooltip <- function(
@@ -468,7 +503,8 @@ e_smc_tooltip <- function(
   digits = 1,
   axis_type = c("time", "category"),
   show_year = TRUE,
-  granularity = c("day", "year")
+  granularity = c("day", "year"),
+  snap = FALSE
 ) {
   axis_type <- match.arg(axis_type)
   granularity <- match.arg(granularity)
@@ -488,7 +524,7 @@ e_smc_tooltip <- function(
     "var kopf = params[0].axisValue;"
   }
 
-  echarts4r::e_tooltip(
+  args <- list(
     e,
     trigger = "axis",
     formatter = htmlwidgets::JS(sprintf(
@@ -503,6 +539,10 @@ e_smc_tooltip <- function(
       js_smc_tooltip_zeilen(unit, digits)
     ))
   )
+  if (snap) {
+    args$axisPointer <- list(type = "line", snap = TRUE)
+  }
+  do.call(echarts4r::e_tooltip, args)
 }
 
 #' e_smc_placeholder

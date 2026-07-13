@@ -71,7 +71,7 @@ test_that("GraphQL_get_table_vec Error handling", {
     ),
     "field 'test_R_Packages_test_story2' not found"
   )
-  
+
   # Test page_size != Inf and order_by == NULL
   expect_error(
     GraphQL_get_table_vec(
@@ -211,7 +211,7 @@ test_that("GraphQL_get_table_string Error handling", {
     ),
     c(0, 0)
   )
-  
+
   expect_error(
     GraphQL_get_table_string(
       'query MyQuery {

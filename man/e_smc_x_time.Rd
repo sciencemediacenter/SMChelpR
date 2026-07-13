@@ -4,7 +4,12 @@
 \alias{e_smc_x_time}
 \title{e_smc_x_time}
 \usage{
-e_smc_x_time(e, show_year = TRUE, granularity = c("day", "year"))
+e_smc_x_time(
+  e,
+  show_year = TRUE,
+  granularity = c("day", "year"),
+  pad_right = NULL
+)
 }
 \arguments{
 \item{e}{an \code{echarts4r} chart.}
@@ -16,6 +21,15 @@ year is always shown). Default: \code{TRUE}.}
 
 \item{granularity}{\code{"day"} (month labels, for daily/monthly data) or
 \code{"year"} (plain year labels, for annual data). Default: \code{"day"}.}
+
+\item{pad_right}{numeric or \code{NULL}: if set, extend the axis beyond the
+last data point by this share of the date range (e.g. \code{0.02}), at
+least one day. ECharts fits time axes exactly to the data maximum,
+which leaves the most recent value a ~1 px wide hover target at the
+grid edge; with the padding, hovering anywhere in the empty margin
+snaps the axis tooltip to the last point (Plotly-like behaviour).
+The dates are read from the chart's own data. Default: \code{NULL}
+(no padding).}
 }
 \value{
 The modified \code{echarts4r} chart.

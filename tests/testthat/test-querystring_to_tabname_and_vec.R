@@ -10,10 +10,11 @@ test_that("querystring_to_tabname_and_vec", {
     story_no
   }
 }
-"),
-list(
-  tabellenname = "test_R_Packages_test_story",
-  variablen = c("publication_date", "url", "type", "title", "story_no")
-)
+"
+    ),
+    list(
+      tabellenname = "test_R_Packages_test_story",
+      variablen = c("publication_date", "url", "type", "title", "story_no")
+    )
   )
 })

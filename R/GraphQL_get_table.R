@@ -36,41 +36,41 @@
 #'    order_by = "publication_date: asc, story_no: desc"
 #')
 build_graphql_query <- function(
-    tabellenname,
-    variablen,
-    limit = NULL,
-    offset = NULL,
-    where = NULL,
-    order_by = NULL
+  tabellenname,
+  variablen,
+  limit = NULL,
+  offset = NULL,
+  where = NULL,
+  order_by = NULL
 ) {
-    # Format the fields list
-    fields <- paste(variablen, collapse = "\n    ")
+  # Format the fields list
+  fields <- paste(variablen, collapse = "\n    ")
 
-    # Assemble argument pieces
-    args <- character()
-    if (!is.null(where)) {
-        args <- c(args, paste0("where: {", where, "}"))
+  # Assemble argument pieces
+  args <- character()
+  if (!is.null(where)) {
+    args <- c(args, paste0("where: {", where, "}"))
+  }
+  if (!is.null(order_by)) {
+    args <- c(args, paste0("order_by: {", order_by, "}"))
+  }
+  # Only add limit and offset if limit is not Inf
+  if (!is.null(limit) && is.finite(limit)) {
+    args <- c(args, sprintf("limit: %d", limit))
+    if (!is.null(offset)) {
+      args <- c(args, sprintf("offset: %d", offset))
     }
-    if (!is.null(order_by)) {
-        args <- c(args, paste0("order_by: {", order_by, "}"))
-    }
-    # Only add limit and offset if limit is not Inf
-    if (!is.null(limit) && is.finite(limit)) {
-        args <- c(args, sprintf("limit: %d", limit))
-        if (!is.null(offset)) {
-            args <- c(args, sprintf("offset: %d", offset))
-        }
-    }
+  }
 
-    # Glue into ( ... ) or omit if empty
-    arg_str <- if (length(args)) {
-        paste0("(", paste(args, collapse = ", "), ")")
-    } else {
-        ""
-    }
+  # Glue into ( ... ) or omit if empty
+  arg_str <- if (length(args)) {
+    paste0("(", paste(args, collapse = ", "), ")")
+  } else {
+    ""
+  }
 
-    # Construct final query
-    sprintf("{ %s%s {\n    %s\n  } }", tabellenname, arg_str, fields)
+  # Construct final query
+  sprintf("{ %s%s {\n    %s\n  } }", tabellenname, arg_str, fields)
 }
 
 #' Handle GraphQL error responses
@@ -92,16 +92,16 @@ build_graphql_query <- function(
 #' }
 #' }
 stop_graphql_errors <- function(json_errors) {
-    # json_errors is typically a list of 1+ named lists / data.frames
-    msgs <- lapply(json_errors, function(err) {
-        # pretty-print each error object as JSON
-        toJSON(err, auto_unbox = TRUE, pretty = TRUE)
-    })
-    stop(
-        "GraphQL returned error(s):\n\n",
-        paste(msgs, collapse = "\n\n"),
-        call. = FALSE
-    )
+  # json_errors is typically a list of 1+ named lists / data.frames
+  msgs <- lapply(json_errors, function(err) {
+    # pretty-print each error object as JSON
+    toJSON(err, auto_unbox = TRUE, pretty = TRUE)
+  })
+  stop(
+    "GraphQL returned error(s):\n\n",
+    paste(msgs, collapse = "\n\n"),
+    call. = FALSE
+  )
 }
 
 
@@ -156,141 +156,143 @@ stop_graphql_errors <- function(json_errors) {
 #'   ssl_options = list(ssl_verifypeer = 0, ssl_verifyhost = 0)
 #' )
 GraphQL_get_table_vec <- function(
-    tabellenname,
-    schema,
-    variablen,
-    where = NULL,
-    order_by = NULL,
-    datenserver = "https://data.smclab.io/v1/graphql",
-    page_size = Inf,
-    max_pages = Inf,
-    max_tries = 3,
-    backoff = function(i) 2^i * 100,
-    ssl_options = NULL
+  tabellenname,
+  schema,
+  variablen,
+  where = NULL,
+  order_by = NULL,
+  datenserver = "https://data.smclab.io/v1/graphql",
+  page_size = Inf,
+  max_pages = Inf,
+  max_tries = 3,
+  backoff = function(i) 2^i * 100,
+  ssl_options = NULL
 ) {
-    # Paste schema and tabellenname together if schema is stated
-    if(!missing(schema)){
-      tabellenname <- glue("{schema}_{tabellenname}")
-    }
-  
-    # Handle the special case where page_size is Inf (no pagination)
-    if (is.infinite(page_size)) {
-        # Single query without pagination
-        query_text <- build_graphql_query(
-            tabellenname = tabellenname,
-            variablen = variablen,
-            limit = Inf, # Ignore limit and offset
-            offset = NULL,
-            where = where,
-            order_by = order_by
-        )
+  # Paste schema and tabellenname together if schema is stated
+  if (!missing(schema)) {
+    tabellenname <- glue("{schema}_{tabellenname}")
+  }
 
-        req <- request(datenserver) |>
-            req_progress() |>
-            req_method("POST") |>
-            req_headers(`Content-Type` = "application/json") |>
-            req_body_json(list(query = query_text))
+  # Handle the special case where page_size is Inf (no pagination)
+  if (is.infinite(page_size)) {
+    # Single query without pagination
+    query_text <- build_graphql_query(
+      tabellenname = tabellenname,
+      variablen = variablen,
+      limit = Inf, # Ignore limit and offset
+      offset = NULL,
+      where = where,
+      order_by = order_by
+    )
 
-        # Apply SSL options if provided
-        if (!is.null(ssl_options)) {
-            req <- do.call(req_options, c(list(req), ssl_options))
-        }
+    req <- request(datenserver) |>
+      req_progress() |>
+      req_method("POST") |>
+      req_headers(`Content-Type` = "application/json") |>
+      req_body_json(list(query = query_text))
 
-        resp <- req |>
-            req_retry(max_tries = max_tries, backoff = backoff) |>
-            req_perform()
-
-        # Catch errors in the JSON
-        json <- tryCatch(
-            resp |> resp_body_json(simplifyVector = TRUE),
-            error = function(e) stop("Failed to parse JSON: ", e$message)
-        )
-
-        # Check for GraphQL errors
-        if (!is.null(json$errors) && length(json$errors) > 0) {
-            stop_graphql_errors(json$errors)
-        }
-
-        # Extract and return all data
-        result <- json |>
-            pluck("data", tabellenname) |>
-            as_tibble()
-
-        message(glue("Retrieved {nrow(result)} rows (no pagination)"))
-        return(result)
+    # Apply SSL options if provided
+    if (!is.null(ssl_options)) {
+      req <- do.call(req_options, c(list(req), ssl_options))
     }
 
-    # Return error if page_size == Inf and order_by argument is missing
-    if (is.null(order_by)) {
-        stop("order_by argument required to ensure correct data fetching.
-             It is recommended to order by a unique and non-nullable variable.")
+    resp <- req |>
+      req_retry(max_tries = max_tries, backoff = backoff) |>
+      req_perform()
+
+    # Catch errors in the JSON
+    json <- tryCatch(
+      resp |> resp_body_json(simplifyVector = TRUE),
+      error = function(e) stop("Failed to parse JSON: ", e$message)
+    )
+
+    # Check for GraphQL errors
+    if (!is.null(json$errors) && length(json$errors) > 0) {
+      stop_graphql_errors(json$errors)
     }
 
-    # Original pagination logic for finite page_size
-    all_results <- tibble()
-    current_offset <- 0
-    page_count <- 0
-    has_more_data <- TRUE
+    # Extract and return all data
+    result <- json |>
+      pluck("data", tabellenname) |>
+      as_tibble()
 
-    # Loop until no more data or max pages reached
-    while (has_more_data && page_count < max_pages) {
-        # Create query with pagination using the helper function
-        query_text <- build_graphql_query(
-            tabellenname = tabellenname,
-            variablen = variablen,
-            limit = page_size,
-            offset = current_offset,
-            where = where,
-            order_by = order_by
-        )
+    message(glue("Retrieved {nrow(result)} rows (no pagination)"))
+    return(result)
+  }
 
-        req <- request(datenserver) |>
-            req_progress() |>
-            req_method("POST") |>
-            req_headers(`Content-Type` = "application/json") |>
-            req_body_json(list(query = query_text))
+  # Return error if page_size == Inf and order_by argument is missing
+  if (is.null(order_by)) {
+    stop(
+      "order_by argument required to ensure correct data fetching.
+             It is recommended to order by a unique and non-nullable variable."
+    )
+  }
 
-        # Apply SSL options if provided
-        if (!is.null(ssl_options)) {
-            req <- do.call(req_options, c(list(req), ssl_options))
-        }
+  # Original pagination logic for finite page_size
+  all_results <- tibble()
+  current_offset <- 0
+  page_count <- 0
+  has_more_data <- TRUE
 
-        resp <- req |>
-            req_retry(max_tries = max_tries, backoff = backoff) |>
-            req_perform()
+  # Loop until no more data or max pages reached
+  while (has_more_data && page_count < max_pages) {
+    # Create query with pagination using the helper function
+    query_text <- build_graphql_query(
+      tabellenname = tabellenname,
+      variablen = variablen,
+      limit = page_size,
+      offset = current_offset,
+      where = where,
+      order_by = order_by
+    )
 
-        # Catch errors in the JSON
-        json <- tryCatch(
-            resp |> resp_body_json(simplifyVector = TRUE),
-            error = function(e) stop("Failed to parse JSON: ", e$message)
-        )
+    req <- request(datenserver) |>
+      req_progress() |>
+      req_method("POST") |>
+      req_headers(`Content-Type` = "application/json") |>
+      req_body_json(list(query = query_text))
 
-        # Check for GraphQL errors
-        if (!is.null(json$errors) && length(json$errors) > 0) {
-            stop_graphql_errors(json$errors)
-        }
-
-        # Extract data for this page
-        page_data <- json |>
-            pluck("data", tabellenname) |>
-            as_tibble()
-
-        # Check if we got any results
-        if (nrow(page_data) > 0) {
-            all_results <- bind_rows(all_results, page_data)
-            current_offset <- current_offset + page_size
-            page_count <- page_count + 1
-
-            # Print progress
-            message(glue(
-                "Page {page_count}: Retrieved {nrow(page_data)} rows. Total so far: {nrow(all_results)}"
-            ))
-        } else {
-            has_more_data <- FALSE
-        }
+    # Apply SSL options if provided
+    if (!is.null(ssl_options)) {
+      req <- do.call(req_options, c(list(req), ssl_options))
     }
 
-    return(all_results)
+    resp <- req |>
+      req_retry(max_tries = max_tries, backoff = backoff) |>
+      req_perform()
+
+    # Catch errors in the JSON
+    json <- tryCatch(
+      resp |> resp_body_json(simplifyVector = TRUE),
+      error = function(e) stop("Failed to parse JSON: ", e$message)
+    )
+
+    # Check for GraphQL errors
+    if (!is.null(json$errors) && length(json$errors) > 0) {
+      stop_graphql_errors(json$errors)
+    }
+
+    # Extract data for this page
+    page_data <- json |>
+      pluck("data", tabellenname) |>
+      as_tibble()
+
+    # Check if we got any results
+    if (nrow(page_data) > 0) {
+      all_results <- bind_rows(all_results, page_data)
+      current_offset <- current_offset + page_size
+      page_count <- page_count + 1
+
+      # Print progress
+      message(glue(
+        "Page {page_count}: Retrieved {nrow(page_data)} rows. Total so far: {nrow(all_results)}"
+      ))
+    } else {
+      has_more_data <- FALSE
+    }
+  }
+
+  return(all_results)
 }
 
 #' Get Data from GraphQL API (raw query string)
@@ -308,57 +310,59 @@ GraphQL_get_table_vec <- function(
 #' @return tibble with the requested data
 #' @export
 GraphQL_get_table_string <- function(
-    querystring,
-    datenserver = "https://data.smclab.io/v1/graphql",
-    max_tries = 3,
-    backoff = function(i) 2^i * 100,
-    ssl_options = NULL
+  querystring,
+  datenserver = "https://data.smclab.io/v1/graphql",
+  max_tries = 3,
+  backoff = function(i) 2^i * 100,
+  ssl_options = NULL
 ) {
-    # Return error if limit is provided but order_by is not
-    if (grepl("limit:", querystring) & !grepl("order_by:", querystring)) {
-        stop("order_by argument required to ensure correct data fetching.
-             It is recommended to order by a unique and non-nullable variable.")
-    }
+  # Return error if limit is provided but order_by is not
+  if (grepl("limit:", querystring) && !grepl("order_by:", querystring)) {
+    stop(
+      "order_by argument required to ensure correct data fetching.
+             It is recommended to order by a unique and non-nullable variable."
+    )
+  }
 
-    req <- request(datenserver) |>
-        req_method("POST") |>
-        req_headers(`Content-Type` = "application/json") |>
-        req_body_json(list(query = querystring))
+  req <- request(datenserver) |>
+    req_method("POST") |>
+    req_headers(`Content-Type` = "application/json") |>
+    req_body_json(list(query = querystring))
 
-    # Apply SSL options if provided
-    if (!is.null(ssl_options)) {
-        req <- do.call(req_options, c(list(req), ssl_options))
-    }
+  # Apply SSL options if provided
+  if (!is.null(ssl_options)) {
+    req <- do.call(req_options, c(list(req), ssl_options))
+  }
 
-    resp <- req |>
-        req_retry(max_tries = max_tries, backoff = backoff) |>
-        req_perform()
+  resp <- req |>
+    req_retry(max_tries = max_tries, backoff = backoff) |>
+    req_perform()
 
-    json_resp <- resp |>
-        resp_body_json(simplifyVector = TRUE)
+  json_resp <- resp |>
+    resp_body_json(simplifyVector = TRUE)
 
-    # Check if data exists and is not NULL or empty
-    if (is.null(json_resp$data) || length(json_resp$data) == 0) {
-        # Return an empty tibble or handle the error as appropriate
-        return(tibble())
-    }
+  # Check if data exists and is not NULL or empty
+  if (is.null(json_resp$data) || length(json_resp$data) == 0) {
+    # Return an empty tibble or handle the error as appropriate
+    return(tibble())
+  }
 
-    tabellenname <- names(json_resp$data)[1]
+  tabellenname <- names(json_resp$data)[1]
 
-    # Check if tabellenname exists
-    if (length(tabellenname) == 0) {
-        return(tibble())
-    }
+  # Check if tabellenname exists
+  if (length(tabellenname) == 0) {
+    return(tibble())
+  }
 
-    # Check if the data for the table exists
-    table_data <- json_resp$data[[tabellenname]]
-    if (is.null(table_data) || length(table_data) == 0) {
-        return(tibble())
-    }
+  # Check if the data for the table exists
+  table_data <- json_resp$data[[tabellenname]]
+  if (is.null(table_data) || length(table_data) == 0) {
+    return(tibble())
+  }
 
-    tbl <- as_tibble(table_data)
+  tbl <- as_tibble(table_data)
 
-    return(tbl)
+  return(tbl)
 }
 
 
@@ -384,43 +388,43 @@ GraphQL_get_table_string <- function(
 #'   convert_geometry_column()
 #' }
 convert_geometry_column <- function(
-    tbl,
-    geom_col = "geometry",
-    crs_default = 4326
+  tbl,
+  geom_col = "geometry",
+  crs_default = 4326
 ) {
-    # Function to convert a single geometry row to sf geometry
-    convert_geom <- function(geom_row) {
-        # Create a proper GeoJSON structure
-        geojson_str <- jsonlite::toJSON(
-            list(
-                type = geom_row$type,
-                crs = geom_row$crs,
-                coordinates = geom_row$coordinates[[1]]
-            ),
-            auto_unbox = TRUE
-        )
+  # Function to convert a single geometry row to sf geometry
+  convert_geom <- function(geom_row) {
+    # Create a proper GeoJSON structure
+    geojson_str <- jsonlite::toJSON(
+      list(
+        type = geom_row$type,
+        crs = geom_row$crs,
+        coordinates = geom_row$coordinates[[1]]
+      ),
+      auto_unbox = TRUE
+    )
 
-        # Convert to sf geometry
-        geojsonsf::geojson_sfc(geojson_str)
-    }
+    # Convert to sf geometry
+    geojsonsf::geojson_sfc(geojson_str)
+  }
 
-    # Apply conversion to each row
-    sf_data <- tbl |>
-        rowwise() |>
-        mutate(
-            geom_obj = list(convert_geom(.data[[geom_col]])),
-            crs_value = .data[[geom_col]]$crs$properties$name %||% crs_default # Extract CRS or use default
-        ) |>
-        ungroup()
+  # Apply conversion to each row
+  sf_data <- tbl |>
+    rowwise() |>
+    mutate(
+      geom_obj = list(convert_geom(.data[[geom_col]])),
+      crs_value = .data[[geom_col]]$crs$properties$name %||% crs_default # Extract CRS or use default
+    ) |>
+    ungroup()
 
-    # Extract the CRS value before calling st_as_sf
-    crs_val <- sf_data$crs_value[1]
+  # Extract the CRS value before calling st_as_sf
+  crs_val <- sf_data$crs_value[1]
 
-    # Complete the transformation
-    sf_data <- sf_data |>
-        mutate(!!sym(geom_col) := do.call(c, get("geom_obj"))) |>
-        select(-"geom_obj", -"crs_value") |>
-        sf::st_as_sf(crs = crs_val)
+  # Complete the transformation
+  sf_data <- sf_data |>
+    mutate(!!sym(geom_col) := do.call(c, get("geom_obj"))) |>
+    select(-"geom_obj", -"crs_value") |>
+    sf::st_as_sf(crs = crs_val)
 
-    return(sf_data)
+  return(sf_data)
 }
