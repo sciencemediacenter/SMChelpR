@@ -228,30 +228,6 @@ test_that("e_smc_y_percent formatiert Prozent und dehnt die Achse optional", {
   expect_equal(achse$interval, 20)
 })
 
-test_that("e_smc_x_time: Achsenlinie, native Labels via DE-Locale", {
-  # Default: KEIN Formatter — die deutschen, adaptiven Tick-Labels kommen
-  # aus der DE-Locale (smc-echarts-locale-de.js, angehaengt von
-  # e_smc_style()) und ECharts' nativer Tick-Logik
-  e <- testchart() |> e_smc_x_time()
-  achse <- e$x$opts$xAxis[[1]]
-  expect_equal(achse$axisLine$show, TRUE)
-  expect_null(achse$axisLabel)
-
-  # gemeinsames Rechenjahr: Jahresgrenzen-Ticks zeigen den Monat statt des
-  # kuenstlichen Jahres (Template, kein JS)
-  ohne_jahr <- testchart() |> e_smc_x_time(show_year = FALSE)
-  expect_equal(
-    ohne_jahr$x$opts$xAxis[[1]]$axisLabel$formatter,
-    list(year = "{MMM}")
-  )
-})
-
-test_that("e_smc_x_time granularity = 'year' zeigt nur die Jahreszahl", {
-  # ein Template auf allen Tick-Leveln statt JS-Formatter
-  e <- testchart() |> e_smc_x_time(granularity = "year")
-  expect_equal(e$x$opts$xAxis[[1]]$axisLabel$formatter, "{yyyy}")
-})
-
 test_that("e_smc_style haengt die DE-Locale als htmlDependency an", {
   e <- testchart() |> e_smc_style(title = "Test")
   namen <- vapply(e$dependencies, function(d) d$name, character(1))
@@ -278,8 +254,10 @@ test_that("e_smc_tooltip baut axis-Trigger mit deutschem Formatter", {
   tooltip <- e$x$opts$tooltip
   expect_equal(tooltip$trigger, "axis")
   formatter <- as.character(tooltip$formatter)
-  expect_match(formatter, "de-DE", fixed = TRUE)
-  expect_match(formatter, "maximumFractionDigits: 2", fixed = TRUE)
+  # Zahlen im format_SMC_number-Stil: schmales Leerzeichen als Trenner,
+  # digits nur fuer Nicht-Ganzzahlen
+  expect_match(formatter, "font-size:50%", fixed = TRUE)
+  expect_match(formatter, "toFixed(ganz ? 0 : 2)", fixed = TRUE)
   # Zeitachsen-Kopf ueber echarts.time.format mit der DE-Locale
   expect_match(formatter, "echarts.time.format", fixed = TRUE)
   expect_match(formatter, "{d}. {MMM} {yyyy}", fixed = TRUE)
@@ -334,20 +312,29 @@ test_that("format_SMC_kalenderwoche nutzt das ISO-Wochenjahr (%G)", {
   expect_equal(anyDuplicated(format_SMC_kalenderwoche(montage)), 0L)
 })
 
-test_that("e_smc_x_time(pad_right) verlaengert die Achse hinter das Datenmaximum", {
-  # boundaryGap-Prozentform: rechts ein Randstreifen als Anteil der
-  # Datenspanne, links keiner — der axis-Tooltip snappt im Streifen auf
-  # den letzten Datenpunkt
-  e <- testchart() |> e_smc_x_time(pad_right = 0.02)
-  expect_equal(e$x$opts$xAxis[[1]]$boundaryGap, list("0%", "2%"))
-  # Achsenlinie bleibt erhalten, kein explizites max (wuerde boundaryGap
-  # aushebeln)
-  expect_true(e$x$opts$xAxis[[1]]$axisLine$show)
-  expect_null(e$x$opts$xAxis[[1]]$max)
-  # Default: echarts4r setzt boundaryGap = TRUE — die boolesche Form ist
-  # Kategorie-Semantik und auf time-Achsen wirkungslos (kein Randstreifen)
-  e <- testchart() |> e_smc_x_time()
-  expect_true(isTRUE(e$x$opts$xAxis[[1]]$boundaryGap))
+test_that("Tooltip-Zahlenformat entspricht format_SMC_number()", {
+  # js_smc_tooltip_zeilen muss dasselbe Format liefern wie
+  # format_SMC_number() (Komma, schmales HTML-Leerzeichen als
+  # Tausendertrenner, Ganzzahlen ohne Dezimalen) — Paritaet via V8.
+  # Keine .5-Rundungsgrenzfaelle in den Testwerten: formatC (C-Runden,
+  # half-to-even) und JS toFixed (half-up) runden exakte Bindungen
+  # unterschiedlich.
+  skip_if_not_installed("V8")
+  ctx <- V8::v8()
+  ctx$eval(sprintf(
+    "function formatiere(werte) {
+      var zeilen = [];
+      var params = werte.map(function(w) {
+        return {value: [0, w], marker: '', seriesName: 'S'};
+      });
+      %s
+      return zeilen;
+    }",
+    js_smc_tooltip_zeilen(unit = "", digits = 1)
+  ))
+  werte <- c(0, 7, -42, 100, 1234.5, 1234567, -9876.4, 0.19)
+  js_zahlen <- sub("^\\s*S: ", "", unlist(ctx$call("formatiere", werte)))
+  expect_equal(js_zahlen, format_SMC_number(werte, digits = 1))
 })
 
 test_that("e_smc_tooltip(snap) ergaenzt die springende axisPointer-Linie", {

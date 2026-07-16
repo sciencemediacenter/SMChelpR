@@ -20,7 +20,10 @@ e_smc_tooltip(
 \item{unit}{character appended to each value, e.g. \code{" \%"} or \code{" GWh/d"}.
 Default: \code{""}.}
 
-\item{digits}{integer number of decimal places. Default: 1.}
+\item{digits}{integer number of decimal places for non-integer values —
+numbers follow \code{\link[=format_SMC_number]{format_SMC_number()}}: comma as decimal mark, a narrow
+HTML space as thousands separator, whole numbers without decimals.
+Default: 1.}
 
 \item{axis_type}{\code{"time"} (header is a German date) or \code{"category"}
 (header is the category label). Default: \code{"time"}.}
@@ -29,10 +32,9 @@ Default: \code{""}.}
 only, \code{granularity = "day"} only — at \code{granularity = "year"} the year
 is always shown). Default: \code{TRUE}.}
 
-\item{granularity}{\code{"day"} (date header "1. Mär '24") or \code{"year"} (header
-is just the year, e.g. "1950") — time axes only, matches the
-\code{granularity} used on the paired \code{\link[=e_smc_x_time]{e_smc_x_time()}} axis. Default:
-\code{"day"}.}
+\item{granularity}{\code{"day"} (date header "1. Mär 2024") or \code{"year"}
+(header is just the year, e.g. "1950") — time axes only, matching the
+label granularity of the x axis. Default: \code{"day"}.}
 
 \item{snap}{logical: add a vertical axis-pointer line that snaps to the
 nearest data point instead of following the mouse — visible feedback

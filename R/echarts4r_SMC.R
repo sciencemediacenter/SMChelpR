@@ -12,22 +12,25 @@
 # echarts.time.format(..., 'DE'). Only NUMBER formatting (de-DE "1.234,5")
 # still needs a JS formatter — the ECharts locale system does not cover it.
 
-# JS snippet: one tooltip line per series, "<marker> Name: value unit" with
-# de-DE number formatting; null values (gaps in pivoted series) are skipped.
+# JS snippet: one tooltip line per series, "<marker> Name: value unit".
+# Numbers follow format_SMC_number(): comma as decimal mark, a narrow 50%
+# font-size HTML space as thousands separator (tooltips render HTML) and
+# whole numbers without decimals. A V8 parity test keeps the two in sync.
+# Null values (gaps in pivoted series) are skipped.
 js_smc_tooltip_zeilen <- function(unit, digits) {
   sprintf(
-    "params.forEach(function(p) {
+    "var trenner = '<span style=\"font-size:50%%;\"> </span>';
+    params.forEach(function(p) {
       var wert = Array.isArray(p.value) ? p.value[1] : p.value;
       if (wert === null || wert === undefined || isNaN(wert)) { return; }
-      zeilen.push(
-        p.marker + ' ' + p.seriesName + ': ' +
-          Number(wert).toLocaleString('de-DE', {
-            minimumFractionDigits: %d,
-            maximumFractionDigits: %d
-          }) + '%s'
-      );
+      wert = Number(wert);
+      var ganz = wert === Math.trunc(wert);
+      var teile = Math.abs(wert).toFixed(ganz ? 0 : %d).split('.');
+      var vor = teile[0].replace(/\\B(?=(\\d{3})+(?!\\d))/g, trenner);
+      var zahl = (wert < 0 ? '-' : '') + vor +
+        (teile[1] ? ',' + teile[1] : '');
+      zeilen.push(p.marker + ' ' + p.seriesName + ': ' + zahl + '%s');
     });",
-    digits,
     digits,
     unit
   )
@@ -371,67 +374,15 @@ e_smc_y_percent <- function(
   do.call(echarts4r::e_y_axis, c(list(e), achse))
 }
 
-#' e_smc_x_time
-#'
-#' Time x axis in the SMC style: visible axis line and German date labels.
-#' The German labels come from the package's 'DE' ECharts locale (attached
-#' by [e_smc_style()]), so at `granularity = "day"` (the default) the axis
-#' uses ECharts' native adaptive tick labels: years at year boundaries,
-#' month names in between, days when zoomed in. At `granularity = "year"`
-#' every tick shows the plain year ("1950"), for annual time series where
-#' sub-year ticks would be meaningless.
-#'
-#' The x values must be real dates (or timestamps) either way — echarts4r
-#' has no separate "year" axis type, so a bare year like `1950` used
-#' directly as the x value is misread as 1950 milliseconds after the epoch.
-#' Convert first, e.g. `as.Date(paste0(Jahr, "-01-01"))`.
-#'
-#' @param e an `echarts4r` chart.
-#' @param show_year logical, show the year at year-boundary ticks. Set to
-#'   `FALSE` when all series are mapped onto one common reference year
-#'   (e.g. year-over-year comparisons): those ticks then show the month
-#'   name instead of leaking the artificial year. Ignored at
-#'   `granularity = "year"`. Default: `TRUE`.
-#' @param granularity `"day"` (native adaptive labels, for daily/monthly
-#'   data) or `"year"` (plain year labels, for annual data). Default:
-#'   `"day"`.
-#' @param pad_right numeric or `NULL`: if set, extend the axis beyond the
-#'   last data point by this share of the date range (e.g. `0.02`).
-#'   ECharts fits time axes exactly to the data maximum, which leaves the
-#'   most recent value a ~1 px wide hover target at the grid edge; with
-#'   the padding, hovering anywhere in the empty margin snaps the axis
-#'   tooltip to the last point (Plotly-like behaviour). Implemented via
-#'   `boundaryGap`, so it only applies as long as no explicit `min`/`max`
-#'   is set on the axis. Default: `NULL` (no padding).
-#' @return The modified `echarts4r` chart.
-#' @export e_smc_x_time
-e_smc_x_time <- function(
-  e,
-  show_year = TRUE,
-  granularity = c("day", "year"),
-  pad_right = NULL
-) {
-  granularity <- match.arg(granularity)
-  args <- list(e, axisLine = list(show = TRUE))
-  if (granularity == "year") {
-    # ein Template statt JS: jedes Tick-Label als Jahreszahl
-    args$axisLabel <- list(formatter = "{yyyy}")
-  } else if (!show_year) {
-    # gemeinsames Rechenjahr (Jahresvergleich): Jahresgrenzen-Ticks zeigen
-    # den Monat statt des künstlichen Jahres; alle anderen Tick-Level
-    # bleiben nativ-adaptiv (Locale liefert die deutschen Monatsnamen)
-    args$axisLabel <- list(formatter = list(year = "{MMM}"))
-  }
-  if (!is.null(pad_right)) {
-    # Prozent-Form von boundaryGap: verlaengert die Achse rechts um den
-    # Anteil der Datenspanne (entspricht dem Anteil der Plotbreite).
-    # Funktioniert mit dem in echarts4r >= 0.5.0 gebuendelten ECharts 6
-    # zuverlaessig auf time-Achsen — aber nur, solange auf der Achse kein
-    # explizites min/max gesetzt wird (das wuerde boundaryGap aushebeln).
-    args$boundaryGap <- list("0%", paste0(pad_right * 100, "%"))
-  }
-  do.call(echarts4r::e_x_axis, args)
-}
+# Es gibt bewusst kein e_smc_x_time mehr: Zeitachsen brauchen mit der
+# 'DE'-Locale (siehe e_smc_style()) keinen SMC-Baustein — deutsche,
+# adaptive Tick-Labels kommen nativ von ECharts. Für die verbleibenden
+# Sonderfälle reichen native Einzeiler (dokumentiert im
+# echarts-style-Skill):
+#   Randstreifen rechts:  e_x_axis(boundaryGap = c("0%", "2%"))
+#   Jahresdaten:          e_x_axis(axisLabel = list(formatter = "{yyyy}"))
+#   Referenzjahr-Overlay: e_x_axis(axisLabel = list(
+#                           formatter = list(year = "{MMM}")))
 
 #' e_smc_x_category
 #'
@@ -474,16 +425,18 @@ e_smc_x_category <- function(e, rotate = 45, echarts_params = list()) {
 #' @param e an `echarts4r` chart.
 #' @param unit character appended to each value, e.g. `" %"` or `" GWh/d"`.
 #'   Default: `""`.
-#' @param digits integer number of decimal places. Default: 1.
+#' @param digits integer number of decimal places for non-integer values —
+#'   numbers follow [format_SMC_number()]: comma as decimal mark, a narrow
+#'   HTML space as thousands separator, whole numbers without decimals.
+#'   Default: 1.
 #' @param axis_type `"time"` (header is a German date) or `"category"`
 #'   (header is the category label). Default: `"time"`.
 #' @param show_year logical, include the year in the date header (time axes
 #'   only, `granularity = "day"` only — at `granularity = "year"` the year
 #'   is always shown). Default: `TRUE`.
-#' @param granularity `"day"` (date header "1. Mär '24") or `"year"` (header
-#'   is just the year, e.g. "1950") — time axes only, matches the
-#'   `granularity` used on the paired [e_smc_x_time()] axis. Default:
-#'   `"day"`.
+#' @param granularity `"day"` (date header "1. Mär 2024") or `"year"`
+#'   (header is just the year, e.g. "1950") — time axes only, matching the
+#'   label granularity of the x axis. Default: `"day"`.
 #' @param snap logical: add a vertical axis-pointer line that snaps to the
 #'   nearest data point instead of following the mouse — visible feedback
 #'   for which day is selected on dense time axes. This must be set here
