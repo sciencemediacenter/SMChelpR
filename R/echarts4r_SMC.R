@@ -4,9 +4,16 @@
 # German formatting). Extracted from the Gasspeicher dashboard migration so
 # every SMC app/report applies the same standard by construction instead of
 # re-implementing it (see the echarts-style skill for the audit checklist).
+#
+# German AXIS labels come from the package's 'DE' ECharts locale
+# (assets/smc-echarts-locale-de.js, attached by e_smc_style()): time axes
+# then label natively and adaptively (years at year boundaries, months in
+# between, days when zoomed). Only the tooltip still needs JS formatters —
+# the ECharts locale system covers no number formatting (de-DE "1.234,5").
 
-# German month abbreviations as a JS array literal — echarts4r (<= 0.5.x) has
-# no locale argument, so German labels need explicit JS formatters.
+# German month abbreviations as a JS array literal for the tooltip date
+# header (the ECharts locale system does not reach into custom tooltip
+# formatters).
 js_smc_monate <- "['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez']"
 
 # JS snippet: one tooltip line per series, "<marker> Name: value unit" with
@@ -30,30 +37,18 @@ js_smc_tooltip_zeilen <- function(unit, digits) {
   )
 }
 
-# JS axis-label formatter for time axes: "Mär '24" (or "Mär" without year).
-js_smc_achse_monat <- function(show_year = TRUE) {
-  jahr_teil <- if (show_year) {
-    "+ \" '\" + String(d.getFullYear()).slice(-2)"
-  } else {
-    ""
-  }
-  htmlwidgets::JS(sprintf(
-    "function(value) {
-      var monate = %s;
-      var d = new Date(value);
-      return monate[d.getMonth()] %s;
-    }",
-    js_smc_monate,
-    jahr_teil
-  ))
-}
-
-# JS axis-label formatter for time axes at year granularity: "1950".
-js_smc_achse_jahr <- function() {
-  htmlwidgets::JS(
-    "function(value) {
-      return String(new Date(value).getFullYear());
-    }"
+# htmlDependency: German ECharts locale + init default
+# (assets/smc-echarts-locale-de.js). Attached by e_smc_style(), so every
+# chart built through the SMC standard gets German time-axis labels and
+# toolbox titles natively — echarts4r itself exposes no locale option and
+# bundles only the EN/ZH locales.
+smc_locale_de_dependency <- function() {
+  htmltools::htmlDependency(
+    name = "smc-echarts-locale-de",
+    version = as.character(utils::packageVersion("SMChelpR")),
+    package = "SMChelpR",
+    src = "assets",
+    script = "smc-echarts-locale-de.js"
   )
 }
 
@@ -63,7 +58,10 @@ js_smc_achse_jahr <- function() {
 #' SMC color palette, standard grid (`top = 50`, `left = 80`, `right = 40`;
 #' `bottom` depending on the legend), toolbox with `dataZoom`
 #' (`yAxisIndex = FALSE`) and `restore`, legend at the bottom (horizontal)
-#' and an optional centered title.
+#' and an optional centered title. Also attaches the package's German
+#' ECharts locale as an htmlDependency: time axes and toolbox titles then
+#' render in German natively, page-wide for all ECharts instances
+#' (echarts4r itself exposes no locale option).
 #'
 #' @details
 #' The grid `top` grows by 25 px per additional title line (`"\n"` in
@@ -144,6 +142,11 @@ e_smc_style <- function(
   if (!is.null(title)) {
     e <- echarts4r::e_title(e, text = title, left = "center")
   }
+
+  # Deutsche ECharts-Locale (Zeitachsen-Labels, Toolbox-Titel) als
+  # htmlDependency anhängen — wirkt seitenweit auf alle Instanzen
+  # (htmltools dedupliziert beim Rendern über den Dependency-Namen).
+  e$dependencies <- c(e$dependencies, list(smc_locale_de_dependency()))
   e
 }
 
@@ -374,12 +377,13 @@ e_smc_y_percent <- function(
 
 #' e_smc_x_time
 #'
-#' Time x axis in the SMC style: visible axis line and German date labels —
-#' echarts4r has no locale argument, so this injects a JS formatter. At
-#' `granularity = "day"` (the default) labels are month names ("Mär '24", or
-#' "Mär" without the year); at `granularity = "year"` labels are the plain
-#' year ("1950"), for annual time series where month-level labels would be
-#' meaningless.
+#' Time x axis in the SMC style: visible axis line and German date labels.
+#' The German labels come from the package's 'DE' ECharts locale (attached
+#' by [e_smc_style()]), so at `granularity = "day"` (the default) the axis
+#' uses ECharts' native adaptive tick labels: years at year boundaries,
+#' month names in between, days when zoomed in. At `granularity = "year"`
+#' every tick shows the plain year ("1950"), for annual time series where
+#' sub-year ticks would be meaningless.
 #'
 #' The x values must be real dates (or timestamps) either way — echarts4r
 #' has no separate "year" axis type, so a bare year like `1950` used
@@ -387,12 +391,14 @@ e_smc_y_percent <- function(
 #' Convert first, e.g. `as.Date(paste0(Jahr, "-01-01"))`.
 #'
 #' @param e an `echarts4r` chart.
-#' @param show_year logical, append the two-digit year to the month label.
-#'   Set to `FALSE` when all series are mapped onto one common year (e.g.
-#'   year-over-year comparisons). Ignored at `granularity = "year"` (the
-#'   year is always shown). Default: `TRUE`.
-#' @param granularity `"day"` (month labels, for daily/monthly data) or
-#'   `"year"` (plain year labels, for annual data). Default: `"day"`.
+#' @param show_year logical, show the year at year-boundary ticks. Set to
+#'   `FALSE` when all series are mapped onto one common reference year
+#'   (e.g. year-over-year comparisons): those ticks then show the month
+#'   name instead of leaking the artificial year. Ignored at
+#'   `granularity = "year"`. Default: `TRUE`.
+#' @param granularity `"day"` (native adaptive labels, for daily/monthly
+#'   data) or `"year"` (plain year labels, for annual data). Default:
+#'   `"day"`.
 #' @param pad_right numeric or `NULL`: if set, extend the axis beyond the
 #'   last data point by this share of the date range (e.g. `0.02`), at
 #'   least one day. ECharts fits time axes exactly to the data maximum,
@@ -410,16 +416,16 @@ e_smc_x_time <- function(
   pad_right = NULL
 ) {
   granularity <- match.arg(granularity)
-  formatter <- if (granularity == "year") {
-    js_smc_achse_jahr()
-  } else {
-    js_smc_achse_monat(show_year)
+  args <- list(e, axisLine = list(show = TRUE))
+  if (granularity == "year") {
+    # ein Template statt JS: jedes Tick-Label als Jahreszahl
+    args$axisLabel <- list(formatter = "{yyyy}")
+  } else if (!show_year) {
+    # gemeinsames Rechenjahr (Jahresvergleich): Jahresgrenzen-Ticks zeigen
+    # den Monat statt des künstlichen Jahres; alle anderen Tick-Level
+    # bleiben nativ-adaptiv (Locale liefert die deutschen Monatsnamen)
+    args$axisLabel <- list(formatter = list(year = "{MMM}"))
   }
-  args <- list(
-    e,
-    axisLine = list(show = TRUE),
-    axisLabel = list(formatter = formatter)
-  )
   if (!is.null(pad_right)) {
     daten_x <- as.Date(do.call(
       c,

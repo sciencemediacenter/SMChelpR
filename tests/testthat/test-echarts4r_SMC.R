@@ -228,32 +228,37 @@ test_that("e_smc_y_percent formatiert Prozent und dehnt die Achse optional", {
   expect_equal(achse$interval, 20)
 })
 
-test_that("e_smc_x_time setzt Achsenlinie und deutschen Monats-Formatter", {
+test_that("e_smc_x_time: Achsenlinie, native Labels via DE-Locale", {
+  # Default: KEIN Formatter — die deutschen, adaptiven Tick-Labels kommen
+  # aus der DE-Locale (smc-echarts-locale-de.js, angehaengt von
+  # e_smc_style()) und ECharts' nativer Tick-Logik
   e <- testchart() |> e_smc_x_time()
   achse <- e$x$opts$xAxis[[1]]
   expect_equal(achse$axisLine$show, TRUE)
-  expect_s3_class(achse$axisLabel$formatter, "JS_EVAL")
-  expect_match(as.character(achse$axisLabel$formatter), "getFullYear")
+  expect_null(achse$axisLabel)
 
+  # gemeinsames Rechenjahr: Jahresgrenzen-Ticks zeigen den Monat statt des
+  # kuenstlichen Jahres (Template, kein JS)
   ohne_jahr <- testchart() |> e_smc_x_time(show_year = FALSE)
-  expect_no_match(
-    as.character(ohne_jahr$x$opts$xAxis[[1]]$axisLabel$formatter),
-    "getFullYear"
+  expect_equal(
+    ohne_jahr$x$opts$xAxis[[1]]$axisLabel$formatter,
+    list(year = "{MMM}")
   )
 })
 
 test_that("e_smc_x_time granularity = 'year' zeigt nur die Jahreszahl", {
+  # ein Template auf allen Tick-Leveln statt JS-Formatter
   e <- testchart() |> e_smc_x_time(granularity = "year")
-  achse <- e$x$opts$xAxis[[1]]
-  formatter <- as.character(achse$axisLabel$formatter)
-  expect_match(formatter, "getFullYear", fixed = TRUE)
-  expect_no_match(formatter, "getMonth")
+  expect_equal(e$x$opts$xAxis[[1]]$axisLabel$formatter, "{yyyy}")
+})
 
-  # axisLabel-Formatter muessen einen String zurueckgeben — ein rohes
-  # getFullYear() (Number) laesst ECharts intern in getFormattedLabel() mit
-  # "(e || '').replace is not a function" abstuerzen (leerer Chart, kein
-  # Fehler auf R-Seite sichtbar)
-  expect_match(formatter, "String(", fixed = TRUE)
+test_that("e_smc_style haengt die DE-Locale als htmlDependency an", {
+  e <- testchart() |> e_smc_style(title = "Test")
+  namen <- vapply(e$dependencies, function(d) d$name, character(1))
+  expect_true("smc-echarts-locale-de" %in% namen)
+  dep <- e$dependencies[[which(namen == "smc-echarts-locale-de")[1]]]
+  pfad <- system.file(dep$src$file, dep$script, package = dep$package)
+  expect_true(nzchar(pfad) && file.exists(pfad))
 })
 
 test_that("e_smc_x_category rotiert Labels und zeigt die Achsenlinie", {
@@ -326,8 +331,7 @@ test_that("e_smc_x_time(pad_right) verlaengert die Achse hinter das Datenmaximum
   # mindestens 1 Tag Puffer, auch bei winzigem Anteil
   e <- testchart() |> e_smc_x_time(pad_right = 0.001)
   expect_equal(e$x$opts$xAxis[[1]]$max, "2024-01-11")
-  # Formatter und Achsenlinie bleiben erhalten
-  expect_false(is.null(e$x$opts$xAxis[[1]]$axisLabel$formatter))
+  # Achsenlinie bleibt erhalten
   expect_true(e$x$opts$xAxis[[1]]$axisLine$show)
   # Default: kein max gesetzt
   e <- testchart() |> e_smc_x_time()

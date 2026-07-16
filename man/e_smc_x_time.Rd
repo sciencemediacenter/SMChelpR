@@ -14,13 +14,15 @@ e_smc_x_time(
 \arguments{
 \item{e}{an \code{echarts4r} chart.}
 
-\item{show_year}{logical, append the two-digit year to the month label.
-Set to \code{FALSE} when all series are mapped onto one common year (e.g.
-year-over-year comparisons). Ignored at \code{granularity = "year"} (the
-year is always shown). Default: \code{TRUE}.}
+\item{show_year}{logical, show the year at year-boundary ticks. Set to
+\code{FALSE} when all series are mapped onto one common reference year
+(e.g. year-over-year comparisons): those ticks then show the month
+name instead of leaking the artificial year. Ignored at
+\code{granularity = "year"}. Default: \code{TRUE}.}
 
-\item{granularity}{\code{"day"} (month labels, for daily/monthly data) or
-\code{"year"} (plain year labels, for annual data). Default: \code{"day"}.}
+\item{granularity}{\code{"day"} (native adaptive labels, for daily/monthly
+data) or \code{"year"} (plain year labels, for annual data). Default:
+\code{"day"}.}
 
 \item{pad_right}{numeric or \code{NULL}: if set, extend the axis beyond the
 last data point by this share of the date range (e.g. \code{0.02}), at
@@ -35,12 +37,13 @@ The dates are read from the chart's own data. Default: \code{NULL}
 The modified \code{echarts4r} chart.
 }
 \description{
-Time x axis in the SMC style: visible axis line and German date labels —
-echarts4r has no locale argument, so this injects a JS formatter. At
-\code{granularity = "day"} (the default) labels are month names ("Mär '24", or
-"Mär" without the year); at \code{granularity = "year"} labels are the plain
-year ("1950"), for annual time series where month-level labels would be
-meaningless.
+Time x axis in the SMC style: visible axis line and German date labels.
+The German labels come from the package's 'DE' ECharts locale (attached
+by \code{\link[=e_smc_style]{e_smc_style()}}), so at \code{granularity = "day"} (the default) the axis
+uses ECharts' native adaptive tick labels: years at year boundaries,
+month names in between, days when zoomed in. At \code{granularity = "year"}
+every tick shows the plain year ("1950"), for annual time series where
+sub-year ticks would be meaningless.
 }
 \details{
 The x values must be real dates (or timestamps) either way — echarts4r
