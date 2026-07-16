@@ -5,16 +5,12 @@
 # every SMC app/report applies the same standard by construction instead of
 # re-implementing it (see the echarts-style skill for the audit checklist).
 #
-# German AXIS labels come from the package's 'DE' ECharts locale
+# German labels come from the package's 'DE' ECharts locale
 # (assets/smc-echarts-locale-de.js, attached by e_smc_style()): time axes
-# then label natively and adaptively (years at year boundaries, months in
-# between, days when zoomed). Only the tooltip still needs JS formatters —
-# the ECharts locale system covers no number formatting (de-DE "1.234,5").
-
-# German month abbreviations as a JS array literal for the tooltip date
-# header (the ECharts locale system does not reach into custom tooltip
-# formatters).
-js_smc_monate <- "['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez']"
+# label natively and adaptively (years at year boundaries, months in
+# between, days when zoomed), and the tooltip date header formats via
+# echarts.time.format(..., 'DE'). Only NUMBER formatting (de-DE "1.234,5")
+# still needs a JS formatter — the ECharts locale system does not cover it.
 
 # JS snippet: one tooltip line per series, "<marker> Name: value unit" with
 # de-DE number formatting; null values (gaps in pivoted series) are skipped.
@@ -400,13 +396,13 @@ e_smc_y_percent <- function(
 #'   data) or `"year"` (plain year labels, for annual data). Default:
 #'   `"day"`.
 #' @param pad_right numeric or `NULL`: if set, extend the axis beyond the
-#'   last data point by this share of the date range (e.g. `0.02`), at
-#'   least one day. ECharts fits time axes exactly to the data maximum,
-#'   which leaves the most recent value a ~1 px wide hover target at the
-#'   grid edge; with the padding, hovering anywhere in the empty margin
-#'   snaps the axis tooltip to the last point (Plotly-like behaviour).
-#'   The dates are read from the chart's own data. Default: `NULL`
-#'   (no padding).
+#'   last data point by this share of the date range (e.g. `0.02`).
+#'   ECharts fits time axes exactly to the data maximum, which leaves the
+#'   most recent value a ~1 px wide hover target at the grid edge; with
+#'   the padding, hovering anywhere in the empty margin snaps the axis
+#'   tooltip to the last point (Plotly-like behaviour). Implemented via
+#'   `boundaryGap`, so it only applies as long as no explicit `min`/`max`
+#'   is set on the axis. Default: `NULL` (no padding).
 #' @return The modified `echarts4r` chart.
 #' @export e_smc_x_time
 e_smc_x_time <- function(
@@ -427,20 +423,12 @@ e_smc_x_time <- function(
     args$axisLabel <- list(formatter = list(year = "{MMM}"))
   }
   if (!is.null(pad_right)) {
-    daten_x <- as.Date(do.call(
-      c,
-      lapply(e$x$data, function(d) d[[e$x$mapping$x]])
-    ))
-    pad_tage <- max(
-      1,
-      ceiling(
-        as.numeric(
-          max(daten_x, na.rm = TRUE) - min(daten_x, na.rm = TRUE)
-        ) *
-          pad_right
-      )
-    )
-    args$max <- format(max(daten_x, na.rm = TRUE) + pad_tage, "%Y-%m-%d")
+    # Prozent-Form von boundaryGap: verlaengert die Achse rechts um den
+    # Anteil der Datenspanne (entspricht dem Anteil der Plotbreite).
+    # Funktioniert mit dem in echarts4r >= 0.5.0 gebuendelten ECharts 6
+    # zuverlaessig auf time-Achsen — aber nur, solange auf der Achse kein
+    # explizites min/max gesetzt wird (das wuerde boundaryGap aushebeln).
+    args$boundaryGap <- list("0%", paste0(pad_right * 100, "%"))
   }
   do.call(echarts4r::e_x_axis, args)
 }
@@ -515,16 +503,22 @@ e_smc_tooltip <- function(
   axis_type <- match.arg(axis_type)
   granularity <- match.arg(granularity)
 
-  kopf <- if (axis_type == "time" && granularity == "year") {
-    "var d = new Date(params[0].axisValue);
-    var kopf = d.getFullYear();"
-  } else if (axis_type == "time") {
+  vorlage <- if (granularity == "year") {
+    "{yyyy}"
+  } else if (show_year) {
+    "{d}. {MMM} {yyyy}"
+  } else {
+    "{d}. {MMM}"
+  }
+  # Datums-Kopf ueber echarts.time.format mit der 'DE'-Locale des Pakets
+  # (registriert durch das von e_smc_style() angehaengte Asset; ohne
+  # Registrierung faellt ECharts still auf englische Monatsnamen zurueck).
+  # Der vierte lang-Parameter fehlt in der API-Doku, ist aber seit
+  # ECharts 5 Teil der stabilen Signatur von time.format.
+  kopf <- if (axis_type == "time") {
     sprintf(
-      "var monate = %s;
-      var d = new Date(params[0].axisValue);
-      var kopf = d.getDate() + '. ' + monate[d.getMonth()]%s;",
-      js_smc_monate,
-      if (show_year) " + ' ' + d.getFullYear()" else ""
+      "var kopf = echarts.time.format(params[0].axisValue, '%s', false, 'DE');",
+      vorlage
     )
   } else {
     "var kopf = params[0].axisValue;"

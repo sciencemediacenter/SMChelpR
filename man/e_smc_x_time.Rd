@@ -25,13 +25,13 @@ data) or \code{"year"} (plain year labels, for annual data). Default:
 \code{"day"}.}
 
 \item{pad_right}{numeric or \code{NULL}: if set, extend the axis beyond the
-last data point by this share of the date range (e.g. \code{0.02}), at
-least one day. ECharts fits time axes exactly to the data maximum,
-which leaves the most recent value a ~1 px wide hover target at the
-grid edge; with the padding, hovering anywhere in the empty margin
-snaps the axis tooltip to the last point (Plotly-like behaviour).
-The dates are read from the chart's own data. Default: \code{NULL}
-(no padding).}
+last data point by this share of the date range (e.g. \code{0.02}).
+ECharts fits time axes exactly to the data maximum, which leaves the
+most recent value a ~1 px wide hover target at the grid edge; with
+the padding, hovering anywhere in the empty margin snaps the axis
+tooltip to the last point (Plotly-like behaviour). Implemented via
+\code{boundaryGap}, so it only applies as long as no explicit \code{min}/\code{max}
+is set on the axis. Default: \code{NULL} (no padding).}
 }
 \value{
 The modified \code{echarts4r} chart.

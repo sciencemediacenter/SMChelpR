@@ -280,27 +280,37 @@ test_that("e_smc_tooltip baut axis-Trigger mit deutschem Formatter", {
   formatter <- as.character(tooltip$formatter)
   expect_match(formatter, "de-DE", fixed = TRUE)
   expect_match(formatter, "maximumFractionDigits: 2", fixed = TRUE)
-  expect_match(formatter, "getMonth") # Zeitachsen-Kopf
+  # Zeitachsen-Kopf ueber echarts.time.format mit der DE-Locale
+  expect_match(formatter, "echarts.time.format", fixed = TRUE)
+  expect_match(formatter, "{d}. {MMM} {yyyy}", fixed = TRUE)
+
+  ohne_jahr <- testchart() |> e_smc_tooltip(show_year = FALSE)
+  expect_match(
+    as.character(ohne_jahr$x$opts$tooltip$formatter),
+    "{d}. {MMM}'",
+    fixed = TRUE
+  )
 
   kategorie <- testchart() |> e_smc_tooltip(axis_type = "category")
   expect_no_match(
     as.character(kategorie$x$opts$tooltip$formatter),
-    "getMonth"
+    "time.format"
   )
 })
 
 test_that("e_smc_tooltip granularity = 'year' zeigt nur die Jahreszahl im Kopf", {
   e <- testchart() |> e_smc_tooltip(granularity = "year")
   formatter <- as.character(e$x$opts$tooltip$formatter)
-  expect_match(formatter, "getFullYear", fixed = TRUE)
-  expect_no_match(formatter, "getMonth")
+  expect_match(formatter, "'{yyyy}'", fixed = TRUE)
+  expect_no_match(formatter, "MMM", fixed = TRUE)
 
   # granularity wird bei axis_type = "category" ignoriert
   kategorie <- testchart() |>
     e_smc_tooltip(axis_type = "category", granularity = "year")
   expect_no_match(
     as.character(kategorie$x$opts$tooltip$formatter),
-    "getFullYear"
+    "yyyy",
+    fixed = TRUE
   )
 })
 
@@ -325,17 +335,19 @@ test_that("format_SMC_kalenderwoche nutzt das ISO-Wochenjahr (%G)", {
 })
 
 test_that("e_smc_x_time(pad_right) verlaengert die Achse hinter das Datenmaximum", {
-  # testchart: 2024-01-01..2024-01-10 -> Spanne 9 Tage; 9 * 0.5 -> 5 Tage
-  e <- testchart() |> e_smc_x_time(pad_right = 0.5)
-  expect_equal(e$x$opts$xAxis[[1]]$max, "2024-01-15")
-  # mindestens 1 Tag Puffer, auch bei winzigem Anteil
-  e <- testchart() |> e_smc_x_time(pad_right = 0.001)
-  expect_equal(e$x$opts$xAxis[[1]]$max, "2024-01-11")
-  # Achsenlinie bleibt erhalten
+  # boundaryGap-Prozentform: rechts ein Randstreifen als Anteil der
+  # Datenspanne, links keiner — der axis-Tooltip snappt im Streifen auf
+  # den letzten Datenpunkt
+  e <- testchart() |> e_smc_x_time(pad_right = 0.02)
+  expect_equal(e$x$opts$xAxis[[1]]$boundaryGap, list("0%", "2%"))
+  # Achsenlinie bleibt erhalten, kein explizites max (wuerde boundaryGap
+  # aushebeln)
   expect_true(e$x$opts$xAxis[[1]]$axisLine$show)
-  # Default: kein max gesetzt
-  e <- testchart() |> e_smc_x_time()
   expect_null(e$x$opts$xAxis[[1]]$max)
+  # Default: echarts4r setzt boundaryGap = TRUE — die boolesche Form ist
+  # Kategorie-Semantik und auf time-Achsen wirkungslos (kein Randstreifen)
+  e <- testchart() |> e_smc_x_time()
+  expect_true(isTRUE(e$x$opts$xAxis[[1]]$boundaryGap))
 })
 
 test_that("e_smc_tooltip(snap) ergaenzt die springende axisPointer-Linie", {
