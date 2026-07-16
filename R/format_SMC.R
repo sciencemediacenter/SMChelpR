@@ -139,3 +139,21 @@ format_SMC_datatable <- function(
   table$x$options$columnDefs <- c(existing_defs, new_def)
   table
 }
+
+#' format_SMC_kalenderwoche
+#'
+#' Format dates as German calendar-week labels ("KW 05, 2026") using the ISO
+#' week AND the ISO week-based year (`%G`, not `%Y`). With the calendar year
+#' the labels collide at year boundaries — e.g. 2024-12-30 is ISO week 1 of
+#' 2025 but `%Y` labels it "KW 01, 2024", the same as 2024-01-01. Harmless
+#' as tooltip text, fatal as (category) axis values, where duplicate labels
+#' make lines jump across the chart.
+#'
+#' @param x a `Date` (or date-time) vector.
+#' @return Character vector of labels like `"KW 01, 2025"`.
+#' @examples
+#' format_SMC_kalenderwoche(as.Date("2024-12-30")) # "KW 01, 2025", nicht 2024
+#' @export format_SMC_kalenderwoche
+format_SMC_kalenderwoche <- function(x) {
+  strftime(x, format = "KW %V, %G")
+}

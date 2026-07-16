@@ -384,36 +384,14 @@ e_smc_y_percent <- function(
 #   Referenzjahr-Overlay: e_x_axis(axisLabel = list(
 #                           formatter = list(year = "{MMM}")))
 
-#' e_smc_x_category
-#'
-#' Category x axis in the SMC style: visible axis line (per the style
-#' standard this must be set explicitly on category axes), no boundary gap
-#' (line charts start at the axis) and rotated labels for dense categories
-#' such as calendar weeks (`rotate = 45` implies `fontSize = 10`).
-#'
-#' Category values MUST be unique — duplicate labels are mapped onto the
-#' same x position and lines jump across the chart. For calendar weeks use
-#' [format_SMC_kalenderwoche()], which avoids duplicate labels at year
-#' boundaries.
-#'
-#' @param e an `echarts4r` chart.
-#' @param rotate numeric label rotation in degrees. Default: 45.
-#' @param echarts_params list, selective overrides of the style constants
-#'   (see [get_SMC_echarts_default_parameters()]).
-#' @return The modified `echarts4r` chart.
-#' @export e_smc_x_category
-e_smc_x_category <- function(e, rotate = 45, echarts_params = list()) {
-  label <- list(rotate = rotate)
-  if (rotate == 45) {
-    label$fontSize <- get_param(echarts_params, "category_fontsize_rotated", 10)
-  }
-  echarts4r::e_x_axis(
-    e,
-    boundaryGap = FALSE,
-    axisLine = list(show = TRUE),
-    axisLabel = label
-  )
-}
+# Auch e_smc_x_category gibt es nicht mehr: Kategorie-Achsen zeigen die
+# Achsenlinie per ECharts-Default (nur value-Achsen verstecken sie seit
+# v5), und der Rest ist ein nativer Einzeiler (Stilkonstanten rotate 45 /
+# fontSize 10 dokumentiert der echarts-style-Skill):
+#   e_x_axis(boundaryGap = FALSE,
+#            axisLabel = list(rotate = 45, fontSize = 10))
+# Kategorie-Werte muessen eindeutig sein (Kalenderwochen ueber
+# format_SMC_kalenderwoche(), sonst springen Linien quer durchs Diagramm).
 
 #' e_smc_tooltip
 #'
@@ -558,8 +536,6 @@ e_smc_placeholder <- function(
 #'   `grid_bottom_legend`, `grid_bottom_no_legend` — grid geometry in px
 #'   ([e_smc_style()]).
 #' * `y_name_gap`, `percent_interval` — y axis ([e_smc_y_percent()]).
-#' * `category_fontsize_rotated` — rotated category labels
-#'   ([e_smc_x_category()]).
 #' * `placeholder_color`, `placeholder_font_weight` —
 #'   ([e_smc_placeholder()]).
 #' @examples
@@ -579,29 +555,8 @@ get_SMC_echarts_default_parameters <- function() {
     y_name_gap = 50,
     percent_interval = 20,
 
-    # category x axis (only applied when rotate = 45)
-    category_fontsize_rotated = 10,
-
     # placeholder chart
     placeholder_color = colors_SMC("grey"),
     placeholder_font_weight = "normal"
   )
-}
-
-#' format_SMC_kalenderwoche
-#'
-#' Format dates as German calendar-week labels ("KW 05, 2026") using the ISO
-#' week AND the ISO week-based year (`%G`, not `%Y`). With the calendar year
-#' the labels collide at year boundaries — e.g. 2024-12-30 is ISO week 1 of
-#' 2025 but `%Y` labels it "KW 01, 2024", the same as 2024-01-01. Harmless
-#' as tooltip text, fatal as (category) axis values, where duplicate labels
-#' make lines jump across the chart.
-#'
-#' @param x a `Date` (or date-time) vector.
-#' @return Character vector of labels like `"KW 01, 2025"`.
-#' @examples
-#' format_SMC_kalenderwoche(as.Date("2024-12-30")) # "KW 01, 2025", nicht 2024
-#' @export format_SMC_kalenderwoche
-format_SMC_kalenderwoche <- function(x) {
-  strftime(x, format = "KW %V, %G")
 }

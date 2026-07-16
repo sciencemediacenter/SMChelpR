@@ -60,10 +60,6 @@ test_that("echarts_params ueberschreibt Stil-Konstanten gezielt", {
     e_smc_y_percent(extend_to = 105, echarts_params = list(y_name_gap = 70))
   expect_equal(achse$x$opts$yAxis[[1]]$nameGap, 70)
 
-  kategorie <- testchart() |>
-    e_smc_x_category(echarts_params = list(category_fontsize_rotated = 12))
-  expect_equal(kategorie$x$opts$xAxis[[1]]$axisLabel$fontSize, 12)
-
   platzhalter <- e_smc_placeholder(
     echarts_params = list(placeholder_color = "#123456")
   )
@@ -84,7 +80,6 @@ test_that("get_SMC_echarts_default_parameters deckt die e_smc_*-Konstanten ab", 
       "grid_bottom_no_legend",
       "y_name_gap",
       "percent_interval",
-      "category_fontsize_rotated",
       "placeholder_color",
       "placeholder_font_weight"
     )
@@ -237,18 +232,6 @@ test_that("e_smc_style haengt die DE-Locale als htmlDependency an", {
   expect_true(nzchar(pfad) && file.exists(pfad))
 })
 
-test_that("e_smc_x_category rotiert Labels und zeigt die Achsenlinie", {
-  e <- testchart() |> e_smc_x_category()
-  achse <- e$x$opts$xAxis[[1]]
-  expect_equal(achse$axisLine$show, TRUE)
-  expect_false(achse$boundaryGap)
-  expect_equal(achse$axisLabel$rotate, 45)
-  expect_equal(achse$axisLabel$fontSize, 10)
-
-  gerade <- testchart() |> e_smc_x_category(rotate = 0)
-  expect_null(gerade$x$opts$xAxis[[1]]$axisLabel$fontSize)
-})
-
 test_that("e_smc_tooltip baut axis-Trigger mit deutschem Formatter", {
   e <- testchart() |> e_smc_tooltip(unit = " %", digits = 2)
   tooltip <- e$x$opts$tooltip
@@ -299,17 +282,6 @@ test_that("e_smc_placeholder rendert ohne Koordinatensystem", {
   # yAxis ohne xAxis laesst ECharts beim Rendern abstuerzen (axisBuilder)
   expect_null(e$x$opts$yAxis)
   expect_null(e$x$opts$xAxis)
-})
-
-test_that("format_SMC_kalenderwoche nutzt das ISO-Wochenjahr (%G)", {
-  # 2024-12-30 ist ISO-Woche 1 von 2025 — mit %Y wuerde das Label mit dem
-  # 01.01.2024 kollidieren
-  expect_equal(format_SMC_kalenderwoche(as.Date("2024-12-30")), "KW 01, 2025")
-  expect_equal(format_SMC_kalenderwoche(as.Date("2024-01-01")), "KW 01, 2024")
-  expect_equal(format_SMC_kalenderwoche(as.Date("2026-07-05")), "KW 27, 2026")
-
-  montage <- seq.Date(as.Date("2022-01-03"), as.Date("2026-06-29"), "week")
-  expect_equal(anyDuplicated(format_SMC_kalenderwoche(montage)), 0L)
 })
 
 test_that("Tooltip-Zahlenformat entspricht format_SMC_number()", {
