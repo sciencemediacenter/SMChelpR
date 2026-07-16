@@ -386,10 +386,11 @@ e_smc_y_percent <- function(
 
 # Auch e_smc_x_category gibt es nicht mehr: Kategorie-Achsen zeigen die
 # Achsenlinie per ECharts-Default (nur value-Achsen verstecken sie seit
-# v5), und der Rest ist ein nativer Einzeiler (Stilkonstanten rotate 45 /
-# fontSize 10 dokumentiert der echarts-style-Skill):
-#   e_x_axis(boundaryGap = FALSE,
-#            axisLabel = list(rotate = 45, fontSize = 10))
+# v5), boundaryGap bleibt auf seinem Kategorie-Default TRUE (halbes Band
+# Randabstand; FALSE nur noch als bewusste Ausnahme fuer den alten
+# Kante-an-Kante-Look), und der Rest ist ein nativer Einzeiler
+# (Stilkonstanten rotate 45 / fontSize 10 im echarts-style-Skill):
+#   e_x_axis(axisLabel = list(rotate = 45, fontSize = 10))
 # Kategorie-Werte muessen eindeutig sein (Kalenderwochen ueber
 # format_SMC_kalenderwoche(), sonst springen Linien quer durchs Diagramm).
 
