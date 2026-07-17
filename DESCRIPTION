@@ -50,6 +50,8 @@ Suggests:
 	readr,
 	chromote,
 	rsvg,
+	mapgl (>= 0.5.0),
+	httpuv,
 	shiny,
 	V8
 Roxygen: list(markdown = TRUE)
