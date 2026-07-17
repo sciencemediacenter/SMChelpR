@@ -11,7 +11,8 @@ e_smc_tooltip(
   axis_type = c("time", "category"),
   show_year = TRUE,
   granularity = c("day", "year"),
-  snap = FALSE
+  snap = FALSE,
+  trigger = c("axis", "item")
 )
 }
 \arguments{
@@ -40,14 +41,28 @@ label granularity of the x axis. Default: \code{"day"}.}
 nearest data point instead of following the mouse — visible feedback
 for which day is selected on dense time axes. This must be set here
 rather than via a second \code{\link[echarts4r:e_tooltip]{echarts4r::e_tooltip()}} call, which would
-reset \code{trigger} and \code{formatter} to their defaults. Default: \code{FALSE}.}
+reset \code{trigger} and \code{formatter} to their defaults. Only meaningful
+with \code{trigger = "axis"} (ignored with a warning otherwise).
+Default: \code{FALSE}.}
+
+\item{trigger}{\code{"axis"} (default) or \code{"item"}: \code{"item"} shows a tooltip
+for the hovered data point only — for charts where many series overlap
+at the same x position (e.g. year-over-year overlays on a common
+reference year). The header then comes from the point's own x value
+instead of the axis position; on overlay charts combine this with
+\code{show_year = FALSE} so the artificial reference year stays hidden (the
+real year is the series name in the value line). Note that ECharts
+fires item tooltips only on rendered symbols, not on the bare line —
+keep symbols visible or give them \code{itemStyle = list(opacity = 0)}.}
 }
 \value{
 The modified \code{echarts4r} chart.
 }
 \description{
-Axis-trigger tooltip in the SMC style with German formatting: a bold
-header (date for time axes, category label otherwise) and one line per
-series with de-DE number formatting ("1.234,5"). Null values — gaps in
-pivoted series — are skipped.
+Tooltip in the SMC style with German formatting: a bold header (date for
+time axes, category label otherwise) and one value line per series with
+de-DE number formatting ("1.234,5"). Null values — gaps in pivoted
+series — are skipped. With the default \code{trigger = "axis"} the tooltip
+lists every series at the hovered x position; \code{trigger = "item"} shows
+only the hovered data point.
 }

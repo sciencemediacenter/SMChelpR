@@ -396,10 +396,12 @@ e_smc_y_percent <- function(
 
 #' e_smc_tooltip
 #'
-#' Axis-trigger tooltip in the SMC style with German formatting: a bold
-#' header (date for time axes, category label otherwise) and one line per
-#' series with de-DE number formatting ("1.234,5"). Null values — gaps in
-#' pivoted series — are skipped.
+#' Tooltip in the SMC style with German formatting: a bold header (date for
+#' time axes, category label otherwise) and one value line per series with
+#' de-DE number formatting ("1.234,5"). Null values — gaps in pivoted
+#' series — are skipped. With the default `trigger = "axis"` the tooltip
+#' lists every series at the hovered x position; `trigger = "item"` shows
+#' only the hovered data point.
 #'
 #' @param e an `echarts4r` chart.
 #' @param unit character appended to each value, e.g. `" %"` or `" GWh/d"`.
@@ -420,7 +422,18 @@ e_smc_y_percent <- function(
 #'   nearest data point instead of following the mouse — visible feedback
 #'   for which day is selected on dense time axes. This must be set here
 #'   rather than via a second [echarts4r::e_tooltip()] call, which would
-#'   reset `trigger` and `formatter` to their defaults. Default: `FALSE`.
+#'   reset `trigger` and `formatter` to their defaults. Only meaningful
+#'   with `trigger = "axis"` (ignored with a warning otherwise).
+#'   Default: `FALSE`.
+#' @param trigger `"axis"` (default) or `"item"`: `"item"` shows a tooltip
+#'   for the hovered data point only — for charts where many series overlap
+#'   at the same x position (e.g. year-over-year overlays on a common
+#'   reference year). The header then comes from the point's own x value
+#'   instead of the axis position; on overlay charts combine this with
+#'   `show_year = FALSE` so the artificial reference year stays hidden (the
+#'   real year is the series name in the value line). Note that ECharts
+#'   fires item tooltips only on rendered symbols, not on the bare line —
+#'   keep symbols visible or give them `itemStyle = list(opacity = 0)`.
 #' @return The modified `echarts4r` chart.
 #' @export e_smc_tooltip
 e_smc_tooltip <- function(
@@ -430,10 +443,12 @@ e_smc_tooltip <- function(
   axis_type = c("time", "category"),
   show_year = TRUE,
   granularity = c("day", "year"),
-  snap = FALSE
+  snap = FALSE,
+  trigger = c("axis", "item")
 ) {
   axis_type <- match.arg(axis_type)
   granularity <- match.arg(granularity)
+  trigger <- match.arg(trigger)
 
   vorlage <- if (granularity == "year") {
     "{yyyy}"
@@ -448,20 +463,35 @@ e_smc_tooltip <- function(
   # echarts.time.format ist exportiert, aber in der offiziellen API-Doku
   # komplett undokumentiert; die Signatur inkl. viertem lang-Parameter ist
   # seit ECharts 5 stabil und im gebuendelten ECharts 6 verifiziert.
+  #
+  # Beim axis-Trigger kommt der Kopf aus der Achsenposition (axisValue);
+  # beim item-Trigger gibt es kein axisValue — der Kopf kommt aus dem
+  # x-Wert des Datenpunkts selbst. echarts.time.format parst dessen
+  # 'JJJJ-MM-TT'-String lokal und ist damit zeitzonensicher (anders als
+  # new Date() + lokale Getter, siehe echarts-style-Skill).
+  kopf_wert <- if (trigger == "axis") {
+    "params[0].axisValue"
+  } else if (axis_type == "time") {
+    "(Array.isArray(params[0].value) ? params[0].value[0] : params[0].value)"
+  } else {
+    "params[0].name"
+  }
   kopf <- if (axis_type == "time") {
     sprintf(
-      "var kopf = echarts.time.format(params[0].axisValue, '%s', false, 'DE');",
+      "var kopf = echarts.time.format(%s, '%s', false, 'DE');",
+      kopf_wert,
       vorlage
     )
   } else {
-    "var kopf = params[0].axisValue;"
+    sprintf("var kopf = %s;", kopf_wert)
   }
 
   args <- list(
     e,
-    trigger = "axis",
+    trigger = trigger,
     formatter = htmlwidgets::JS(sprintf(
       "function(params) {
+        if (!Array.isArray(params)) { params = [params]; }
         if (!params.length) { return ''; }
         %s
         var zeilen = ['<b>' + kopf + '</b>'];
@@ -473,7 +503,14 @@ e_smc_tooltip <- function(
     ))
   )
   if (snap) {
-    args$axisPointer <- list(type = "line", snap = TRUE)
+    if (trigger == "item") {
+      warning(
+        "`snap` only applies to trigger = \"axis\" and is ignored ",
+        "for item tooltips."
+      )
+    } else {
+      args$axisPointer <- list(type = "line", snap = TRUE)
+    }
   }
   do.call(echarts4r::e_tooltip, args)
 }

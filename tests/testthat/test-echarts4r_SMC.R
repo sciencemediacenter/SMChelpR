@@ -322,3 +322,36 @@ test_that("e_smc_tooltip(snap) ergaenzt die springende axisPointer-Linie", {
   e <- testchart() |> e_smc_tooltip()
   expect_null(e$x$opts$tooltip$axisPointer)
 })
+
+test_that("e_smc_tooltip(trigger = 'item') formatiert den Einzelpunkt", {
+  e <- testchart() |> e_smc_tooltip(unit = " %", trigger = "item")
+  tooltip <- e$x$opts$tooltip
+  expect_equal(tooltip$trigger, "item")
+  formatter <- as.character(tooltip$formatter)
+  # item liefert ein Einzelobjekt statt Array — Formatter normalisiert
+  expect_match(formatter, "params = [params]", fixed = TRUE)
+  # Kopf aus dem Roh-Datenpunkt (item kennt kein axisValue), weiterhin
+  # ueber echarts.time.format mit DE-Locale
+  expect_no_match(formatter, "axisValue", fixed = TRUE)
+  expect_match(formatter, "params[0].value[0]", fixed = TRUE)
+  expect_match(formatter, "echarts.time.format", fixed = TRUE)
+  # Wertezeilen im selben format_SMC_number-Stil wie beim axis-Trigger
+  expect_match(formatter, "font-size:50%", fixed = TRUE)
+
+  # Kategorie-Achse: Kopf ist der Kategorie-Name des Punkts
+  kategorie <- testchart() |>
+    e_smc_tooltip(axis_type = "category", trigger = "item")
+  expect_match(
+    as.character(kategorie$x$opts$tooltip$formatter),
+    "params[0].name",
+    fixed = TRUE
+  )
+
+  # snap ist ein axisPointer-Feature — bei item ignoriert, mit Warnung
+  expect_warning(
+    e_snap <- testchart() |> e_smc_tooltip(trigger = "item", snap = TRUE),
+    "snap"
+  )
+  expect_null(e_snap$x$opts$tooltip$axisPointer)
+  expect_equal(e_snap$x$opts$tooltip$trigger, "item")
+})
