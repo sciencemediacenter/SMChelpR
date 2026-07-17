@@ -445,8 +445,9 @@ e_smc_tooltip <- function(
   # Datums-Kopf ueber echarts.time.format mit der 'DE'-Locale des Pakets
   # (registriert durch das von e_smc_style() angehaengte Asset; ohne
   # Registrierung faellt ECharts still auf englische Monatsnamen zurueck).
-  # Der vierte lang-Parameter fehlt in der API-Doku, ist aber seit
-  # ECharts 5 Teil der stabilen Signatur von time.format.
+  # echarts.time.format ist exportiert, aber in der offiziellen API-Doku
+  # komplett undokumentiert; die Signatur inkl. viertem lang-Parameter ist
+  # seit ECharts 5 stabil und im gebuendelten ECharts 6 verifiziert.
   kopf <- if (axis_type == "time") {
     sprintf(
       "var kopf = echarts.time.format(params[0].axisValue, '%s', false, 'DE');",
