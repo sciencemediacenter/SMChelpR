@@ -60,10 +60,6 @@ test_that("echarts_params ueberschreibt Stil-Konstanten gezielt", {
     e_smc_y_percent(extend_to = 105, echarts_params = list(y_name_gap = 70))
   expect_equal(achse$x$opts$yAxis[[1]]$nameGap, 70)
 
-  kategorie <- testchart() |>
-    e_smc_x_category(echarts_params = list(category_fontsize_rotated = 12))
-  expect_equal(kategorie$x$opts$xAxis[[1]]$axisLabel$fontSize, 12)
-
   platzhalter <- e_smc_placeholder(
     echarts_params = list(placeholder_color = "#123456")
   )
@@ -84,7 +80,6 @@ test_that("get_SMC_echarts_default_parameters deckt die e_smc_*-Konstanten ab", 
       "grid_bottom_no_legend",
       "y_name_gap",
       "percent_interval",
-      "category_fontsize_rotated",
       "placeholder_color",
       "placeholder_font_weight"
     )
@@ -228,44 +223,13 @@ test_that("e_smc_y_percent formatiert Prozent und dehnt die Achse optional", {
   expect_equal(achse$interval, 20)
 })
 
-test_that("e_smc_x_time setzt Achsenlinie und deutschen Monats-Formatter", {
-  e <- testchart() |> e_smc_x_time()
-  achse <- e$x$opts$xAxis[[1]]
-  expect_equal(achse$axisLine$show, TRUE)
-  expect_s3_class(achse$axisLabel$formatter, "JS_EVAL")
-  expect_match(as.character(achse$axisLabel$formatter), "getFullYear")
-
-  ohne_jahr <- testchart() |> e_smc_x_time(show_year = FALSE)
-  expect_no_match(
-    as.character(ohne_jahr$x$opts$xAxis[[1]]$axisLabel$formatter),
-    "getFullYear"
-  )
-})
-
-test_that("e_smc_x_time granularity = 'year' zeigt nur die Jahreszahl", {
-  e <- testchart() |> e_smc_x_time(granularity = "year")
-  achse <- e$x$opts$xAxis[[1]]
-  formatter <- as.character(achse$axisLabel$formatter)
-  expect_match(formatter, "getFullYear", fixed = TRUE)
-  expect_no_match(formatter, "getMonth")
-
-  # axisLabel-Formatter muessen einen String zurueckgeben — ein rohes
-  # getFullYear() (Number) laesst ECharts intern in getFormattedLabel() mit
-  # "(e || '').replace is not a function" abstuerzen (leerer Chart, kein
-  # Fehler auf R-Seite sichtbar)
-  expect_match(formatter, "String(", fixed = TRUE)
-})
-
-test_that("e_smc_x_category rotiert Labels und zeigt die Achsenlinie", {
-  e <- testchart() |> e_smc_x_category()
-  achse <- e$x$opts$xAxis[[1]]
-  expect_equal(achse$axisLine$show, TRUE)
-  expect_false(achse$boundaryGap)
-  expect_equal(achse$axisLabel$rotate, 45)
-  expect_equal(achse$axisLabel$fontSize, 10)
-
-  gerade <- testchart() |> e_smc_x_category(rotate = 0)
-  expect_null(gerade$x$opts$xAxis[[1]]$axisLabel$fontSize)
+test_that("e_smc_style haengt die DE-Locale als htmlDependency an", {
+  e <- testchart() |> e_smc_style(title = "Test")
+  namen <- vapply(e$dependencies, function(d) d$name, character(1))
+  expect_true("smc-echarts-locale-de" %in% namen)
+  dep <- e$dependencies[[which(namen == "smc-echarts-locale-de")[1]]]
+  pfad <- system.file(dep$src$file, dep$script, package = dep$package)
+  expect_true(nzchar(pfad) && file.exists(pfad))
 })
 
 test_that("e_smc_tooltip baut axis-Trigger mit deutschem Formatter", {
@@ -273,30 +237,66 @@ test_that("e_smc_tooltip baut axis-Trigger mit deutschem Formatter", {
   tooltip <- e$x$opts$tooltip
   expect_equal(tooltip$trigger, "axis")
   formatter <- as.character(tooltip$formatter)
-  expect_match(formatter, "de-DE", fixed = TRUE)
-  expect_match(formatter, "maximumFractionDigits: 2", fixed = TRUE)
-  expect_match(formatter, "getMonth") # Zeitachsen-Kopf
+  # Zahlen im format_SMC_number-Stil: schmales Leerzeichen als Trenner,
+  # digits nur fuer Nicht-Ganzzahlen
+  expect_match(formatter, "font-size:50%", fixed = TRUE)
+  expect_match(formatter, "toFixed(ganz ? 0 : 2)", fixed = TRUE)
+  # Zeitachsen-Kopf ueber echarts.time.format mit der DE-Locale
+  expect_match(formatter, "echarts.time.format", fixed = TRUE)
+  expect_match(formatter, "{d}. {MMM} {yyyy}", fixed = TRUE)
+
+  ohne_jahr <- testchart() |> e_smc_tooltip(show_year = FALSE)
+  expect_match(
+    as.character(ohne_jahr$x$opts$tooltip$formatter),
+    "{d}. {MMM}'",
+    fixed = TRUE
+  )
 
   kategorie <- testchart() |> e_smc_tooltip(axis_type = "category")
   expect_no_match(
     as.character(kategorie$x$opts$tooltip$formatter),
-    "getMonth"
+    "time.format"
   )
 })
 
 test_that("e_smc_tooltip granularity = 'year' zeigt nur die Jahreszahl im Kopf", {
   e <- testchart() |> e_smc_tooltip(granularity = "year")
   formatter <- as.character(e$x$opts$tooltip$formatter)
-  expect_match(formatter, "getFullYear", fixed = TRUE)
-  expect_no_match(formatter, "getMonth")
+  expect_match(formatter, "'{yyyy}'", fixed = TRUE)
+  expect_no_match(formatter, "MMM", fixed = TRUE)
 
   # granularity wird bei axis_type = "category" ignoriert
   kategorie <- testchart() |>
     e_smc_tooltip(axis_type = "category", granularity = "year")
   expect_no_match(
     as.character(kategorie$x$opts$tooltip$formatter),
-    "getFullYear"
+    "yyyy",
+    fixed = TRUE
   )
+})
+
+test_that("e_smc_tooltip unterdrueckt den Kopf-only-Tooltip (alle Werte null)", {
+  formatter_js <- as.character(
+    testchart() |>
+      e_smc_tooltip(axis_type = "category") |>
+      (\(e) e$x$opts$tooltip$formatter)()
+  )
+  expect_match(formatter_js, "zeilen.length === 1", fixed = TRUE)
+
+  skip_if_not_installed("V8")
+  ctx <- V8::v8()
+  ctx$eval(paste0("var fmt = ", formatter_js, ";"))
+  # nur ein Punkt, Wert null -> Zeile wird geskippt -> nur Kopf -> ''
+  leer <- ctx$eval(
+    "fmt([{axisValue: 'Kat A', value: ['Kat A', null], marker: '', seriesName: 'S'}])"
+  )
+  expect_equal(leer, "")
+  # gueltiger Wert -> normaler Tooltip mit Kopf und Wertezeile
+  voll <- ctx$eval(
+    "fmt([{axisValue: 'Kat A', value: ['Kat A', 42], marker: '', seriesName: 'S'}])"
+  )
+  expect_match(voll, "Kat A", fixed = TRUE)
+  expect_match(voll, "42", fixed = TRUE)
 })
 
 test_that("e_smc_placeholder rendert ohne Koordinatensystem", {
@@ -308,13 +308,74 @@ test_that("e_smc_placeholder rendert ohne Koordinatensystem", {
   expect_null(e$x$opts$xAxis)
 })
 
-test_that("format_SMC_kalenderwoche nutzt das ISO-Wochenjahr (%G)", {
-  # 2024-12-30 ist ISO-Woche 1 von 2025 — mit %Y wuerde das Label mit dem
-  # 01.01.2024 kollidieren
-  expect_equal(format_SMC_kalenderwoche(as.Date("2024-12-30")), "KW 01, 2025")
-  expect_equal(format_SMC_kalenderwoche(as.Date("2024-01-01")), "KW 01, 2024")
-  expect_equal(format_SMC_kalenderwoche(as.Date("2026-07-05")), "KW 27, 2026")
+test_that("Tooltip-Zahlenformat entspricht format_SMC_number()", {
+  # js_smc_tooltip_zeilen muss dasselbe Format liefern wie
+  # format_SMC_number() (Komma, schmales HTML-Leerzeichen als
+  # Tausendertrenner, Ganzzahlen ohne Dezimalen) — Paritaet via V8.
+  # Keine .5-Rundungsgrenzfaelle in den Testwerten: formatC (C-Runden,
+  # half-to-even) und JS toFixed (half-up) runden exakte Bindungen
+  # unterschiedlich.
+  skip_if_not_installed("V8")
+  ctx <- V8::v8()
+  ctx$eval(sprintf(
+    "function formatiere(werte) {
+      var zeilen = [];
+      var params = werte.map(function(w) {
+        return {value: [0, w], marker: '', seriesName: 'S'};
+      });
+      %s
+      return zeilen;
+    }",
+    js_smc_tooltip_zeilen(unit = "", digits = 1)
+  ))
+  werte <- c(0, 7, -42, 100, 1234.5, 1234567, -9876.4, 0.19)
+  js_zahlen <- sub("^\\s*S: ", "", unlist(ctx$call("formatiere", werte)))
+  expect_equal(js_zahlen, format_SMC_number(werte, digits = 1))
+})
 
-  montage <- seq.Date(as.Date("2022-01-03"), as.Date("2026-06-29"), "week")
-  expect_equal(anyDuplicated(format_SMC_kalenderwoche(montage)), 0L)
+test_that("e_smc_tooltip(snap) ergaenzt die springende axisPointer-Linie", {
+  e <- testchart() |> e_smc_tooltip(unit = " %", snap = TRUE)
+  expect_equal(
+    e$x$opts$tooltip$axisPointer,
+    list(type = "line", snap = TRUE)
+  )
+  # trigger und Formatter bleiben unangetastet
+  expect_equal(e$x$opts$tooltip$trigger, "axis")
+  expect_false(is.null(e$x$opts$tooltip$formatter))
+  # Default: kein axisPointer
+  e <- testchart() |> e_smc_tooltip()
+  expect_null(e$x$opts$tooltip$axisPointer)
+})
+
+test_that("e_smc_tooltip(trigger = 'item') formatiert den Einzelpunkt", {
+  e <- testchart() |> e_smc_tooltip(unit = " %", trigger = "item")
+  tooltip <- e$x$opts$tooltip
+  expect_equal(tooltip$trigger, "item")
+  formatter <- as.character(tooltip$formatter)
+  # item liefert ein Einzelobjekt statt Array — Formatter normalisiert
+  expect_match(formatter, "params = [params]", fixed = TRUE)
+  # Kopf aus dem Roh-Datenpunkt (item kennt kein axisValue), weiterhin
+  # ueber echarts.time.format mit DE-Locale
+  expect_no_match(formatter, "axisValue", fixed = TRUE)
+  expect_match(formatter, "params[0].value[0]", fixed = TRUE)
+  expect_match(formatter, "echarts.time.format", fixed = TRUE)
+  # Wertezeilen im selben format_SMC_number-Stil wie beim axis-Trigger
+  expect_match(formatter, "font-size:50%", fixed = TRUE)
+
+  # Kategorie-Achse: Kopf ist der Kategorie-Name des Punkts
+  kategorie <- testchart() |>
+    e_smc_tooltip(axis_type = "category", trigger = "item")
+  expect_match(
+    as.character(kategorie$x$opts$tooltip$formatter),
+    "params[0].name",
+    fixed = TRUE
+  )
+
+  # snap ist ein axisPointer-Feature — bei item ignoriert, mit Warnung
+  expect_warning(
+    e_snap <- testchart() |> e_smc_tooltip(trigger = "item", snap = TRUE),
+    "snap"
+  )
+  expect_null(e_snap$x$opts$tooltip$axisPointer)
+  expect_equal(e_snap$x$opts$tooltip$trigger, "item")
 })

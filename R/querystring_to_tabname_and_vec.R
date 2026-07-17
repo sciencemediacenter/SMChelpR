@@ -1,7 +1,7 @@
-#' Create Table- and Variable-names from a GraphQL Query 
-#' 
+#' Create Table- and Variable-names from a GraphQL Query
+#'
 #' Helper function to extraxt tablename and vector of variable names from an simple GraphQL query
-#' 
+#'
 #' @param querystring character string containing a valid simple GraphQL-query. Must not contain additional parameter or nested structures.
 #' @return invisible returns a list with tabname and variables. Cats string into console for esy copy and pasting.
 #' @examples
@@ -16,16 +16,20 @@
 #'   publication_date
 #'   }
 #' }")
-#' 
+#'
 #' @export querystring_to_tabname_and_vec
 querystring_to_tabname_and_vec <-
-    function(querystring) {
-        querystring <- gsub("query MyQuery", "", querystring)
-        tabname <- stringr::str_extract(querystring, "[a-zA-Z-_]+")
-        querystring <- gsub(tabname, "", querystring)
-        variables <-
-          stringr::str_extract_all(querystring, "[a-zA-Z-_]+")[[1]]
-        cat(paste0('tabellenname = "', tabname, '",\n'))
-        cat(paste0('variablen = c("', paste(variables, collapse = '", "'), '")\n\n'))
-        invisible(list(tabellenname = tabname, variablen = variables))
-    }
+  function(querystring) {
+    querystring <- gsub("query MyQuery", "", querystring)
+    tabname <- stringr::str_extract(querystring, "[a-zA-Z-_]+")
+    querystring <- gsub(tabname, "", querystring)
+    variables <-
+      stringr::str_extract_all(querystring, "[a-zA-Z-_]+")[[1]]
+    cat(paste0('tabellenname = "', tabname, '",\n'))
+    cat(paste0(
+      'variablen = c("',
+      paste(variables, collapse = '", "'),
+      '")\n\n'
+    ))
+    invisible(list(tabellenname = tabname, variablen = variables))
+  }

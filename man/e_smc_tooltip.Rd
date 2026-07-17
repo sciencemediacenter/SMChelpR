@@ -10,7 +10,9 @@ e_smc_tooltip(
   digits = 1,
   axis_type = c("time", "category"),
   show_year = TRUE,
-  granularity = c("day", "year")
+  granularity = c("day", "year"),
+  snap = FALSE,
+  trigger = c("axis", "item")
 )
 }
 \arguments{
@@ -19,7 +21,10 @@ e_smc_tooltip(
 \item{unit}{character appended to each value, e.g. \code{" \%"} or \code{" GWh/d"}.
 Default: \code{""}.}
 
-\item{digits}{integer number of decimal places. Default: 1.}
+\item{digits}{integer number of decimal places for non-integer values —
+numbers follow \code{\link[=format_SMC_number]{format_SMC_number()}}: comma as decimal mark, a narrow
+HTML space as thousands separator, whole numbers without decimals.
+Default: 1.}
 
 \item{axis_type}{\code{"time"} (header is a German date) or \code{"category"}
 (header is the category label). Default: \code{"time"}.}
@@ -28,17 +33,36 @@ Default: \code{""}.}
 only, \code{granularity = "day"} only — at \code{granularity = "year"} the year
 is always shown). Default: \code{TRUE}.}
 
-\item{granularity}{\code{"day"} (date header "1. Mär '24") or \code{"year"} (header
-is just the year, e.g. "1950") — time axes only, matches the
-\code{granularity} used on the paired \code{\link[=e_smc_x_time]{e_smc_x_time()}} axis. Default:
-\code{"day"}.}
+\item{granularity}{\code{"day"} (date header "1. Mär 2024") or \code{"year"}
+(header is just the year, e.g. "1950") — time axes only, matching the
+label granularity of the x axis. Default: \code{"day"}.}
+
+\item{snap}{logical: add a vertical axis-pointer line that snaps to the
+nearest data point instead of following the mouse — visible feedback
+for which day is selected on dense time axes. This must be set here
+rather than via a second \code{\link[echarts4r:e_tooltip]{echarts4r::e_tooltip()}} call, which would
+reset \code{trigger} and \code{formatter} to their defaults. Only meaningful
+with \code{trigger = "axis"} (ignored with a warning otherwise).
+Default: \code{FALSE}.}
+
+\item{trigger}{\code{"axis"} (default) or \code{"item"}: \code{"item"} shows a tooltip
+for the hovered data point only — for charts where many series overlap
+at the same x position (e.g. year-over-year overlays on a common
+reference year). The header then comes from the point's own x value
+instead of the axis position; on overlay charts combine this with
+\code{show_year = FALSE} so the artificial reference year stays hidden (the
+real year is the series name in the value line). Note that ECharts
+fires item tooltips only on rendered symbols, not on the bare line —
+keep symbols visible or give them \code{itemStyle = list(opacity = 0)}.}
 }
 \value{
 The modified \code{echarts4r} chart.
 }
 \description{
-Axis-trigger tooltip in the SMC style with German formatting: a bold
-header (date for time axes, category label otherwise) and one line per
-series with de-DE number formatting ("1.234,5"). Null values — gaps in
-pivoted series — are skipped.
+Tooltip in the SMC style with German formatting: a bold header (date for
+time axes, category label otherwise) and one value line per series with
+de-DE number formatting ("1.234,5"). Null values — gaps in pivoted
+series — are skipped. With the default \code{trigger = "axis"} the tooltip
+lists every series at the hovered x position; \code{trigger = "item"} shows
+only the hovered data point.
 }

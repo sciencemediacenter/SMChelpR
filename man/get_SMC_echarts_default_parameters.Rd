@@ -13,8 +13,6 @@ List of default parameters for the \verb{e_smc_*} functions:
 \code{grid_bottom_legend}, \code{grid_bottom_no_legend} — grid geometry in px
 (\code{\link[=e_smc_style]{e_smc_style()}}).
 \item \code{y_name_gap}, \code{percent_interval} — y axis (\code{\link[=e_smc_y_percent]{e_smc_y_percent()}}).
-\item \code{category_fontsize_rotated} — rotated category labels
-(\code{\link[=e_smc_x_category]{e_smc_x_category()}}).
 \item \code{placeholder_color}, \code{placeholder_font_weight} —
 (\code{\link[=e_smc_placeholder]{e_smc_placeholder()}}).
 }

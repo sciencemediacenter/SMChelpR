@@ -109,7 +109,7 @@ ggplotly_SMC <- function(
     )
 
   # if x-axis label is not given, there needs to be less whitespace between the legend and the plot
-  if (x_axis_label_gegeben == TRUE) {
+  if (x_axis_label_gegeben) {
     legend_y <- get_param(ggplotly_params, "legend_y_with_x_axis_label", -0.28)
   } else {
     legend_y <- get_param(
@@ -119,7 +119,7 @@ ggplotly_SMC <- function(
     )
   }
 
-  if (mehrzeiliger_titel == TRUE) {
+  if (mehrzeiliger_titel) {
     abbildung <- abbildung |>
       layout(
         margin = list(
@@ -131,7 +131,7 @@ ggplotly_SMC <- function(
     legend_y <- legend_y - 0.1
   }
 
-  if (legende_unten == TRUE) {
+  if (legende_unten) {
     abbildung <- abbildung |>
       layout(
         legend = list(
@@ -172,7 +172,7 @@ ggplotly_SMC <- function(
       font = list(family = "CircularSMCWeb")
     )
 
-  if (interaktiv == TRUE) {
+  if (interaktiv) {
     # if you want to see the plot with correct fonts in interactive session
     # Note: set to FALSE when rendering Quarto document
     # https://github.com/quarto-dev/quarto-cli/issues/10339

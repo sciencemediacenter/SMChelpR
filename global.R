@@ -34,7 +34,7 @@ devtools::install("SMChelpR")
 #########################
 
 pak::pak(
-    "sciencemediacenter/SMChelpR@master"
+  "sciencemediacenter/SMChelpR@master"
 )
 
 library(SMChelpR)
