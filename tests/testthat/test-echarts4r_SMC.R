@@ -275,6 +275,30 @@ test_that("e_smc_tooltip granularity = 'year' zeigt nur die Jahreszahl im Kopf",
   )
 })
 
+test_that("e_smc_tooltip unterdrueckt den Kopf-only-Tooltip (alle Werte null)", {
+  formatter_js <- as.character(
+    testchart() |>
+      e_smc_tooltip(axis_type = "category") |>
+      (\(e) e$x$opts$tooltip$formatter)()
+  )
+  expect_match(formatter_js, "zeilen.length === 1", fixed = TRUE)
+
+  skip_if_not_installed("V8")
+  ctx <- V8::v8()
+  ctx$eval(paste0("var fmt = ", formatter_js, ";"))
+  # nur ein Punkt, Wert null -> Zeile wird geskippt -> nur Kopf -> ''
+  leer <- ctx$eval(
+    "fmt([{axisValue: 'Kat A', value: ['Kat A', null], marker: '', seriesName: 'S'}])"
+  )
+  expect_equal(leer, "")
+  # gueltiger Wert -> normaler Tooltip mit Kopf und Wertezeile
+  voll <- ctx$eval(
+    "fmt([{axisValue: 'Kat A', value: ['Kat A', 42], marker: '', seriesName: 'S'}])"
+  )
+  expect_match(voll, "Kat A", fixed = TRUE)
+  expect_match(voll, "42", fixed = TRUE)
+})
+
 test_that("e_smc_placeholder rendert ohne Koordinatensystem", {
   e <- e_smc_placeholder("Keine Daten")
   expect_s3_class(e, "echarts4r")

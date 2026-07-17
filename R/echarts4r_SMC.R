@@ -496,6 +496,9 @@ e_smc_tooltip <- function(
         %s
         var zeilen = ['<b>' + kopf + '</b>'];
         %s
+        // Nur die Kopfzeile (alle Serien an dieser Stelle null) -> gar kein
+        // Tooltip statt einer leeren Box mit blossem Datum/Kategorie-Kopf
+        if (zeilen.length === 1) { return ''; }
         return zeilen.join('<br/>');
       }",
       kopf,
