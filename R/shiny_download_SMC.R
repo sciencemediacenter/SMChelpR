@@ -1,4 +1,4 @@
-# shiny_download_SMC.R — download UI + handlers below charts in SMC Shiny
+# shiny_download_SMC.R -- download UI + handlers below charts in SMC Shiny
 # apps, mirroring the image_helper_light() output of the SMC data reports:
 # a centered source line followed by "Die Daten zur Erstellung dieser
 # Abbildung herunterladen: als CSV." and "Diese Abbildung herunterladen:
@@ -7,7 +7,7 @@
 # CSV and HTML are generated server-side on the fly; PNG and SVG are
 # exported client-side from the live ECharts instance (WYSIWYG including
 # the current zoom and legend state) by the bundled JS asset
-# (inst/assets/smc-image-download.js) — the charts must therefore run the
+# (inst/assets/smc-image-download.js) -- the charts must therefore run the
 # SVG renderer (`e_charts(renderer = "svg")`, the SMC default).
 #
 # shiny is only suggested: every function checks for it at runtime, like
@@ -26,7 +26,7 @@ check_shiny <- function() {
 #' csv_clean_column_names
 #'
 #' Clean column names for a CSV export: line breaks inside column names
-#' (a legacy of some SMC data sets, e.g. "Gespeichertes Gas \n in TWh")
+#' (a legacy of some SMC data sets, e.g. `"Gespeichertes Gas \n in TWh"`)
 #' break CSV headers and are replaced by a single space.
 #'
 #' @param df a data.frame or tibble.
@@ -42,21 +42,20 @@ csv_clean_column_names <- function(df) {
 
 #' filename_slug
 #'
-#' Build a filename component: lower case, German umlauts transliterated,
-#' everything non-alphanumeric collapsed to "-" ("Österreich" ->
-#' "oesterreich").
+#' Build a filename component: lower case, German umlauts transliterated
+#' (ae, oe, ue, ss), everything non-alphanumeric collapsed to "-".
 #'
 #' @param x character vector.
 #' @return The slugified character vector.
 #' @examples
-#' filename_slug("Vereinigtes Königreich")
+#' filename_slug("Vereinigtes K\u00f6nigreich")
 #' @export filename_slug
 filename_slug <- function(x) {
   x <- tolower(x)
-  x <- gsub("ä", "ae", x)
-  x <- gsub("ö", "oe", x)
-  x <- gsub("ü", "ue", x)
-  x <- gsub("ß", "ss", x)
+  x <- gsub("\u00e4", "ae", x)
+  x <- gsub("\u00f6", "oe", x)
+  x <- gsub("\u00fc", "ue", x)
+  x <- gsub("\u00df", "ss", x)
   x <- gsub("[^a-z0-9]+", "-", x)
   gsub("^-+|-+$", "", x)
 }
@@ -75,7 +74,7 @@ image_download_dependency <- function() {
 
 #' caption_download_line
 #'
-#' Source + download lines below a chart in a Shiny app — the same layout
+#' Source + download lines below a chart in a Shiny app -- the same layout
 #' as the [image_helper_light()] output below the figures of the SMC data
 #' reports: the caption, then "Die Daten zur Erstellung dieser Abbildung
 #' herunterladen: als CSV.", and optionally "Diese Abbildung herunterladen:
@@ -104,7 +103,7 @@ caption_download_line <- function(id, caption, id_image = NULL) {
     "Die Daten zur Erstellung dieser Abbildung herunterladen: ",
     shiny::downloadLink(id, "als CSV."),
     if (!is.null(id_image)) {
-      # German enumeration "als PNG, als SVG oder als HTML." — the
+      # German enumeration "als PNG, als SVG oder als HTML." -- the
       # punctuation is glued to the links via .noWS (htmltools would
       # otherwise render a blank before the comma/period)
       htmltools::tagList(
@@ -168,7 +167,7 @@ download_csv_handler <- function(filename, data) {
 #' download_html_handler
 #'
 #' [shiny::downloadHandler()] for an HTML export: rebuilds the chart from
-#' the current filters and saves it as a self-contained widget (pandoc) —
+#' the current filters and saves it as a self-contained widget (pandoc) --
 #' the same interactive standalone artifact as in the SMC data reports,
 #' generated on the fly. Unlike the client-side PNG/SVG export it does not
 #' know the client-side zoom/legend state; the HTML is interactive anyway.
@@ -195,7 +194,7 @@ download_html_handler <- function(filename, chart) {
 #' Wires up the client-side PNG/SVG downloads of a chart: clicking the
 #' actionLinks from [caption_download_line()] sends the output id, format
 #' and file name as a custom message to the browser, where the bundled JS
-#' asset exports the live ECharts instance via `getDataURL()` — WYSIWYG
+#' asset exports the live ECharts instance via `getDataURL()` -- WYSIWYG
 #' including the current zoom and legend state, without any server-side
 #' rendering. The chart must run the SVG renderer (`e_charts(renderer =
 #' "svg")`); the PNG is rasterized client-side from the SVG at 3x

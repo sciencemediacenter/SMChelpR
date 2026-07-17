@@ -13,10 +13,9 @@ filename_slug(x)
 The slugified character vector.
 }
 \description{
-Build a filename component: lower case, German umlauts transliterated,
-everything non-alphanumeric collapsed to "-" ("Österreich" ->
-"oesterreich").
+Build a filename component: lower case, German umlauts transliterated
+(ae, oe, ue, ss), everything non-alphanumeric collapsed to "-".
 }
 \examples{
-filename_slug("Vereinigtes Königreich")
+filename_slug("Vereinigtes K\u00f6nigreich")
 }

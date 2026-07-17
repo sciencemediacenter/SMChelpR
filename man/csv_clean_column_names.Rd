@@ -14,7 +14,7 @@ The data.frame with cleaned column names.
 }
 \description{
 Clean column names for a CSV export: line breaks inside column names
-(a legacy of some SMC data sets, e.g. "Gespeichertes Gas \n in TWh")
+(a legacy of some SMC data sets, e.g. \code{"Gespeichertes Gas \\n in TWh"})
 break CSV headers and are replaced by a single space.
 }
 \examples{

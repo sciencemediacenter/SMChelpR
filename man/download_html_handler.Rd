@@ -17,7 +17,7 @@ A \code{\link[shiny:downloadHandler]{shiny::downloadHandler()}}.
 }
 \description{
 \code{\link[shiny:downloadHandler]{shiny::downloadHandler()}} for an HTML export: rebuilds the chart from
-the current filters and saves it as a self-contained widget (pandoc) —
+the current filters and saves it as a self-contained widget (pandoc) --
 the same interactive standalone artifact as in the SMC data reports,
 generated on the fly. Unlike the client-side PNG/SVG export it does not
 know the client-side zoom/legend state; the HTML is interactive anyway.

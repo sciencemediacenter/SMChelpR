@@ -142,7 +142,7 @@ image_helper <-
 globalVariables(c("filename_suffix", "fileformat", "download_link"))
 
 # Join download links into one German enumeration ending with a period:
-# "a.", "a und b." / "a oder b.", "a, b oder c." — the connector depends on
+# "a.", "a und b." / "a oder b.", "a, b oder c." -- the connector depends on
 # the semantics: data files complement each other ("und"), image formats
 # are alternatives for the same figure ("oder").
 join_download_links <- function(links, connector) {

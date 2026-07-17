@@ -21,7 +21,7 @@ from it. \code{NULL} renders the data line only. Default: \code{NULL}.}
 An \code{\link[htmltools:tagList]{htmltools::tagList()}}-compatible tag.
 }
 \description{
-Source + download lines below a chart in a Shiny app — the same layout
+Source + download lines below a chart in a Shiny app -- the same layout
 as the \code{\link[=image_helper_light]{image_helper_light()}} output below the figures of the SMC data
 reports: the caption, then "Die Daten zur Erstellung dieser Abbildung
 herunterladen: als CSV.", and optionally "Diese Abbildung herunterladen:

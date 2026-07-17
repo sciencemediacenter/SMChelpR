@@ -42,7 +42,7 @@ render in German natively, page-wide for all ECharts instances
 }
 \details{
 The grid \code{top} grows by 25 px per additional title line (\code{"\\n"} in
-\code{title}), the grid \code{bottom} is 60 px without a legend and 80 px with one —
+\code{title}), the grid \code{bottom} is 60 px without a legend and 80 px with one --
 both following the SMC ECharts style standard. All underlying constants
 can be overridden selectively via \code{echarts_params}; see
 \code{\link[=get_SMC_echarts_default_parameters]{get_SMC_echarts_default_parameters()}} for the full list.

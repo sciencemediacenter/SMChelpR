@@ -28,7 +28,7 @@ e_smc_hline(
 \code{"dotted"}.}
 
 \item{label}{character or \code{NULL} (default). \code{NULL} draws an unlabeled
-line. A string is shown as the markLine label — \code{fontSize = 11} per the
+line. A string is shown as the markLine label -- \code{fontSize = 11} per the
 SMC annotation-label standard, colored to match \code{color} (pass a more
 legible \code{color} than the line's if it needs one, e.g. a light line with
 a dark label).}
@@ -39,7 +39,7 @@ above it).}
 
 \item{use_phantom_series}{logical. \code{FALSE} (default) attaches the line to
 every series currently on the chart, matching the standard \code{markLine}
-behavior — visible as long as at least one series is shown. Set \code{TRUE}
+behavior -- visible as long as at least one series is shown. Set \code{TRUE}
 to instead host it on a dedicated invisible series, so it stays visible
 no matter which real series the reader toggles off via the legend. Add
 all real data series to the chart, and call this (with
@@ -54,11 +54,11 @@ Add a horizontal reference line (the \code{echarts4r} counterpart of
 }
 \details{
 Note that unlike \code{geom_hline()} a \code{markLine} does NOT extend the axis
-range — if the reference value can lie above the data maximum, combine
+range -- if the reference value can lie above the data maximum, combine
 this with \code{\link[=e_smc_y_percent]{e_smc_y_percent()}} and its \code{extend_to} argument (or an explicit
 axis \code{max}), otherwise the line is silently clipped.
 
 Calling \code{e_smc_hline()}/\code{e_smc_vline()} more than once on the same chart
-is safe — each call's own \code{color}/\code{opacity}/\code{type}/\code{label} is preserved
+is safe -- each call's own \code{color}/\code{opacity}/\code{type}/\code{label} is preserved
 regardless of how many reference lines already exist.
 }

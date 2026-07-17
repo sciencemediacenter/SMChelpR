@@ -104,7 +104,7 @@ export_echart_png_html_svg <- function(
     "svg.outerHTML"
   ))$result$value
 
-  # librsvg (rsvg_png, GNOME-Bildbetrachter, ...) unterstützt
+  # librsvg (rsvg_png, GNOME-Bildbetrachter, ...) unterstuetzt
   # dominant-baseline="central" nicht und setzt stattdessen die Grundlinie
   # auf y - Text rutscht ~5 px nach oben und wird z. B. vom clipPath der
   # Scroll-Legende abgeschnitten. dy="0.35em" zentriert in allen Renderern

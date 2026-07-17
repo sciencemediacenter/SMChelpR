@@ -25,7 +25,7 @@ Called for its side effect of registering two
 Wires up the client-side PNG/SVG downloads of a chart: clicking the
 actionLinks from \code{\link[=caption_download_line]{caption_download_line()}} sends the output id, format
 and file name as a custom message to the browser, where the bundled JS
-asset exports the live ECharts instance via \code{getDataURL()} — WYSIWYG
+asset exports the live ECharts instance via \code{getDataURL()} -- WYSIWYG
 including the current zoom and legend state, without any server-side
 rendering. The chart must run the SVG renderer (\code{e_charts(renderer = "svg")}); the PNG is rasterized client-side from the SVG at 3x
 resolution.
