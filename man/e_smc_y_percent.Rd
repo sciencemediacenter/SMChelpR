@@ -34,7 +34,7 @@ Percent y axis in the SMC style: labels as \code{"{value} \%"} and an optional
 vertical axis title (\code{nameLocation = "middle"}).
 }
 \details{
-\code{extend_to} guarantees that the axis covers at least this value — use it
+\code{extend_to} guarantees that the axis covers at least this value -- use it
 when a reference line (e.g. the 100 \% mark via \code{\link[=e_smc_hline]{e_smc_hline()}}) may lie
 above the data maximum: ECharts does not extend the axis for mark lines,
 so without it the line would be clipped. The axis maximum is rounded up

@@ -76,7 +76,7 @@ image_helper <-
       dpi = 300
     )
 
-    if (save_svg == TRUE) {
+    if (save_svg) {
       svglite(svgpfad, width = fig_width, height = fig_height)
       print(plot)
       dev.off()
@@ -85,7 +85,7 @@ image_helper <-
     # Create HTML code
     HTML_text <- "<center>"
 
-    if (plotly == FALSE) {
+    if (!plotly) {
       # embed the saved .png in .html
       HTML_text <- HTML_text |>
         paste0(
@@ -100,7 +100,7 @@ image_helper <-
         )
     }
 
-    if (caption != "" & plotly) {
+    if (caption != "" && plotly) {
       HTML_text <- HTML_text |>
         paste0(
           "<small>",
@@ -109,7 +109,7 @@ image_helper <-
         )
     }
 
-    if (csv_opt == TRUE) {
+    if (csv_opt) {
       HTML_text <- HTML_text |>
         paste0(
           "[Die Daten zur Erstellung dieser Abbildung herunterladen.](",
@@ -118,23 +118,19 @@ image_helper <-
           sep = ""
         )
     }
+    image_links <- paste0('<a href ="', pngpfad, '" download>als PNG</a>')
+    if (save_svg) {
+      image_links <- c(
+        image_links,
+        paste0('<a href ="', svgpfad, '" download>als SVG</a>')
+      )
+    }
     HTML_text <- HTML_text |>
       paste0(
-        'Diese Abbildung herunterladen: <a href ="',
-        pngpfad,
-        '" download>Als PNG.</a>',
+        "Diese Abbildung herunterladen: ",
+        join_download_links(image_links, "oder"),
         sep = ""
       )
-
-    if (save_svg == TRUE) {
-      HTML_text <- HTML_text |>
-        paste0(
-          ' <a href ="',
-          svgpfad,
-          '" download>Als SVG.</a>',
-          sep = ""
-        )
-    }
     HTML_text <- HTML_text |>
       paste0("</center> <br>")
 
@@ -145,13 +141,38 @@ image_helper <-
 
 globalVariables(c("filename_suffix", "fileformat", "download_link"))
 
-process_data_tibble <- function(data, filename, filepath, type) {
+# Join download links into one German enumeration ending with a period:
+# "a.", "a und b." / "a oder b.", "a, b oder c." -- the connector depends on
+# the semantics: data files complement each other ("und"), image formats
+# are alternatives for the same figure ("oder").
+join_download_links <- function(links, connector) {
+  n <- length(links)
+  if (n == 1) {
+    return(paste0(links, "."))
+  }
+  paste0(
+    paste(links[-n], collapse = ", "),
+    " ",
+    connector,
+    " ",
+    links[n],
+    "."
+  )
+}
+
+process_data_tibble <- function(
+  data,
+  filename,
+  filepath,
+  type,
+  connector = "und"
+) {
   columns <- names(data)
   column_length <- length(columns)
   correct_column_names <- ("fileformat" %in%
     columns &
     "filename_suffix" %in% columns)
-  if (column_length != 2 | !correct_column_names) {
+  if (column_length != 2 || !correct_column_names) {
     message <- paste(
       "Parameter",
       type,
@@ -174,14 +195,13 @@ process_data_tibble <- function(data, filename, filepath, type) {
       download_link = if_else(
         file_exists,
         paste0(
-          # paste0 because sep must be ""
+          # paste0 because sep must be ""; trimws drops the leading blank
+          # of an empty filename_suffix
           '<a href ="',
           path,
           '" download>',
-          filename_suffix,
-          ' als ',
-          toupper(fileformat),
-          '.</a>'
+          trimws(paste(filename_suffix, "als", toupper(fileformat))),
+          '</a>'
         ),
         NA
       )
@@ -196,14 +216,11 @@ process_data_tibble <- function(data, filename, filepath, type) {
     stop(message)
   }
 
-  # data_download_links <- apply(data, 1, create_links)
   data_download_links <- data |>
     filter(!is.na(download_link)) |>
     pull(download_link)
 
-  data_download_links_str <- paste(data_download_links, collapse = " ") # mind collapse parameter!! else as many html_texts as links
-
-  data_download_links_str
+  join_download_links(data_download_links, connector)
 }
 
 #' @export image_helper_light
@@ -220,7 +237,7 @@ image_helper_light <- function(
   # Create HTML code
   HTML_text <- "<center>"
 
-  if (static_image == TRUE & !is.null(images)) {
+  if (static_image && !is.null(images)) {
     static_image_paths <- images |>
       mutate(
         path = if_else(
@@ -233,7 +250,7 @@ image_helper_light <- function(
         ),
         file_exists = file.exists(path)
       ) |>
-      filter(file_exists == TRUE) |>
+      filter(file_exists) |>
       pull(path)
 
     HTML_text <- HTML_text |>
@@ -259,7 +276,7 @@ image_helper_light <- function(
     )
 
   if (!is.null(data)) {
-    if (is.null(filename) | is.null(filepath)) {
+    if (is.null(filename) || is.null(filepath)) {
       stop(
         "Parameters filename and filepath are required if data parameter is passed to image_helper_light()"
       )
@@ -268,12 +285,14 @@ image_helper_light <- function(
     HTML_text <- HTML_text |>
       paste0("Die Daten zur Erstellung dieser Abbildung herunterladen: ") # paste0 because sep must be ""
 
-    # make paths for all data formats
+    # make paths for all data formats; several data files complement each
+    # other -> "und"
     data_download_links_str <- process_data_tibble(
       data,
       filename,
       filepath,
-      "data"
+      "data",
+      connector = "und"
     )
 
     HTML_text <- HTML_text |>
@@ -281,7 +300,7 @@ image_helper_light <- function(
   }
 
   if (!is.null(images)) {
-    if (is.null(filename) | is.null(filepath)) {
+    if (is.null(filename) || is.null(filepath)) {
       stop(
         "Parameters filename and filepath are required if images parameter is passed to image_helper_light()"
       )
@@ -290,12 +309,14 @@ image_helper_light <- function(
     HTML_text <- HTML_text |>
       paste0("Diese Abbildung herunterladen: ") # paste0 because sep must be ""
 
-    # make paths for all image formats
+    # make paths for all image formats; formats are alternatives for the
+    # same figure -> "oder"
     images_download_links_str <- process_data_tibble(
       images,
       filename,
       filepath,
-      "images"
+      "images",
+      connector = "oder"
     )
 
     HTML_text <- HTML_text |>

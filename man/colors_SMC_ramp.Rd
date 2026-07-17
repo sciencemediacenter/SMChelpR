@@ -13,8 +13,8 @@ colors_SMC_ramp(n)
 Character vector of \code{n} color codes.
 }
 \description{
-SMC color palette for exactly \code{n} series: the first \code{n} SMC colors, or —
-when \code{n} exceeds the palette size — \code{n} distinct colors interpolated
+SMC color palette for exactly \code{n} series: the first \code{n} SMC colors, or --
+when \code{n} exceeds the palette size -- \code{n} distinct colors interpolated
 across the full palette via \code{grDevices::colorRampPalette()}. Use this
 instead of letting a chart library recycle the palette (recycling assigns
 the same color to different series).

@@ -10,8 +10,8 @@ e_smc_placeholder(
 )
 }
 \arguments{
-\item{message}{character message shown in the chart center. Default:
-\code{"Daten derzeit nicht verfügbar"}.}
+\item{message}{character message shown in the chart center. Defaults to a
+German "data currently unavailable" notice (see Usage).}
 
 \item{echarts_params}{list, selective overrides of the style constants
 (see \code{\link[=get_SMC_echarts_default_parameters]{get_SMC_echarts_default_parameters()}}).}
@@ -27,6 +27,6 @@ centered grey message.
 \details{
 Implementation note: \code{echarts4r::e_charts()} without data emits a \code{yAxis}
 without an \code{xAxis}, which crashes ECharts at render time (\code{axisBuilder}
-error) — the placeholder therefore removes the coordinate system
+error) -- the placeholder therefore removes the coordinate system
 entirely.
 }

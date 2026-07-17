@@ -35,11 +35,14 @@ Apply the SMC ECharts base style to an \code{echarts4r} chart in one call:
 SMC color palette, standard grid (\code{top = 50}, \code{left = 80}, \code{right = 40};
 \code{bottom} depending on the legend), toolbox with \code{dataZoom}
 (\code{yAxisIndex = FALSE}) and \code{restore}, legend at the bottom (horizontal)
-and an optional centered title.
+and an optional centered title. Also attaches the package's German
+ECharts locale as an htmlDependency: time axes and toolbox titles then
+render in German natively, page-wide for all ECharts instances
+(echarts4r itself exposes no locale option).
 }
 \details{
 The grid \code{top} grows by 25 px per additional title line (\code{"\\n"} in
-\code{title}), the grid \code{bottom} is 60 px without a legend and 80 px with one —
+\code{title}), the grid \code{bottom} is 60 px without a legend and 80 px with one --
 both following the SMC ECharts style standard. All underlying constants
 can be overridden selectively via \code{echarts_params}; see
 \code{\link[=get_SMC_echarts_default_parameters]{get_SMC_echarts_default_parameters()}} for the full list.

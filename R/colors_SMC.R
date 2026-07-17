@@ -67,8 +67,8 @@ colors_SMC <- function(ColorNames = NULL, rev = FALSE) {
 
 #' colors_SMC_ramp
 #'
-#' SMC color palette for exactly `n` series: the first `n` SMC colors, or —
-#' when `n` exceeds the palette size — `n` distinct colors interpolated
+#' SMC color palette for exactly `n` series: the first `n` SMC colors, or --
+#' when `n` exceeds the palette size -- `n` distinct colors interpolated
 #' across the full palette via `grDevices::colorRampPalette()`. Use this
 #' instead of letting a chart library recycle the palette (recycling assigns
 #' the same color to different series).

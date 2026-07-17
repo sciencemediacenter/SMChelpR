@@ -107,3 +107,14 @@ test_that("format_SMC_datatable() appends to existing columnDefs without droppin
   expect_equal(length(defs), n_before + 1)
   expect_identical(defs[seq_len(n_before)], base_tbl$x$options$columnDefs)
 })
+
+test_that("format_SMC_kalenderwoche nutzt das ISO-Wochenjahr (%G)", {
+  # 2024-12-30 ist ISO-Woche 1 von 2025 — mit %Y wuerde das Label mit dem
+  # 01.01.2024 kollidieren
+  expect_equal(format_SMC_kalenderwoche(as.Date("2024-12-30")), "KW 01, 2025")
+  expect_equal(format_SMC_kalenderwoche(as.Date("2024-01-01")), "KW 01, 2024")
+  expect_equal(format_SMC_kalenderwoche(as.Date("2026-07-05")), "KW 27, 2026")
+
+  montage <- seq.Date(as.Date("2022-01-03"), as.Date("2026-06-29"), "week")
+  expect_equal(anyDuplicated(format_SMC_kalenderwoche(montage)), 0L)
+})

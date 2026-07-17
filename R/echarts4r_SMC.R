@@ -1,59 +1,53 @@
-# echarts4r_SMC.R — generic building blocks for echarts4r figures in the
+# echarts4r_SMC.R -- generic building blocks for echarts4r figures in the
 # SMC ECharts style (centered title, standard grid, toolbox with
 # dataZoom + restore, legend at the bottom, axis-trigger tooltips with
 # German formatting). Extracted from the Gasspeicher dashboard migration so
 # every SMC app/report applies the same standard by construction instead of
 # re-implementing it (see the echarts-style skill for the audit checklist).
+#
+# German labels come from the package's 'DE' ECharts locale
+# (assets/smc-echarts-locale-de.js, attached by e_smc_style()): time axes
+# label natively and adaptively (years at year boundaries, months in
+# between, days when zoomed), and the tooltip date header formats via
+# echarts.time.format(..., 'DE'). Only NUMBER formatting (de-DE "1.234,5")
+# still needs a JS formatter -- the ECharts locale system does not cover it.
 
-# German month abbreviations as a JS array literal — echarts4r (<= 0.5.x) has
-# no locale argument, so German labels need explicit JS formatters.
-js_smc_monate <- "['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez']"
-
-# JS snippet: one tooltip line per series, "<marker> Name: value unit" with
-# de-DE number formatting; null values (gaps in pivoted series) are skipped.
+# JS snippet: one tooltip line per series, "<marker> Name: value unit".
+# Numbers follow format_SMC_number(): comma as decimal mark, a narrow 50%
+# font-size HTML space as thousands separator (tooltips render HTML) and
+# whole numbers without decimals. A V8 parity test keeps the two in sync.
+# Null values (gaps in pivoted series) are skipped.
 js_smc_tooltip_zeilen <- function(unit, digits) {
   sprintf(
-    "params.forEach(function(p) {
+    "var trenner = '<span style=\"font-size:50%%;\"> </span>';
+    params.forEach(function(p) {
       var wert = Array.isArray(p.value) ? p.value[1] : p.value;
       if (wert === null || wert === undefined || isNaN(wert)) { return; }
-      zeilen.push(
-        p.marker + ' ' + p.seriesName + ': ' +
-          Number(wert).toLocaleString('de-DE', {
-            minimumFractionDigits: %d,
-            maximumFractionDigits: %d
-          }) + '%s'
-      );
+      wert = Number(wert);
+      var ganz = wert === Math.trunc(wert);
+      var teile = Math.abs(wert).toFixed(ganz ? 0 : %d).split('.');
+      var vor = teile[0].replace(/\\B(?=(\\d{3})+(?!\\d))/g, trenner);
+      var zahl = (wert < 0 ? '-' : '') + vor +
+        (teile[1] ? ',' + teile[1] : '');
+      zeilen.push(p.marker + ' ' + p.seriesName + ': ' + zahl + '%s');
     });",
-    digits,
     digits,
     unit
   )
 }
 
-# JS axis-label formatter for time axes: "Mär '24" (or "Mär" without year).
-js_smc_achse_monat <- function(show_year = TRUE) {
-  jahr_teil <- if (show_year) {
-    "+ \" '\" + String(d.getFullYear()).slice(-2)"
-  } else {
-    ""
-  }
-  htmlwidgets::JS(sprintf(
-    "function(value) {
-      var monate = %s;
-      var d = new Date(value);
-      return monate[d.getMonth()] %s;
-    }",
-    js_smc_monate,
-    jahr_teil
-  ))
-}
-
-# JS axis-label formatter for time axes at year granularity: "1950".
-js_smc_achse_jahr <- function() {
-  htmlwidgets::JS(
-    "function(value) {
-      return String(new Date(value).getFullYear());
-    }"
+# htmlDependency: German ECharts locale + init default
+# (assets/smc-echarts-locale-de.js). Attached by e_smc_style(), so every
+# chart built through the SMC standard gets German time-axis labels and
+# toolbox titles natively -- echarts4r itself exposes no locale option and
+# bundles only the EN/ZH locales.
+smc_locale_de_dependency <- function() {
+  htmltools::htmlDependency(
+    name = "smc-echarts-locale-de",
+    version = as.character(utils::packageVersion("SMChelpR")),
+    package = "SMChelpR",
+    src = "assets",
+    script = "smc-echarts-locale-de.js"
   )
 }
 
@@ -63,11 +57,14 @@ js_smc_achse_jahr <- function() {
 #' SMC color palette, standard grid (`top = 50`, `left = 80`, `right = 40`;
 #' `bottom` depending on the legend), toolbox with `dataZoom`
 #' (`yAxisIndex = FALSE`) and `restore`, legend at the bottom (horizontal)
-#' and an optional centered title.
+#' and an optional centered title. Also attaches the package's German
+#' ECharts locale as an htmlDependency: time axes and toolbox titles then
+#' render in German natively, page-wide for all ECharts instances
+#' (echarts4r itself exposes no locale option).
 #'
 #' @details
 #' The grid `top` grows by 25 px per additional title line (`"\n"` in
-#' `title`), the grid `bottom` is 60 px without a legend and 80 px with one —
+#' `title`), the grid `bottom` is 60 px without a legend and 80 px with one --
 #' both following the SMC ECharts style standard. All underlying constants
 #' can be overridden selectively via `echarts_params`; see
 #' [get_SMC_echarts_default_parameters()] for the full list.
@@ -144,10 +141,15 @@ e_smc_style <- function(
   if (!is.null(title)) {
     e <- echarts4r::e_title(e, text = title, left = "center")
   }
+
+  # Deutsche ECharts-Locale (Zeitachsen-Labels, Toolbox-Titel) als
+  # htmlDependency anhaengen -- wirkt seitenweit auf alle Instanzen
+  # (htmltools dedupliziert beim Rendern ueber den Dependency-Namen).
+  e$dependencies <- c(e$dependencies, list(smc_locale_de_dependency()))
   e
 }
 
-# Internal: markLine label for e_smc_hline()/e_smc_vline() — hidden unless
+# Internal: markLine label for e_smc_hline()/e_smc_vline() -- hidden unless
 # `label` is a string, in which case it's shown per the SMC annotation-label
 # standard (fontSize 11), colored like the line unless told otherwise.
 e_smc_markline_label <- function(label, position, color) {
@@ -171,7 +173,7 @@ e_smc_markline_label <- function(label, position, color) {
 # a real series disappears when that series is toggled off; hosting it on
 # its own always-shown series avoids that. The phantom series is excluded
 # from the legend by whitelisting whichever series already exist at the
-# time it's first created — so this must run after all real data series
+# time it's first created -- so this must run after all real data series
 # have been added, and before e_smc_style() (which sets other legend keys
 # but does not touch an existing legend$data).
 #
@@ -219,12 +221,12 @@ e_smc_add_phantom_markline <- function(e, point, phantom_name) {
 #' `ggplot2::geom_hline()`): a silent, unlabeled, solid `markLine`.
 #'
 #' Note that unlike `geom_hline()` a `markLine` does NOT extend the axis
-#' range — if the reference value can lie above the data maximum, combine
+#' range -- if the reference value can lie above the data maximum, combine
 #' this with [e_smc_y_percent()] and its `extend_to` argument (or an explicit
 #' axis `max`), otherwise the line is silently clipped.
 #'
 #' Calling `e_smc_hline()`/`e_smc_vline()` more than once on the same chart
-#' is safe — each call's own `color`/`opacity`/`type`/`label` is preserved
+#' is safe -- each call's own `color`/`opacity`/`type`/`label` is preserved
 #' regardless of how many reference lines already exist.
 #'
 #' @param e an `echarts4r` chart.
@@ -234,7 +236,7 @@ e_smc_add_phantom_markline <- function(e, point, phantom_name) {
 #' @param type character line style: `"solid"` (default), `"dashed"` or
 #'   `"dotted"`.
 #' @param label character or `NULL` (default). `NULL` draws an unlabeled
-#'   line. A string is shown as the markLine label — `fontSize = 11` per the
+#'   line. A string is shown as the markLine label -- `fontSize = 11` per the
 #'   SMC annotation-label standard, colored to match `color` (pass a more
 #'   legible `color` than the line's if it needs one, e.g. a light line with
 #'   a dark label).
@@ -243,7 +245,7 @@ e_smc_add_phantom_markline <- function(e, point, phantom_name) {
 #'   above it).
 #' @param use_phantom_series logical. `FALSE` (default) attaches the line to
 #'   every series currently on the chart, matching the standard `markLine`
-#'   behavior — visible as long as at least one series is shown. Set `TRUE`
+#'   behavior -- visible as long as at least one series is shown. Set `TRUE`
 #'   to instead host it on a dedicated invisible series, so it stays visible
 #'   no matter which real series the reader toggles off via the legend. Add
 #'   all real data series to the chart, and call this (with
@@ -279,11 +281,11 @@ e_smc_hline <- function(
 #' marker on a time axis, or a target date.
 #'
 #' Calling `e_smc_hline()`/`e_smc_vline()` more than once on the same chart
-#' is safe — each call's own `color`/`opacity`/`type`/`label` is preserved
+#' is safe -- each call's own `color`/`opacity`/`type`/`label` is preserved
 #' regardless of how many reference lines already exist.
 #'
 #' @param e an `echarts4r` chart.
-#' @param x x position of the line — a `Date` on a time axis.
+#' @param x x position of the line -- a `Date` on a time axis.
 #' @param opacity numeric line opacity. Default: 0.5.
 #' @param color character line color. Default: `"#666666"`.
 #' @param type character line style: `"solid"` (default), `"dashed"` or
@@ -322,7 +324,7 @@ e_smc_vline <- function(
 #' vertical axis title (`nameLocation = "middle"`).
 #'
 #' @details
-#' `extend_to` guarantees that the axis covers at least this value — use it
+#' `extend_to` guarantees that the axis covers at least this value -- use it
 #' when a reference line (e.g. the 100 % mark via [e_smc_hline()]) may lie
 #' above the data maximum: ECharts does not extend the axis for mark lines,
 #' so without it the line would be clipped. The axis maximum is rounded up
@@ -372,94 +374,66 @@ e_smc_y_percent <- function(
   do.call(echarts4r::e_y_axis, c(list(e), achse))
 }
 
-#' e_smc_x_time
-#'
-#' Time x axis in the SMC style: visible axis line and German date labels —
-#' echarts4r has no locale argument, so this injects a JS formatter. At
-#' `granularity = "day"` (the default) labels are month names ("Mär '24", or
-#' "Mär" without the year); at `granularity = "year"` labels are the plain
-#' year ("1950"), for annual time series where month-level labels would be
-#' meaningless.
-#'
-#' The x values must be real dates (or timestamps) either way — echarts4r
-#' has no separate "year" axis type, so a bare year like `1950` used
-#' directly as the x value is misread as 1950 milliseconds after the epoch.
-#' Convert first, e.g. `as.Date(paste0(Jahr, "-01-01"))`.
-#'
-#' @param e an `echarts4r` chart.
-#' @param show_year logical, append the two-digit year to the month label.
-#'   Set to `FALSE` when all series are mapped onto one common year (e.g.
-#'   year-over-year comparisons). Ignored at `granularity = "year"` (the
-#'   year is always shown). Default: `TRUE`.
-#' @param granularity `"day"` (month labels, for daily/monthly data) or
-#'   `"year"` (plain year labels, for annual data). Default: `"day"`.
-#' @return The modified `echarts4r` chart.
-#' @export e_smc_x_time
-e_smc_x_time <- function(e, show_year = TRUE, granularity = c("day", "year")) {
-  granularity <- match.arg(granularity)
-  formatter <- if (granularity == "year") {
-    js_smc_achse_jahr()
-  } else {
-    js_smc_achse_monat(show_year)
-  }
-  echarts4r::e_x_axis(
-    e,
-    axisLine = list(show = TRUE),
-    axisLabel = list(formatter = formatter)
-  )
-}
+# Es gibt bewusst kein e_smc_x_time mehr: Zeitachsen brauchen mit der
+# 'DE'-Locale (siehe e_smc_style()) keinen SMC-Baustein -- deutsche,
+# adaptive Tick-Labels kommen nativ von ECharts. Fuer die verbleibenden
+# Sonderfaelle reichen native Einzeiler (dokumentiert im
+# echarts-style-Skill):
+#   Randstreifen rechts:  e_x_axis(boundaryGap = c("0%", "2%"))
+#   Jahresdaten:          e_x_axis(axisLabel = list(formatter = "{yyyy}"))
+#   Referenzjahr-Overlay: e_x_axis(axisLabel = list(
+#                           formatter = list(year = "{MMM}")))
 
-#' e_smc_x_category
-#'
-#' Category x axis in the SMC style: visible axis line (per the style
-#' standard this must be set explicitly on category axes), no boundary gap
-#' (line charts start at the axis) and rotated labels for dense categories
-#' such as calendar weeks (`rotate = 45` implies `fontSize = 10`).
-#'
-#' Category values MUST be unique — duplicate labels are mapped onto the
-#' same x position and lines jump across the chart. For calendar weeks use
-#' [format_SMC_kalenderwoche()], which avoids duplicate labels at year
-#' boundaries.
-#'
-#' @param e an `echarts4r` chart.
-#' @param rotate numeric label rotation in degrees. Default: 45.
-#' @param echarts_params list, selective overrides of the style constants
-#'   (see [get_SMC_echarts_default_parameters()]).
-#' @return The modified `echarts4r` chart.
-#' @export e_smc_x_category
-e_smc_x_category <- function(e, rotate = 45, echarts_params = list()) {
-  label <- list(rotate = rotate)
-  if (rotate == 45) {
-    label$fontSize <- get_param(echarts_params, "category_fontsize_rotated", 10)
-  }
-  echarts4r::e_x_axis(
-    e,
-    boundaryGap = FALSE,
-    axisLine = list(show = TRUE),
-    axisLabel = label
-  )
-}
+# Auch e_smc_x_category gibt es nicht mehr: Kategorie-Achsen zeigen die
+# Achsenlinie per ECharts-Default (nur value-Achsen verstecken sie seit
+# v5), boundaryGap bleibt auf seinem Kategorie-Default TRUE (halbes Band
+# Randabstand; FALSE nur noch als bewusste Ausnahme fuer den alten
+# Kante-an-Kante-Look), und der Rest ist ein nativer Einzeiler
+# (Stilkonstanten rotate 45 / fontSize 10 im echarts-style-Skill):
+#   e_x_axis(axisLabel = list(rotate = 45, fontSize = 10))
+# Kategorie-Werte muessen eindeutig sein (Kalenderwochen ueber
+# format_SMC_kalenderwoche(), sonst springen Linien quer durchs Diagramm).
 
 #' e_smc_tooltip
 #'
-#' Axis-trigger tooltip in the SMC style with German formatting: a bold
-#' header (date for time axes, category label otherwise) and one line per
-#' series with de-DE number formatting ("1.234,5"). Null values — gaps in
-#' pivoted series — are skipped.
+#' Tooltip in the SMC style with German formatting: a bold header (date for
+#' time axes, category label otherwise) and one value line per series with
+#' de-DE number formatting ("1.234,5"). Null values -- gaps in pivoted
+#' series -- are skipped. With the default `trigger = "axis"` the tooltip
+#' lists every series at the hovered x position; `trigger = "item"` shows
+#' only the hovered data point.
 #'
 #' @param e an `echarts4r` chart.
 #' @param unit character appended to each value, e.g. `" %"` or `" GWh/d"`.
 #'   Default: `""`.
-#' @param digits integer number of decimal places. Default: 1.
+#' @param digits integer number of decimal places for non-integer values --
+#'   numbers follow [format_SMC_number()]: comma as decimal mark, a narrow
+#'   HTML space as thousands separator, whole numbers without decimals.
+#'   Default: 1.
 #' @param axis_type `"time"` (header is a German date) or `"category"`
 #'   (header is the category label). Default: `"time"`.
 #' @param show_year logical, include the year in the date header (time axes
-#'   only, `granularity = "day"` only — at `granularity = "year"` the year
+#'   only, `granularity = "day"` only -- at `granularity = "year"` the year
 #'   is always shown). Default: `TRUE`.
-#' @param granularity `"day"` (date header "1. Mär '24") or `"year"` (header
-#'   is just the year, e.g. "1950") — time axes only, matches the
-#'   `granularity` used on the paired [e_smc_x_time()] axis. Default:
-#'   `"day"`.
+#' @param granularity `"day"` (date header "1. Jan 2024") or `"year"`
+#'   (header is just the year, e.g. "1950") -- time axes only, matching the
+#'   label granularity of the x axis. Default: `"day"`.
+#' @param snap logical: add a vertical axis-pointer line that snaps to the
+#'   nearest data point instead of following the mouse -- visible feedback
+#'   for which day is selected on dense time axes. This must be set here
+#'   rather than via a second [echarts4r::e_tooltip()] call, which would
+#'   reset `trigger` and `formatter` to their defaults. Only meaningful
+#'   with `trigger = "axis"` (ignored with a warning otherwise).
+#'   Default: `FALSE`.
+#' @param trigger `"axis"` (default) or `"item"`: `"item"` shows a tooltip
+#'   for the hovered data point only -- for charts where many series overlap
+#'   at the same x position (e.g. year-over-year overlays on a common
+#'   reference year). The header then comes from the point's own x value
+#'   instead of the axis position; on overlay charts combine this with
+#'   `show_year = FALSE` so the artificial reference year stays hidden (the
+#'   real year is the series name in the value line). Note that ECharts
+#'   fires item tooltips only on rendered symbols, not on the bare line --
+#'   keep symbols visible or give them `itemStyle = list(opacity = 0)`.
 #' @return The modified `echarts4r` chart.
 #' @export e_smc_tooltip
 e_smc_tooltip <- function(
@@ -468,41 +442,80 @@ e_smc_tooltip <- function(
   digits = 1,
   axis_type = c("time", "category"),
   show_year = TRUE,
-  granularity = c("day", "year")
+  granularity = c("day", "year"),
+  snap = FALSE,
+  trigger = c("axis", "item")
 ) {
   axis_type <- match.arg(axis_type)
   granularity <- match.arg(granularity)
+  trigger <- match.arg(trigger)
 
-  kopf <- if (axis_type == "time" && granularity == "year") {
-    "var d = new Date(params[0].axisValue);
-    var kopf = d.getFullYear();"
+  vorlage <- if (granularity == "year") {
+    "{yyyy}"
+  } else if (show_year) {
+    "{d}. {MMM} {yyyy}"
+  } else {
+    "{d}. {MMM}"
+  }
+  # Datums-Kopf ueber echarts.time.format mit der 'DE'-Locale des Pakets
+  # (registriert durch das von e_smc_style() angehaengte Asset; ohne
+  # Registrierung faellt ECharts still auf englische Monatsnamen zurueck).
+  # echarts.time.format ist exportiert, aber in der offiziellen API-Doku
+  # komplett undokumentiert; die Signatur inkl. viertem lang-Parameter ist
+  # seit ECharts 5 stabil und im gebuendelten ECharts 6 verifiziert.
+  #
+  # Beim axis-Trigger kommt der Kopf aus der Achsenposition (axisValue);
+  # beim item-Trigger gibt es kein axisValue -- der Kopf kommt aus dem
+  # x-Wert des Datenpunkts selbst. echarts.time.format parst dessen
+  # 'JJJJ-MM-TT'-String lokal und ist damit zeitzonensicher (anders als
+  # new Date() + lokale Getter, siehe echarts-style-Skill).
+  kopf_wert <- if (trigger == "axis") {
+    "params[0].axisValue"
   } else if (axis_type == "time") {
+    "(Array.isArray(params[0].value) ? params[0].value[0] : params[0].value)"
+  } else {
+    "params[0].name"
+  }
+  kopf <- if (axis_type == "time") {
     sprintf(
-      "var monate = %s;
-      var d = new Date(params[0].axisValue);
-      var kopf = d.getDate() + '. ' + monate[d.getMonth()]%s;",
-      js_smc_monate,
-      if (show_year) " + ' ' + d.getFullYear()" else ""
+      "var kopf = echarts.time.format(%s, '%s', false, 'DE');",
+      kopf_wert,
+      vorlage
     )
   } else {
-    "var kopf = params[0].axisValue;"
+    sprintf("var kopf = %s;", kopf_wert)
   }
 
-  echarts4r::e_tooltip(
+  args <- list(
     e,
-    trigger = "axis",
+    trigger = trigger,
     formatter = htmlwidgets::JS(sprintf(
       "function(params) {
+        if (!Array.isArray(params)) { params = [params]; }
         if (!params.length) { return ''; }
         %s
         var zeilen = ['<b>' + kopf + '</b>'];
         %s
+        // Nur die Kopfzeile (alle Serien an dieser Stelle null) -> gar kein
+        // Tooltip statt einer leeren Box mit blossem Datum/Kategorie-Kopf
+        if (zeilen.length === 1) { return ''; }
         return zeilen.join('<br/>');
       }",
       kopf,
       js_smc_tooltip_zeilen(unit, digits)
     ))
   )
+  if (snap) {
+    if (trigger == "item") {
+      warning(
+        "`snap` only applies to trigger = \"axis\" and is ignored ",
+        "for item tooltips."
+      )
+    } else {
+      args$axisPointer <- list(type = "line", snap = TRUE)
+    }
+  }
+  do.call(echarts4r::e_tooltip, args)
 }
 
 #' e_smc_placeholder
@@ -513,17 +526,17 @@ e_smc_tooltip <- function(
 #'
 #' Implementation note: `echarts4r::e_charts()` without data emits a `yAxis`
 #' without an `xAxis`, which crashes ECharts at render time (`axisBuilder`
-#' error) — the placeholder therefore removes the coordinate system
+#' error) -- the placeholder therefore removes the coordinate system
 #' entirely.
 #'
-#' @param message character message shown in the chart center. Default:
-#'   `"Daten derzeit nicht verfügbar"`.
+#' @param message character message shown in the chart center. Defaults to a
+#'   German "data currently unavailable" notice (see Usage).
 #' @param echarts_params list, selective overrides of the style constants
 #'   (see [get_SMC_echarts_default_parameters()]).
 #' @return An `echarts4r` chart.
 #' @export e_smc_placeholder
 e_smc_placeholder <- function(
-  message = "Daten derzeit nicht verfügbar",
+  message = "Daten derzeit nicht verf\u00fcgbar",
   echarts_params = list()
 ) {
   e <- echarts4r::e_charts() |>
@@ -550,7 +563,7 @@ e_smc_placeholder <- function(
 
 #' get_SMC_echarts_default_parameters
 #'
-#' Returns the style constants used by the `e_smc_*` functions — the SMC
+#' Returns the style constants used by the `e_smc_*` functions -- the SMC
 #' ECharts style standard as data. Modify entries selectively and pass the
 #' list to the respective function via its `echarts_params` argument
 #' (analogous to [get_SMC_ggplotly_default_parameters()] /
@@ -562,19 +575,17 @@ e_smc_placeholder <- function(
 #'
 #' @return List of default parameters for the `e_smc_*` functions:
 #' * `grid_top`, `grid_top_per_title_line`, `grid_left`, `grid_right`,
-#'   `grid_bottom_legend`, `grid_bottom_no_legend` — grid geometry in px
+#'   `grid_bottom_legend`, `grid_bottom_no_legend` -- grid geometry in px
 #'   ([e_smc_style()]).
-#' * `y_name_gap`, `percent_interval` — y axis ([e_smc_y_percent()]).
-#' * `category_fontsize_rotated` — rotated category labels
-#'   ([e_smc_x_category()]).
-#' * `placeholder_color`, `placeholder_font_weight` —
+#' * `y_name_gap`, `percent_interval` -- y axis ([e_smc_y_percent()]).
+#' * `placeholder_color`, `placeholder_font_weight` --
 #'   ([e_smc_placeholder()]).
 #' @examples
 #' get_SMC_echarts_default_parameters()
 #' @export get_SMC_echarts_default_parameters
 get_SMC_echarts_default_parameters <- function() {
   list(
-    # grid (px) — top grows per additional title line
+    # grid (px) -- top grows per additional title line
     grid_top = 50,
     grid_top_per_title_line = 25,
     grid_left = 80,
@@ -586,29 +597,8 @@ get_SMC_echarts_default_parameters <- function() {
     y_name_gap = 50,
     percent_interval = 20,
 
-    # category x axis (only applied when rotate = 45)
-    category_fontsize_rotated = 10,
-
     # placeholder chart
     placeholder_color = colors_SMC("grey"),
     placeholder_font_weight = "normal"
   )
-}
-
-#' format_SMC_kalenderwoche
-#'
-#' Format dates as German calendar-week labels ("KW 05, 2026") using the ISO
-#' week AND the ISO week-based year (`%G`, not `%Y`). With the calendar year
-#' the labels collide at year boundaries — e.g. 2024-12-30 is ISO week 1 of
-#' 2025 but `%Y` labels it "KW 01, 2024", the same as 2024-01-01. Harmless
-#' as tooltip text, fatal as (category) axis values, where duplicate labels
-#' make lines jump across the chart.
-#'
-#' @param x a `Date` (or date-time) vector.
-#' @return Character vector of labels like `"KW 01, 2025"`.
-#' @examples
-#' format_SMC_kalenderwoche(as.Date("2024-12-30")) # "KW 01, 2025", nicht 2024
-#' @export format_SMC_kalenderwoche
-format_SMC_kalenderwoche <- function(x) {
-  strftime(x, format = "KW %V, %G")
 }

@@ -18,7 +18,7 @@ e_smc_vline(
 \arguments{
 \item{e}{an \code{echarts4r} chart.}
 
-\item{x}{x position of the line — a \code{Date} on a time axis.}
+\item{x}{x position of the line -- a \code{Date} on a time axis.}
 
 \item{opacity}{numeric line opacity. Default: 0.5.}
 
@@ -44,6 +44,6 @@ marker on a time axis, or a target date.
 }
 \details{
 Calling \code{e_smc_hline()}/\code{e_smc_vline()} more than once on the same chart
-is safe — each call's own \code{color}/\code{opacity}/\code{type}/\code{label} is preserved
+is safe -- each call's own \code{color}/\code{opacity}/\code{type}/\code{label} is preserved
 regardless of how many reference lines already exist.
 }

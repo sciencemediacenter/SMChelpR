@@ -10,17 +10,15 @@ get_SMC_echarts_default_parameters()
 List of default parameters for the \verb{e_smc_*} functions:
 \itemize{
 \item \code{grid_top}, \code{grid_top_per_title_line}, \code{grid_left}, \code{grid_right},
-\code{grid_bottom_legend}, \code{grid_bottom_no_legend} — grid geometry in px
+\code{grid_bottom_legend}, \code{grid_bottom_no_legend} -- grid geometry in px
 (\code{\link[=e_smc_style]{e_smc_style()}}).
-\item \code{y_name_gap}, \code{percent_interval} — y axis (\code{\link[=e_smc_y_percent]{e_smc_y_percent()}}).
-\item \code{category_fontsize_rotated} — rotated category labels
-(\code{\link[=e_smc_x_category]{e_smc_x_category()}}).
-\item \code{placeholder_color}, \code{placeholder_font_weight} —
+\item \code{y_name_gap}, \code{percent_interval} -- y axis (\code{\link[=e_smc_y_percent]{e_smc_y_percent()}}).
+\item \code{placeholder_color}, \code{placeholder_font_weight} --
 (\code{\link[=e_smc_placeholder]{e_smc_placeholder()}}).
 }
 }
 \description{
-Returns the style constants used by the \verb{e_smc_*} functions — the SMC
+Returns the style constants used by the \verb{e_smc_*} functions -- the SMC
 ECharts style standard as data. Modify entries selectively and pass the
 list to the respective function via its \code{echarts_params} argument
 (analogous to \code{\link[=get_SMC_ggplotly_default_parameters]{get_SMC_ggplotly_default_parameters()}} /
